@@ -32,10 +32,8 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => AuthCubit(
-        signIn: getIt(),
-        sessionCubit: getIt<SessionCubit>(),
-      ),
+      create: (_) =>
+          AuthCubit(signIn: getIt(), sessionCubit: getIt<SessionCubit>()),
       child: const _LoginForm(),
     );
   }
