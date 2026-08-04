@@ -13,10 +13,8 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => AuthCubit(
-        signIn: getIt(),
-        sessionCubit: getIt<SessionCubit>(),
-      ),
+      create: (_) =>
+          AuthCubit(signIn: getIt(), sessionCubit: getIt<SessionCubit>()),
       child: const _LoginForm(),
     );
   }
@@ -52,85 +50,24 @@ class _LoginFormState extends State<_LoginForm> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Scaffold(
       body: SafeArea(
-        child: BlocListener<AuthCubit, AuthState>(
-          listener: (context, state) {
-            if (state case AuthLoginFailure(:final failure)) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(authFailureMessage(failure))),
-              );
-            }
-          },
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Form(
-                key: _formKey,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: size.width * 0.64,
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
-                      'Ciro Fuel',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 32),
-                    TextFormField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      autofillHints: const [AutofillHints.email],
-                      decoration: const InputDecoration(labelText: 'Email'),
-                      validator: (value) => (value == null || value.isEmpty)
-                          ? 'Enter your email'
-                          : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      autofillHints: const [AutofillHints.password],
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
-                          ),
-                          onPressed: () => setState(
-                            () => _obscurePassword = !_obscurePassword,
-                          ),
-                        ),
-                      ),
-                      validator: (value) => (value == null || value.isEmpty)
-                          ? 'Enter your password'
-                          : null,
-                      onFieldSubmitted: (_) => _submit(context),
-                    ),
-                    const SizedBox(height: 24),
-                    BlocBuilder<AuthCubit, AuthState>(
-                      builder: (context, state) {
-                        final isSubmitting = state is AuthSubmitting;
-                        return FilledButton(
-                          onPressed: isSubmitting ? null : () => _submit(context),
-                          child: isSubmitting
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Text('Sign in'),
-                        );
-                      },
-                    ),
+                    Image.asset('assets/images/logo/login_full_logo.jpeg'),
                   ],
                 ),
               ),
-            ),
+              Text(),
+            ],
           ),
         ),
       ),

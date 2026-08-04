@@ -47,3 +47,4 @@ app.*.map.json
 # Local secrets — never committed (Google Maps keys, etc.)
 /android/local.properties
 /ios/Flutter/Secrets.xcconfig
+.env
