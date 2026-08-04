@@ -20,7 +20,11 @@ class App extends StatelessWidget {
       child: MaterialApp.router(
         title: 'Ciro Fuel',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(colorSchemeSeed: Colors.indigo, useMaterial3: true),
+        theme: ThemeData(
+          colorSchemeSeed: Colors.indigo,
+          useMaterial3: true,
+          fontFamily: 'Tajawal',
+        ),
         routerConfig: getIt<AppRouter>().config,
         builder: (context, child) => NotificationBannerPresenter(
           child: child ?? const SizedBox.shrink(),
