@@ -42,9 +42,14 @@ void main() {
           () => repository.signIn(email: 'jane@ciro.fuel', password: 'secret'),
         ).thenAnswer((_) async => const Right(user));
       },
-      build: () => AuthCubit(signIn: signIn, sessionCubit: sessionCubit),
-      act: (cubit) =>
-          cubit.submit(email: 'jane@ciro.fuel', password: 'secret'),
+      // devBypass off: these cover the real /auth/login path, independent of
+      // the kDevLoginBypass default used while the backend is unavailable.
+      build: () => AuthCubit(
+        signIn: signIn,
+        sessionCubit: sessionCubit,
+        devBypass: false,
+      ),
+      act: (cubit) => cubit.submit(email: 'jane@ciro.fuel', password: 'secret'),
       expect: () => const [AuthState.submitting(), AuthState.success()],
       verify: (_) {
         expect(sessionCubit.state, isA<SessionAuthenticated>());
@@ -59,7 +64,13 @@ void main() {
           () => repository.signIn(email: 'jane@ciro.fuel', password: 'wrong'),
         ).thenAnswer((_) async => const Left(Failure.auth()));
       },
-      build: () => AuthCubit(signIn: signIn, sessionCubit: sessionCubit),
+      // devBypass off: these cover the real /auth/login path, independent of
+      // the kDevLoginBypass default used while the backend is unavailable.
+      build: () => AuthCubit(
+        signIn: signIn,
+        sessionCubit: sessionCubit,
+        devBypass: false,
+      ),
       act: (cubit) => cubit.submit(email: 'jane@ciro.fuel', password: 'wrong'),
       expect: () => const [
         AuthState.submitting(),

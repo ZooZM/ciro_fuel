@@ -11,6 +11,6 @@ void main() {
     WidgetsFlutterBinding.ensureInitialized();
     Bloc.observer = const AppBlocObserver();
     await configureDependencies();
-    runApp(const App());
+     runApp(const App());
   });
 }

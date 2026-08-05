@@ -171,10 +171,7 @@ Future<void> _registerAuthFeature() async {
     () => AuthRemoteDataSourceImpl(dio),
   );
   getIt.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(
-      remoteDataSource: getIt(),
-      tokenStore: tokenStore,
-    ),
+    () => AuthRepositoryImpl(remoteDataSource: getIt(), tokenStore: tokenStore),
   );
   getIt.registerLazySingleton(() => SignIn(getIt()));
   getIt.registerLazySingleton(() => RestoreSession(getIt()));
@@ -185,5 +182,11 @@ Future<void> _registerAuthFeature() async {
   // user. No "expired" reason is shown here — that copy is reserved for a
   // genuine mid-session expiry surfaced via AuthInterceptor's callback.
   final result = await getIt<RestoreSession>()();
-  result.fold((_) => sessionCubit.signOut(), sessionCubit.authenticate);
+  result.fold(
+    // No stored session (or no backend yet): land on the login screen. The
+    // matching dev bypass now lives in AuthCubit.submit, so signing in is a
+    // deliberate tap rather than something that happens at launch.
+    (_) => sessionCubit.signOut(),
+    sessionCubit.authenticate,
+  );
 }

@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/injector.dart';
+import '../../../../core/router/app_routes.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_failure_message.dart';
 import '../cubit/auth_state.dart';
 import '../cubit/session_cubit.dart';
 
-const _kBackgroundImage = 'assets/sign in/background .jpg';
-const _kLogo = 'assets/logo/Logo.svg';
-const _kFaceId = 'assets/biometric/Face ID.svg';
-const _kWave = 'assets/sign in/Wave.svg';
-const _kPhoneIcon = 'assets/icons/phone.svg';
-const _kLockIcon = 'assets/icons/locked.svg';
-const _kShieldIcon = 'assets/icons/protection.svg';
-const _kHeadsetIcon = 'assets/icons/customer service.svg';
-const _kAppleIcon = 'assets/social media/apple.svg';
-const _kGoogleIcon = 'assets/social media/google.svg';
+const _kBackgroundImage = 'assets/SignIn/background .jpg';
+const _kLogo = 'assets/Logo/Logo.svg';
+const _kFaceId = 'assets/Biometric/Face ID.svg';
+const _kWave = 'assets/SignIn/Wave.svg';
+const _kPhoneIcon = 'assets/Icons/phone.svg';
+const _kLockIcon = 'assets/Icons/locked.svg';
+const _kShieldIcon = 'assets/Icons/protection.svg';
+const _kHeadsetIcon = 'assets/Icons/customer service.svg';
+const _kAppleIcon = 'assets/Social Media/apple.svg';
+const _kGoogleIcon = 'assets/Social Media/google.svg';
 
 const _kBlue = Color(0xFF1E5FFF);
 const _kGreen = Color(0xFF17A34A);
@@ -212,20 +214,26 @@ class _HeaderContent extends StatelessWidget {
           child: Align(alignment: Alignment.topLeft, child: _LanguagePill()),
         ),
         const SizedBox(height: 16),
-        SvgPicture.asset(_kLogo, width: 150),
-        const SizedBox(height: 2),
-        const Text.rich(
-          TextSpan(
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 8,
+        Row(
+          textDirection: TextDirection.ltr,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SvgPicture.asset(_kLogo, width: 110),
+            const SizedBox(width: 8),
+            const Text.rich(
+              TextSpan(
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 4,
+                ),
+                children: [
+                  TextSpan(text: 'F', style: TextStyle(color: _kGreen)),
+                  TextSpan(text: 'UEL', style: TextStyle(color: _kBlue)),
+                ],
+              ),
             ),
-            children: [
-              TextSpan(text: 'F', style: TextStyle(color: _kGreen)),
-              TextSpan(text: ' U E L', style: TextStyle(color: _kBlue)),
-            ],
-          ),
+          ],
         ),
         const SizedBox(height: 10),
         const Text.rich(
@@ -314,8 +322,8 @@ class _PhoneField extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: _kBlue),
         ),
-        suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-        suffixIcon: Padding(
+        prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+        prefixIcon: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Row(
             textDirection: TextDirection.ltr,
@@ -541,6 +549,7 @@ class _SocialButton extends StatelessWidget {
         style: OutlinedButton.styleFrom(
           backgroundColor: Colors.white,
           side: const BorderSide(color: _kBorder),
+          padding: const EdgeInsets.symmetric(horizontal: 4),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         ),
         child: Row(
@@ -549,7 +558,13 @@ class _SocialButton extends StatelessWidget {
           children: [
             icon,
             const SizedBox(width: 8),
-            Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: _kNavy)),
+            Flexible(
+              child: Text(
+                label,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: _kNavy),
+              ),
+            ),
           ],
         ),
       ),
@@ -576,17 +591,20 @@ class _FooterInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Row(
-          textDirection: TextDirection.ltr,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SvgPicture.asset(_kHeadsetIcon, width: 14, height: 14, colorFilter: const ColorFilter.mode(_kBlue, BlendMode.srcIn)),
-            const SizedBox(width: 6),
-            const Text(
-              'الدعم و المساعدة',
-              style: TextStyle(fontSize: 11.5, color: _kGrey, fontWeight: FontWeight.w600),
-            ),
-          ],
+        GestureDetector(
+          onTap: () => context.push(AppRoutes.support),
+          child: Row(
+            textDirection: TextDirection.ltr,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset(_kHeadsetIcon, width: 14, height: 14, colorFilter: const ColorFilter.mode(_kBlue, BlendMode.srcIn)),
+              const SizedBox(width: 6),
+              const Text(
+                'الدعم و المساعدة',
+                style: TextStyle(fontSize: 11.5, color: _kGrey, fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: 8),
         Row(
@@ -595,9 +613,12 @@ class _FooterInfo extends StatelessWidget {
           children: [
             SvgPicture.asset(_kShieldIcon, width: 13, height: 13, colorFilter: const ColorFilter.mode(_kBlue, BlendMode.srcIn)),
             const SizedBox(width: 6),
-            const Text(
-              'اتصال آمن و مشفر وفق أعلى معايير الحماية',
-              style: TextStyle(fontSize: 10.5, color: _kGrey),
+            const Flexible(
+              child: Text(
+                'اتصال آمن و مشفر وفق أعلى معايير الحماية',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 10.5, color: _kGrey),
+              ),
             ),
           ],
         ),
