@@ -9,8 +9,9 @@ import '../models/login_response_model.dart';
 /// second, repository-level refresh path would risk two independent
 /// refresh flows racing each other.
 abstract interface class AuthRemoteDataSource {
+  /// [phone] is an E.164 identifier (e.g. `+9665XXXXXXX`).
   Future<LoginResponseModel> login({
-    required String email,
+    required String phone,
     required String password,
   });
 
@@ -24,12 +25,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<LoginResponseModel> login({
-    required String email,
+    required String phone,
     required String password,
   }) async {
     final response = await _dio.post<Map<String, dynamic>>(
       '/auth/login',
-      data: {'email': email, 'password': password},
+      data: {'phone': phone, 'password': password},
       options: Options(extra: {RequestExtraKeys.skipAuth: true}),
     );
     return LoginResponseModel.fromJson(response.data!);

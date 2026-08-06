@@ -8,7 +8,8 @@ abstract interface class NotificationsRemoteDataSource {
   Future<void> markRead(String id);
 }
 
-class NotificationsRemoteDataSourceImpl implements NotificationsRemoteDataSource {
+class NotificationsRemoteDataSourceImpl
+    implements NotificationsRemoteDataSource {
   NotificationsRemoteDataSourceImpl(this._dio);
 
   final Dio _dio;

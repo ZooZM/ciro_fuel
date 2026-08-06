@@ -11,7 +11,9 @@ import 'package:mobile_app/core/network/auth_interceptor.dart';
 import 'package:mobile_app/core/network/error_interceptor.dart';
 import 'package:mobile_app/core/network/token_store.dart';
 import 'package:mobile_app/core/router/app_router.dart';
+import 'package:mobile_app/core/security/biometric_authenticator.dart';
 import 'package:mobile_app/features/auth/data/datasources/auth_remote_data_source.dart';
+import 'package:mobile_app/features/auth/data/datasources/login_preferences_store.dart';
 import 'package:mobile_app/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:mobile_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:mobile_app/features/auth/domain/usecases/restore_session.dart';
@@ -19,6 +21,8 @@ import 'package:mobile_app/features/auth/domain/usecases/sign_in.dart';
 import 'package:mobile_app/features/auth/domain/usecases/sign_out.dart';
 import 'package:mobile_app/features/auth/presentation/cubit/session_cubit.dart';
 import 'package:mobile_app/features/auth/presentation/cubit/session_state.dart';
+import 'package:mobile_app/features/auth/presentation/widgets/password_field.dart';
+import 'package:mobile_app/features/auth/presentation/widgets/phone_field.dart';
 import 'package:mobile_app/features/orders/data/datasources/orders_remote_data_source.dart';
 import 'package:mobile_app/features/orders/data/repositories/orders_repository_impl.dart';
 import 'package:mobile_app/features/orders/domain/usecases/get_orders.dart';
@@ -51,7 +55,9 @@ class _Harness {
           refreshDio: refreshDio,
           onSessionExpired: () async {
             await tokenStore.clear();
-            sessionCubit.signOut(reason: 'Your session has expired. Please sign in again.');
+            sessionCubit.signOut(
+              reason: 'Your session has expired. Please sign in again.',
+            );
           },
         ),
         ErrorInterceptor(),
@@ -71,7 +77,9 @@ class _Harness {
     // test's concern, but it must exist for that screen to build at all;
     // wiring it through the same scripted Dio is simplest (a 404 here is a
     // fine, harmless outcome for an auth-focused test).
-    final ordersRepository = OrdersRepositoryImpl(OrdersRemoteDataSourceImpl(dio));
+    final ordersRepository = OrdersRepositoryImpl(
+      OrdersRemoteDataSourceImpl(dio),
+    );
 
     getIt
       ..registerSingleton<TokenStore>(tokenStore)
@@ -82,7 +90,13 @@ class _Harness {
       ..registerSingleton<RestoreSession>(restoreSession)
       ..registerSingleton<SignOut>(SignOut(authRepository))
       ..registerSingleton<AppRouter>(router)
-      ..registerSingleton<GetOrders>(GetOrders(ordersRepository));
+      ..registerSingleton<GetOrders>(GetOrders(ordersRepository))
+      // LoginScreen resolves both when building its cubits. The real
+      // classes are used: the preferences store rides the same fake secure
+      // storage, and the biometric probe degrades to "unavailable" when the
+      // plugin is absent — which it always is under flutter_test.
+      ..registerSingleton<LoginPreferencesStore>(LoginPreferencesStore())
+      ..registerSingleton<BiometricAuthenticator>(BiometricAuthenticator());
   }
 
   final Map<String, String> backingStorage;
@@ -136,7 +150,11 @@ class _ScriptedAdapter implements HttpClientAdapter {
     if (options.path.contains('/auth/refresh')) {
       refreshCallCount++;
       if (refreshShouldFail) {
-        return ResponseBody.fromString('{"message":"invalid"}', 401, headers: headers);
+        return ResponseBody.fromString(
+          '{"message":"invalid"}',
+          401,
+          headers: headers,
+        );
       }
       currentValidToken = 'token-2';
       return ResponseBody.fromString(
@@ -155,10 +173,18 @@ class _ScriptedAdapter implements HttpClientAdapter {
           headers: headers,
         );
       }
-      return ResponseBody.fromString('{"message":"unauthorized"}', 401, headers: headers);
+      return ResponseBody.fromString(
+        '{"message":"unauthorized"}',
+        401,
+        headers: headers,
+      );
     }
 
-    return ResponseBody.fromString('{"message":"not found"}', 404, headers: headers);
+    return ResponseBody.fromString(
+      '{"message":"not found"}',
+      404,
+      headers: headers,
+    );
   }
 
   @override
@@ -172,7 +198,10 @@ void main() {
     backingStorage = {};
     final storagePlatform = _FakeSecureStoragePlatform();
     when(
-      () => storagePlatform.read(key: any(named: 'key'), options: any(named: 'options')),
+      () => storagePlatform.read(
+        key: any(named: 'key'),
+        options: any(named: 'options'),
+      ),
     ).thenAnswer((i) async => backingStorage[i.namedArguments[#key] as String]);
     when(
       () => storagePlatform.write(
@@ -181,11 +210,17 @@ void main() {
         options: any(named: 'options'),
       ),
     ).thenAnswer((i) async {
-      backingStorage[i.namedArguments[#key] as String] = i.namedArguments[#value] as String;
+      backingStorage[i.namedArguments[#key] as String] =
+          i.namedArguments[#value] as String;
     });
     when(
-      () => storagePlatform.delete(key: any(named: 'key'), options: any(named: 'options')),
-    ).thenAnswer((i) async => backingStorage.remove(i.namedArguments[#key] as String));
+      () => storagePlatform.delete(
+        key: any(named: 'key'),
+        options: any(named: 'options'),
+      ),
+    ).thenAnswer(
+      (i) async => backingStorage.remove(i.namedArguments[#key] as String),
+    );
     FlutterSecureStoragePlatform.instance = storagePlatform;
   });
 
@@ -207,9 +242,14 @@ void main() {
       await tester.pumpWidget(harness.buildApp());
       await tester.pumpAndSettle();
 
-      expect(find.byType(TextFormField), findsNWidgets(2)); // real login screen: email + password
+      // The real login screen is up, with both credential inputs. Asserted
+      // by type rather than by counting TextFormFields: PhoneField composes
+      // a FormField around a bare TextField so it can draw its caption
+      // inside the box.
+      expect(find.byType(PhoneField), findsOneWidget);
+      expect(find.byType(PasswordField), findsOneWidget);
       final signInResult = await tester.runAsync(
-        () => harness.signIn(email: 'jane@ciro.fuel', password: 'secret'),
+        () => harness.signIn(phone: '+966512345678', password: 'secret'),
       );
       signInResult!.fold(
         (_) => fail('sign-in should succeed'),
@@ -227,10 +267,15 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(harness.sessionCubit.state, isA<SessionAuthenticated>());
-      expect(harness.router.config.routerDelegate.currentConfiguration.uri.toString(), '/client');
+      expect(
+        harness.router.config.routerDelegate.currentConfiguration.uri
+            .toString(),
+        '/client',
+      );
 
       // --- Token expiry mid-session: transparent renewal, exactly one refresh ---
-      harness.adapter.currentValidToken = 'token-2'; // server now only accepts a renewed token
+      harness.adapter.currentValidToken =
+          'token-2'; // server now only accepts a renewed token
       final meAfterExpiry = await tester.runAsync(
         () => harness.dio.get<dynamic>('/auth/me'),
       );
@@ -241,7 +286,8 @@ void main() {
 
       // --- Revoked refresh token: single redirect to login ---
       harness.adapter.refreshShouldFail = true;
-      harness.adapter.currentValidToken = 'token-3'; // no token this client holds will validate
+      harness.adapter.currentValidToken =
+          'token-3'; // no token this client holds will validate
       await tester.runAsync(() async {
         await expectLater(
           harness.dio.get<dynamic>('/auth/me'),
@@ -252,7 +298,11 @@ void main() {
 
       expect(harness.sessionCubit.state, isA<SessionUnauthenticated>());
       expect(await harness.tokenStore.accessToken, isNull);
-      expect(harness.router.config.routerDelegate.currentConfiguration.uri.toString(), '/login');
+      expect(
+        harness.router.config.routerDelegate.currentConfiguration.uri
+            .toString(),
+        '/login',
+      );
     },
   );
 }

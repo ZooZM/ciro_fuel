@@ -55,14 +55,15 @@ extension AuthStatePatterns on AuthState {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( AuthIdle value)?  idle,TResult Function( AuthSubmitting value)?  submitting,TResult Function( AuthLoginSuccess value)?  success,TResult Function( AuthLoginFailure value)?  failure,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( AuthIdle value)?  idle,TResult Function( AuthSubmitting value)?  submitting,TResult Function( AuthLoginSuccess value)?  success,TResult Function( AuthLoginFailure value)?  failure,TResult Function( AuthLoginError value)?  error,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case AuthIdle() when idle != null:
 return idle(_that);case AuthSubmitting() when submitting != null:
 return submitting(_that);case AuthLoginSuccess() when success != null:
 return success(_that);case AuthLoginFailure() when failure != null:
-return failure(_that);case _:
+return failure(_that);case AuthLoginError() when error != null:
+return error(_that);case _:
   return orElse();
 
 }
@@ -80,14 +81,15 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( AuthIdle value)  idle,required TResult Function( AuthSubmitting value)  submitting,required TResult Function( AuthLoginSuccess value)  success,required TResult Function( AuthLoginFailure value)  failure,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( AuthIdle value)  idle,required TResult Function( AuthSubmitting value)  submitting,required TResult Function( AuthLoginSuccess value)  success,required TResult Function( AuthLoginFailure value)  failure,required TResult Function( AuthLoginError value)  error,}){
 final _that = this;
 switch (_that) {
 case AuthIdle():
 return idle(_that);case AuthSubmitting():
 return submitting(_that);case AuthLoginSuccess():
 return success(_that);case AuthLoginFailure():
-return failure(_that);}
+return failure(_that);case AuthLoginError():
+return error(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -101,14 +103,15 @@ return failure(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( AuthIdle value)?  idle,TResult? Function( AuthSubmitting value)?  submitting,TResult? Function( AuthLoginSuccess value)?  success,TResult? Function( AuthLoginFailure value)?  failure,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( AuthIdle value)?  idle,TResult? Function( AuthSubmitting value)?  submitting,TResult? Function( AuthLoginSuccess value)?  success,TResult? Function( AuthLoginFailure value)?  failure,TResult? Function( AuthLoginError value)?  error,}){
 final _that = this;
 switch (_that) {
 case AuthIdle() when idle != null:
 return idle(_that);case AuthSubmitting() when submitting != null:
 return submitting(_that);case AuthLoginSuccess() when success != null:
 return success(_that);case AuthLoginFailure() when failure != null:
-return failure(_that);case _:
+return failure(_that);case AuthLoginError() when error != null:
+return error(_that);case _:
   return null;
 
 }
@@ -125,13 +128,14 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  idle,TResult Function()?  submitting,TResult Function()?  success,TResult Function( Failure failure)?  failure,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  idle,TResult Function()?  submitting,TResult Function()?  success,TResult Function( Failure failure)?  failure,TResult Function( String messageKey)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case AuthIdle() when idle != null:
 return idle();case AuthSubmitting() when submitting != null:
 return submitting();case AuthLoginSuccess() when success != null:
 return success();case AuthLoginFailure() when failure != null:
-return failure(_that.failure);case _:
+return failure(_that.failure);case AuthLoginError() when error != null:
+return error(_that.messageKey);case _:
   return orElse();
 
 }
@@ -149,13 +153,14 @@ return failure(_that.failure);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  idle,required TResult Function()  submitting,required TResult Function()  success,required TResult Function( Failure failure)  failure,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  idle,required TResult Function()  submitting,required TResult Function()  success,required TResult Function( Failure failure)  failure,required TResult Function( String messageKey)  error,}) {final _that = this;
 switch (_that) {
 case AuthIdle():
 return idle();case AuthSubmitting():
 return submitting();case AuthLoginSuccess():
 return success();case AuthLoginFailure():
-return failure(_that.failure);}
+return failure(_that.failure);case AuthLoginError():
+return error(_that.messageKey);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -169,13 +174,14 @@ return failure(_that.failure);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  idle,TResult? Function()?  submitting,TResult? Function()?  success,TResult? Function( Failure failure)?  failure,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  idle,TResult? Function()?  submitting,TResult? Function()?  success,TResult? Function( Failure failure)?  failure,TResult? Function( String messageKey)?  error,}) {final _that = this;
 switch (_that) {
 case AuthIdle() when idle != null:
 return idle();case AuthSubmitting() when submitting != null:
 return submitting();case AuthLoginSuccess() when success != null:
 return success();case AuthLoginFailure() when failure != null:
-return failure(_that.failure);case _:
+return failure(_that.failure);case AuthLoginError() when error != null:
+return error(_that.messageKey);case _:
   return null;
 
 }
@@ -352,6 +358,72 @@ $FailureCopyWith<$Res> get failure {
     return _then(_self.copyWith(failure: value));
   });
 }
+}
+
+/// @nodoc
+
+
+class AuthLoginError implements AuthState {
+  const AuthLoginError(this.messageKey);
+  
+
+ final  String messageKey;
+
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$AuthLoginErrorCopyWith<AuthLoginError> get copyWith => _$AuthLoginErrorCopyWithImpl<AuthLoginError>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthLoginError&&(identical(other.messageKey, messageKey) || other.messageKey == messageKey));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,messageKey);
+
+@override
+String toString() {
+  return 'AuthState.error(messageKey: $messageKey)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $AuthLoginErrorCopyWith<$Res> implements $AuthStateCopyWith<$Res> {
+  factory $AuthLoginErrorCopyWith(AuthLoginError value, $Res Function(AuthLoginError) _then) = _$AuthLoginErrorCopyWithImpl;
+@useResult
+$Res call({
+ String messageKey
+});
+
+
+
+
+}
+/// @nodoc
+class _$AuthLoginErrorCopyWithImpl<$Res>
+    implements $AuthLoginErrorCopyWith<$Res> {
+  _$AuthLoginErrorCopyWithImpl(this._self, this._then);
+
+  final AuthLoginError _self;
+  final $Res Function(AuthLoginError) _then;
+
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? messageKey = null,}) {
+  return _then(AuthLoginError(
+null == messageKey ? _self.messageKey : messageKey // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
 }
 
 // dart format on

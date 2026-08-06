@@ -12,5 +12,6 @@ sealed class OtpVerifyState with _$OtpVerifyState {
   const factory OtpVerifyState.verifying() = OtpVerifying;
   const factory OtpVerifyState.advanced(OrderStatus to) = OtpVerifyAdvanced;
   const factory OtpVerifyState.rejected() = OtpVerifyRejected;
-  const factory OtpVerifyState.throttled({Duration? retryAfter}) = OtpVerifyThrottled;
+  const factory OtpVerifyState.throttled({Duration? retryAfter}) =
+      OtpVerifyThrottled;
 }

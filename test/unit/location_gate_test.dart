@@ -12,20 +12,27 @@ void main() {
     expect(gate.shouldEmit(lat: 24.7136, lng: 46.6753, now: t0), isTrue);
   });
 
-  test('a fix within the emit floor is dropped even with large displacement', () {
-    gate.shouldEmit(lat: 24.7136, lng: 46.6753, now: t0);
+  test(
+    'a fix within the emit floor is dropped even with large displacement',
+    () {
+      gate.shouldEmit(lat: 24.7136, lng: 46.6753, now: t0);
 
-    final withinFloor = t0.add(AppDurations.locationEmitFloor - const Duration(seconds: 1));
-    final accepted = gate.shouldEmit(lat: 25.0, lng: 47.0, now: withinFloor);
+      final withinFloor = t0.add(
+        AppDurations.locationEmitFloor - const Duration(seconds: 1),
+      );
+      final accepted = gate.shouldEmit(lat: 25.0, lng: 47.0, now: withinFloor);
 
-    expect(accepted, isFalse);
-  });
+      expect(accepted, isFalse);
+    },
+  );
 
   test('past the floor, a fix under 50 m and under the heartbeat is dropped', () {
     gate.shouldEmit(lat: 24.7136, lng: 46.6753, now: t0);
 
     // ~10 m north, well past the emit floor but nowhere near displacement/heartbeat.
-    final later = t0.add(AppDurations.locationEmitFloor + const Duration(seconds: 1));
+    final later = t0.add(
+      AppDurations.locationEmitFloor + const Duration(seconds: 1),
+    );
     final accepted = gate.shouldEmit(lat: 24.71369, lng: 46.6753, now: later);
 
     expect(accepted, isFalse);
@@ -35,20 +42,29 @@ void main() {
     gate.shouldEmit(lat: 24.7136, lng: 46.6753, now: t0);
 
     // ~111 m north (0.001 deg lat ~ 111 m).
-    final later = t0.add(AppDurations.locationEmitFloor + const Duration(seconds: 1));
+    final later = t0.add(
+      AppDurations.locationEmitFloor + const Duration(seconds: 1),
+    );
     final accepted = gate.shouldEmit(lat: 24.7146, lng: 46.6753, now: later);
 
     expect(accepted, isTrue);
   });
 
-  test('a fix at the heartbeat interval is emitted even with no displacement', () {
-    gate.shouldEmit(lat: 24.7136, lng: 46.6753, now: t0);
+  test(
+    'a fix at the heartbeat interval is emitted even with no displacement',
+    () {
+      gate.shouldEmit(lat: 24.7136, lng: 46.6753, now: t0);
 
-    final atHeartbeat = t0.add(AppDurations.locationHeartbeat);
-    final accepted = gate.shouldEmit(lat: 24.7136, lng: 46.6753, now: atHeartbeat);
+      final atHeartbeat = t0.add(AppDurations.locationHeartbeat);
+      final accepted = gate.shouldEmit(
+        lat: 24.7136,
+        lng: 46.6753,
+        now: atHeartbeat,
+      );
 
-    expect(accepted, isTrue);
-  });
+      expect(accepted, isTrue);
+    },
+  );
 
   test('an accepted emit resets the baseline for the next decision', () {
     gate.shouldEmit(lat: 24.7136, lng: 46.6753, now: t0);
@@ -58,7 +74,11 @@ void main() {
     // Immediately after that accepted emit, small movement should be
     // dropped again (both floor and displacement reset).
     final justAfter = firstAccept.add(const Duration(seconds: 1));
-    final accepted = gate.shouldEmit(lat: 24.71361, lng: 46.6753, now: justAfter);
+    final accepted = gate.shouldEmit(
+      lat: 24.71361,
+      lng: 46.6753,
+      now: justAfter,
+    );
 
     expect(accepted, isFalse);
   });

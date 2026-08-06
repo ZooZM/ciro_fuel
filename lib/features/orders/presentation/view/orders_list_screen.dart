@@ -39,7 +39,9 @@ class OrdersListScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final order = orders[index];
                   return ListTile(
-                    title: Text('${order.quantityLiters} L · ${order.fuelType.name}'),
+                    title: Text(
+                      '${order.quantityLiters} L · ${order.fuelType.name}',
+                    ),
                     subtitle: Text(order.status.wire),
                     onTap: () =>
                         context.push(AppRoutes.clientOrderDetail(order.id)),

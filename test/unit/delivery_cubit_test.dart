@@ -14,7 +14,8 @@ import 'package:mocktail/mocktail.dart';
 
 class _MockGetActiveOrder extends Mock implements GetActiveOrder {}
 
-class _MockLocationStreamService extends Mock implements LocationStreamService {}
+class _MockLocationStreamService extends Mock
+    implements LocationStreamService {}
 
 class _MockTrackingSocket extends Mock implements TrackingSocket {}
 
@@ -38,7 +39,8 @@ void main() {
     socket = _MockTrackingSocket();
     statusHandler = null;
     when(() => socket.onStatus(any())).thenAnswer((i) {
-      statusHandler = i.positionalArguments[0] as void Function(Map<String, dynamic>);
+      statusHandler =
+          i.positionalArguments[0] as void Function(Map<String, dynamic>);
     });
     when(locationStream.stop).thenAnswer((_) async {});
   });
@@ -87,7 +89,9 @@ void main() {
   blocTest<DeliveryCubit, DeliveryState>(
     'load() failure surfaces the mapped Failure',
     setUp: () {
-      when(getActiveOrder.call).thenAnswer((_) async => const Left(Failure.network()));
+      when(
+        getActiveOrder.call,
+      ).thenAnswer((_) async => const Left(Failure.network()));
     },
     build: build,
     act: (cubit) => cubit.load(),
@@ -107,7 +111,11 @@ void main() {
     build: build,
     act: (cubit) async {
       await cubit.load();
-      statusHandler!({'orderId': 'o1', 'to': 'DELIVERED', 'at': '2026-01-01T13:00:00Z'});
+      statusHandler!({
+        'orderId': 'o1',
+        'to': 'DELIVERED',
+        'at': '2026-01-01T13:00:00Z',
+      });
     },
     wait: const Duration(milliseconds: 10),
     expect: () => [

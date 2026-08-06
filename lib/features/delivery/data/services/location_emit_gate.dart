@@ -17,7 +17,9 @@ class LocationEmitGate {
     required double lng,
     required DateTime now,
   }) {
-    final elapsed = _lastAcceptedAt == null ? null : now.difference(_lastAcceptedAt!);
+    final elapsed = _lastAcceptedAt == null
+        ? null
+        : now.difference(_lastAcceptedAt!);
 
     // Local abuse-ceiling mirroring the server's 1 accepted update / 5 s.
     if (elapsed != null && elapsed < AppDurations.locationEmitFloor) {
@@ -27,8 +29,10 @@ class LocationEmitGate {
     final displacement = _lastAccepted == null
         ? double.infinity
         : _distanceMeters(_lastAccepted!.lat, _lastAccepted!.lng, lat, lng);
-    final pastDisplacement = displacement > AppDistances.locationDisplacementMeters;
-    final pastHeartbeat = elapsed == null || elapsed >= AppDurations.locationHeartbeat;
+    final pastDisplacement =
+        displacement > AppDistances.locationDisplacementMeters;
+    final pastHeartbeat =
+        elapsed == null || elapsed >= AppDurations.locationHeartbeat;
 
     if (!pastDisplacement && !pastHeartbeat) return false;
 

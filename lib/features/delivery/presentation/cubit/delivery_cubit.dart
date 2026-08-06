@@ -30,18 +30,17 @@ class DeliveryCubit extends Cubit<DeliveryState> {
 
   Future<void> load() async {
     final result = await _getActiveOrder();
-    await result.fold(
-      (failure) async => emit(DeliveryState.failure(failure)),
-      (order) async {
-        if (order == null) {
-          await _locationStream.stop();
-          emit(const DeliveryState.noActiveOrder());
-          return;
-        }
-        final streaming = await _locationStream.start();
-        emit(DeliveryState.active(order, streaming: streaming));
-      },
-    );
+    await result.fold((failure) async => emit(DeliveryState.failure(failure)), (
+      order,
+    ) async {
+      if (order == null) {
+        await _locationStream.stop();
+        emit(const DeliveryState.noActiveOrder());
+        return;
+      }
+      final streaming = await _locationStream.start();
+      emit(DeliveryState.active(order, streaming: streaming));
+    });
   }
 
   void _handleStatus(Map<String, dynamic> payload) {

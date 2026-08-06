@@ -12,8 +12,11 @@ sealed class OrderDetailState with _$OrderDetailState {
 
   /// `activeOtp` is populated only on the CLIENT build, from the `order:otp`
   /// push or a `GET .../otp/current` pull (FR-012).
-  const factory OrderDetailState.loaded(Order order, {OtpChallenge? activeOtp}) =
-      OrderDetailLoaded;
+  const factory OrderDetailState.loaded(
+    Order order, {
+    OtpChallenge? activeOtp,
+  }) = OrderDetailLoaded;
 
-  const factory OrderDetailState.failure(Failure failure) = OrderDetailFailureState;
+  const factory OrderDetailState.failure(Failure failure) =
+      OrderDetailFailureState;
 }

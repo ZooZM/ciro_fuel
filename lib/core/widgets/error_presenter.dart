@@ -12,9 +12,10 @@ String failureMessage(Failure failure) => switch (failure) {
   NetworkFailure() => 'Check your connection and try again.',
   NotFoundFailure() => "We couldn't find that.",
   ValidationFailure(:final message) => message,
-  ThrottledFailure(:final retryAfter) => retryAfter != null
-      ? 'Too many attempts. Try again in ${retryAfter.inMinutes} min.'
-      : 'Too many attempts. Please wait and try again.',
+  ThrottledFailure(:final retryAfter) =>
+    retryAfter != null
+        ? 'Too many attempts. Try again in ${retryAfter.inMinutes} min.'
+        : 'Too many attempts. Please wait and try again.',
   ServerFailure() => 'Something went wrong. Please try again.',
 };
 

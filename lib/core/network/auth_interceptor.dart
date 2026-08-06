@@ -74,7 +74,8 @@ class AuthInterceptor extends QueuedInterceptor {
   ) async {
     final requestOptions = err.requestOptions;
     final isUnauthorized = err.response?.statusCode == 401;
-    final alreadyRetried = requestOptions.extra[RequestExtraKeys.retried] == true;
+    final alreadyRetried =
+        requestOptions.extra[RequestExtraKeys.retried] == true;
     final skipAuth = requestOptions.extra[RequestExtraKeys.skipAuth] == true;
 
     if (!isUnauthorized || alreadyRetried || skipAuth) {

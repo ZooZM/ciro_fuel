@@ -43,7 +43,8 @@ void main() {
     statusHandler = null;
     when(() => socket.onStatus(any())).thenAnswer((invocation) {
       statusHandler =
-          invocation.positionalArguments[0] as void Function(Map<String, dynamic>);
+          invocation.positionalArguments[0]
+              as void Function(Map<String, dynamic>);
     });
     // Harmless default so a stray poll tick (real Timer, fast tests) never
     // throws a MissingStubError in tests that don't care about polling.
@@ -85,7 +86,11 @@ void main() {
     build: build,
     act: (cubit) async {
       await cubit.pay(amount);
-      statusHandler!({'orderId': orderId, 'to': 'IN_TRANSIT', 'at': DateTime.now().toIso8601String()});
+      statusHandler!({
+        'orderId': orderId,
+        'to': 'IN_TRANSIT',
+        'at': DateTime.now().toIso8601String(),
+      });
     },
     expect: () => const [
       PaymentState.initiating(),
@@ -126,7 +131,11 @@ void main() {
     build: build,
     act: (cubit) async {
       await cubit.pay(amount);
-      statusHandler!({'orderId': 'some-other-order', 'to': 'IN_TRANSIT', 'at': DateTime.now().toIso8601String()});
+      statusHandler!({
+        'orderId': 'some-other-order',
+        'to': 'IN_TRANSIT',
+        'at': DateTime.now().toIso8601String(),
+      });
     },
     expect: () => const [
       PaymentState.initiating(),
@@ -144,7 +153,11 @@ void main() {
     build: build,
     act: (cubit) async {
       await cubit.pay(amount);
-      statusHandler!({'orderId': orderId, 'to': 'APPROVED', 'at': DateTime.now().toIso8601String()});
+      statusHandler!({
+        'orderId': orderId,
+        'to': 'APPROVED',
+        'at': DateTime.now().toIso8601String(),
+      });
     },
     expect: () => const [
       PaymentState.initiating(),

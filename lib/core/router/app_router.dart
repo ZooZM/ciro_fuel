@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/cubit/session_cubit.dart';
 import '../../features/auth/presentation/cubit/session_state.dart';
+import '../../features/auth/presentation/view/forgot_password_screen.dart';
 import '../../features/auth/presentation/view/login_screen.dart';
 import '../../features/delivery/presentation/view/delivery_detail_screen.dart';
 import '../../features/delivery/presentation/view/driver_home_screen.dart';
@@ -48,6 +49,10 @@ class AppRouter {
           builder: (context, state) => const LoginScreen(),
         ),
         GoRoute(
+          path: AppRoutes.forgotPassword,
+          builder: (context, state) => const ForgotPasswordScreen(),
+        ),
+        GoRoute(
           path: AppRoutes.clientHome,
           builder: (context, state) => const OrdersListScreen(),
         ),
@@ -83,21 +88,21 @@ class AppRouter {
   String? _redirect(BuildContext context, GoRouterState state) {
     final session = _sessionCubit.state;
     final atLogin = state.matchedLocation == AppRoutes.login;
+    final atPublicRoute = AppRoutes.public.contains(state.matchedLocation);
 
     return switch (session) {
       // Splash/launch: stay on the current route while session restore runs.
       SessionUnknown() => null,
-      SessionUnauthenticated() => atLogin ? null : AppRoutes.login,
-      SessionAuthenticated(:final user) =>
-        _redirectAuthenticated(user.role, state.matchedLocation, atLogin),
+      SessionUnauthenticated() => atPublicRoute ? null : AppRoutes.login,
+      SessionAuthenticated(:final user) => _redirectAuthenticated(
+        user.role,
+        state.matchedLocation,
+        atLogin,
+      ),
     };
   }
 
-  String? _redirectAuthenticated(
-    UserRole role,
-    String location,
-    bool atLogin,
-  ) {
+  String? _redirectAuthenticated(UserRole role, String location, bool atLogin) {
     if (atLogin) {
       return role == UserRole.driver
           ? AppRoutes.driverHome

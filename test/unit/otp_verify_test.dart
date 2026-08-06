@@ -73,7 +73,8 @@ void main() {
     'repeated wrong attempts (429 -> ThrottledFailure) surface the retry-after window',
     setUp: () {
       when(() => verifyArrivalOtp(orderId: orderId, otp: '111111')).thenAnswer(
-        (_) async => const Left(Failure.throttled(retryAfter: Duration(minutes: 15))),
+        (_) async =>
+            const Left(Failure.throttled(retryAfter: Duration(minutes: 15))),
       );
     },
     build: build,
@@ -102,7 +103,9 @@ void main() {
   blocTest<OtpVerifyCubit, OtpVerifyState>(
     'markArrived() generates the arrival OTP without ever seeing its value',
     setUp: () {
-      when(() => markArrived(orderId)).thenAnswer((_) async => const Right(null));
+      when(
+        () => markArrived(orderId),
+      ).thenAnswer((_) async => const Right(null));
     },
     build: build,
     act: (cubit) => cubit.markArrived(),
@@ -113,7 +116,9 @@ void main() {
   blocTest<OtpVerifyCubit, OtpVerifyState>(
     'requestDeliveryOtp() generates the delivery OTP without ever seeing its value',
     setUp: () {
-      when(() => requestDeliveryOtp(orderId)).thenAnswer((_) async => const Right(null));
+      when(
+        () => requestDeliveryOtp(orderId),
+      ).thenAnswer((_) async => const Right(null));
     },
     build: build,
     act: (cubit) => cubit.requestDeliveryOtp(),

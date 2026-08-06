@@ -4,8 +4,9 @@ import '../../../../core/error/failure.dart';
 import '../../../../shared/entities/auth_user.dart';
 
 abstract interface class AuthRepository {
+  /// [phone] is an E.164 identifier (e.g. `+9665XXXXXXX`).
   Future<Either<Failure, AuthUser>> signIn({
-    required String email,
+    required String phone,
     required String password,
   });
 

@@ -136,23 +136,35 @@ void main() {
     },
   );
 
-  test('unrecoverable refresh clears the session and fires onSessionExpired once', () async {
-    adapter.refreshShouldFail = true;
+  test(
+    'unrecoverable refresh clears the session and fires onSessionExpired once',
+    () async {
+      adapter.refreshShouldFail = true;
 
-    final results = await Future.wait([
-      dio.get<dynamic>('/protected-a').then<Response<dynamic>?>((r) => r).catchError((_) => null),
-      dio.get<dynamic>('/protected-b').then<Response<dynamic>?>((r) => r).catchError((_) => null),
-    ]);
+      final results = await Future.wait([
+        dio
+            .get<dynamic>('/protected-a')
+            .then<Response<dynamic>?>((r) => r)
+            .catchError((_) => null),
+        dio
+            .get<dynamic>('/protected-b')
+            .then<Response<dynamic>?>((r) => r)
+            .catchError((_) => null),
+      ]);
 
-    expect(results.every((r) => r == null), isTrue);
-    expect(sessionExpiredCalls, 1);
-    expect(await tokenStore.accessToken, isNull);
-  });
+      expect(results.every((r) => r == null), isTrue);
+      expect(sessionExpiredCalls, 1);
+      expect(await tokenStore.accessToken, isNull);
+    },
+  );
 
-  test('a single 401 is retried once and succeeds without a redundant refresh call', () async {
-    final response = await dio.get<dynamic>('/protected-a');
+  test(
+    'a single 401 is retried once and succeeds without a redundant refresh call',
+    () async {
+      final response = await dio.get<dynamic>('/protected-a');
 
-    expect(response.statusCode, 200);
-    expect(adapter.refreshCallCount, 1);
-  });
+      expect(response.statusCode, 200);
+      expect(adapter.refreshCallCount, 1);
+    },
+  );
 }

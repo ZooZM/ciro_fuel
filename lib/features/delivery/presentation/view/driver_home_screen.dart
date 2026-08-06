@@ -31,7 +31,9 @@ class DriverHomeScreen extends StatelessWidget {
             DeliveryFailureState() => Center(
               child: TextButton(
                 onPressed: () => context.read<DeliveryCubit>().load(),
-                child: const Text('Could not load your delivery. Tap to retry.'),
+                child: const Text(
+                  'Could not load your delivery. Tap to retry.',
+                ),
               ),
             ),
             DeliveryActive(:final order, :final streaming) => ListView(
@@ -48,7 +50,8 @@ class DriverHomeScreen extends StatelessWidget {
                   ),
                 const SizedBox(height: 16),
                 FilledButton(
-                  onPressed: () => context.push(AppRoutes.driverOrderDetail(order.id)),
+                  onPressed: () =>
+                      context.push(AppRoutes.driverOrderDetail(order.id)),
                   child: const Text('Open delivery'),
                 ),
               ],

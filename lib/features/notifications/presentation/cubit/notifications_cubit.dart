@@ -58,7 +58,9 @@ class NotificationsCubit extends Cubit<NotificationsState> {
     );
 
     final current = state;
-    final existing = current is NotificationsLoaded ? current.notifications : const <AppNotification>[];
+    final existing = current is NotificationsLoaded
+        ? current.notifications
+        : const <AppNotification>[];
     emit(NotificationsState.loaded([notification, ...existing]));
   }
 }

@@ -51,7 +51,9 @@ class OrdersRepositoryImpl implements OrdersRepository {
     try {
       return Right(await call());
     } on DioException catch (e) {
-      return Left(e.error is Failure ? e.error as Failure : const Failure.server());
+      return Left(
+        e.error is Failure ? e.error as Failure : const Failure.server(),
+      );
     }
   }
 }

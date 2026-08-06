@@ -10,8 +10,7 @@ import 'session_state.dart';
 class SessionCubit extends Cubit<SessionState> {
   SessionCubit() : super(const SessionState.unknown());
 
-  void authenticate(AuthUser user) =>
-      emit(SessionState.authenticated(user));
+  void authenticate(AuthUser user) => emit(SessionState.authenticated(user));
 
   /// Idempotent: calling this while already unauthenticated does not
   /// re-emit, guaranteeing the router redirect fires once per real

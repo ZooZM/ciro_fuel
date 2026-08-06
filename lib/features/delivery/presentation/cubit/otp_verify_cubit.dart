@@ -70,7 +70,9 @@ class OtpVerifyCubit extends Cubit<OtpVerifyState> {
   }
 
   OtpVerifyState _toState(Failure failure) => switch (failure) {
-    ThrottledFailure(:final retryAfter) => OtpVerifyState.throttled(retryAfter: retryAfter),
+    ThrottledFailure(:final retryAfter) => OtpVerifyState.throttled(
+      retryAfter: retryAfter,
+    ),
     _ => const OtpVerifyState.rejected(),
   };
 }

@@ -13,7 +13,8 @@ import '../../domain/gateways/payment_gateway.dart';
 /// completion/cancellation, never a payment-confirmed guarantee.
 class PaymentGatewayImpl implements PaymentGateway {
   PaymentGatewayImpl({MethodChannel? channel})
-    : _channel = channel ?? const MethodChannel('com.ciro.fuel/payment_gateway');
+    : _channel =
+          channel ?? const MethodChannel('com.ciro.fuel/payment_gateway');
 
   final MethodChannel _channel;
 

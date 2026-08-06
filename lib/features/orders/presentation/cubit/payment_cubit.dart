@@ -30,7 +30,8 @@ class PaymentCubit extends Cubit<PaymentState> {
        _gateway = gateway,
        _socket = socket,
        _getOrder = getOrder,
-       _pollInterval = pollInterval ?? AppDurations.paymentConfirmationPollInterval,
+       _pollInterval =
+           pollInterval ?? AppDurations.paymentConfirmationPollInterval,
        super(const PaymentState.idle()) {
     _socket.onStatus(_handleStatus);
   }

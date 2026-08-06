@@ -19,12 +19,12 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, AuthUser>> signIn({
-    required String email,
+    required String phone,
     required String password,
   }) async {
     try {
       final response = await _remoteDataSource.login(
-        email: email,
+        phone: phone,
         password: password,
       );
       await _tokenStore.save(

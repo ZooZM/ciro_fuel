@@ -17,7 +17,10 @@ abstract interface class DeliveryRemoteDataSource {
 
   Future<void> requestDeliveryOtp(String orderId);
 
-  Future<void> verifyDeliveryOtp({required String orderId, required String otp});
+  Future<void> verifyDeliveryOtp({
+    required String orderId,
+    required String otp,
+  });
 }
 
 class DeliveryRemoteDataSourceImpl implements DeliveryRemoteDataSource {
@@ -48,10 +51,7 @@ class DeliveryRemoteDataSourceImpl implements DeliveryRemoteDataSource {
   Future<void> verifyArrivalOtp({
     required String orderId,
     required String otp,
-  }) => _dio.post<void>(
-    '/orders/$orderId/verify-arrival',
-    data: {'otp': otp},
-  );
+  }) => _dio.post<void>('/orders/$orderId/verify-arrival', data: {'otp': otp});
 
   @override
   Future<void> requestDeliveryOtp(String orderId) =>
@@ -61,8 +61,5 @@ class DeliveryRemoteDataSourceImpl implements DeliveryRemoteDataSource {
   Future<void> verifyDeliveryOtp({
     required String orderId,
     required String otp,
-  }) => _dio.post<void>(
-    '/orders/$orderId/verify-delivery',
-    data: {'otp': otp},
-  );
+  }) => _dio.post<void>('/orders/$orderId/verify-delivery', data: {'otp': otp});
 }

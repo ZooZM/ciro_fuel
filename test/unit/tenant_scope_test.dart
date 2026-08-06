@@ -50,35 +50,41 @@ void _expectNoClientChosenCompanyId(RequestOptions options) {
 }
 
 void main() {
-  test('AuthRemoteDataSource.login never sends a client-chosen companyId', () async {
-    final adapter = _CapturingAdapter();
-    final dio = Dio(BaseOptions(baseUrl: 'https://api.test'))
-      ..httpClientAdapter = adapter;
-    final dataSource = AuthRemoteDataSourceImpl(dio);
+  test(
+    'AuthRemoteDataSource.login never sends a client-chosen companyId',
+    () async {
+      final adapter = _CapturingAdapter();
+      final dio = Dio(BaseOptions(baseUrl: 'https://api.test'))
+        ..httpClientAdapter = adapter;
+      final dataSource = AuthRemoteDataSourceImpl(dio);
 
-    try {
-      await dataSource.login(email: 'jane@ciro.fuel', password: 'secret');
-    } on DioException {
-      // Expected: the stub adapter always returns a non-2xx response.
-    }
+      try {
+        await dataSource.login(phone: '+966512345678', password: 'secret');
+      } on DioException {
+        // Expected: the stub adapter always returns a non-2xx response.
+      }
 
-    expect(adapter.captured, hasLength(1));
-    _expectNoClientChosenCompanyId(adapter.captured.single);
-  });
+      expect(adapter.captured, hasLength(1));
+      _expectNoClientChosenCompanyId(adapter.captured.single);
+    },
+  );
 
-  test('AuthRemoteDataSource.me never sends a client-chosen companyId', () async {
-    final adapter = _CapturingAdapter();
-    final dio = Dio(BaseOptions(baseUrl: 'https://api.test'))
-      ..httpClientAdapter = adapter;
-    final dataSource = AuthRemoteDataSourceImpl(dio);
+  test(
+    'AuthRemoteDataSource.me never sends a client-chosen companyId',
+    () async {
+      final adapter = _CapturingAdapter();
+      final dio = Dio(BaseOptions(baseUrl: 'https://api.test'))
+        ..httpClientAdapter = adapter;
+      final dataSource = AuthRemoteDataSourceImpl(dio);
 
-    try {
-      await dataSource.me();
-    } on DioException {
-      // Expected: the stub adapter always returns a non-2xx response.
-    }
+      try {
+        await dataSource.me();
+      } on DioException {
+        // Expected: the stub adapter always returns a non-2xx response.
+      }
 
-    expect(adapter.captured, hasLength(1));
-    _expectNoClientChosenCompanyId(adapter.captured.single);
-  });
+      expect(adapter.captured, hasLength(1));
+      _expectNoClientChosenCompanyId(adapter.captured.single);
+    },
+  );
 }

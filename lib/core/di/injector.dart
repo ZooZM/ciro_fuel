@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
+import '../../features/auth/data/datasources/login_preferences_store.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/domain/usecases/restore_session.dart';
@@ -38,6 +39,7 @@ import '../../features/notifications/presentation/cubit/notifications_cubit.dart
 import '../network/dio_client.dart';
 import '../network/token_store.dart';
 import '../realtime/tracking_socket.dart';
+import '../security/biometric_authenticator.dart';
 import '../router/app_router.dart';
 
 final GetIt getIt = GetIt.instance;
@@ -170,11 +172,10 @@ Future<void> _registerAuthFeature() async {
   getIt.registerLazySingleton<AuthRemoteDataSource>(
     () => AuthRemoteDataSourceImpl(dio),
   );
+  getIt.registerLazySingleton(LoginPreferencesStore.new);
+  getIt.registerLazySingleton(BiometricAuthenticator.new);
   getIt.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(
-      remoteDataSource: getIt(),
-      tokenStore: tokenStore,
-    ),
+    () => AuthRepositoryImpl(remoteDataSource: getIt(), tokenStore: tokenStore),
   );
   getIt.registerLazySingleton(() => SignIn(getIt()));
   getIt.registerLazySingleton(() => RestoreSession(getIt()));

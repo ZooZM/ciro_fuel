@@ -59,13 +59,16 @@ class _DeliveryDetailViewState extends State<_DeliveryDetailView> {
   }
 
   void _initStepFrom(OrderStatus status) {
-    _step ??= status == OrderStatus.unloading ? _OtpStep.delivery : _OtpStep.arrival;
+    _step ??= status == OrderStatus.unloading
+        ? _OtpStep.delivery
+        : _OtpStep.arrival;
   }
 
   String _rejectionMessage(OtpVerifyState state) => switch (state) {
-    OtpVerifyThrottled(:final retryAfter) => retryAfter != null
-        ? 'Too many attempts. Try again in ${retryAfter.inMinutes} min.'
-        : 'Too many attempts. Please wait and try again.',
+    OtpVerifyThrottled(:final retryAfter) =>
+      retryAfter != null
+          ? 'Too many attempts. Try again in ${retryAfter.inMinutes} min.'
+          : 'Too many attempts. Please wait and try again.',
     OtpVerifyRejected() => 'Incorrect code. Please try again.',
     _ => '',
   };
@@ -79,7 +82,9 @@ class _DeliveryDetailViewState extends State<_DeliveryDetailView> {
           switch (state) {
             case OtpVerifyAdvanced(:final to):
               setState(() {
-                _step = to == OrderStatus.delivered ? _OtpStep.done : _OtpStep.delivery;
+                _step = to == OrderStatus.delivered
+                    ? _OtpStep.done
+                    : _OtpStep.delivery;
               });
               _otpController.clear();
             case OtpVerifyRejected() || OtpVerifyThrottled():
@@ -92,7 +97,9 @@ class _DeliveryDetailViewState extends State<_DeliveryDetailView> {
         },
         child: BlocBuilder<DeliveryCubit, DeliveryState>(
           builder: (context, deliveryState) => switch (deliveryState) {
-            DeliveryNoActiveOrder() => const Center(child: Text('No active delivery')),
+            DeliveryNoActiveOrder() => const Center(
+              child: Text('No active delivery'),
+            ),
             DeliveryFailureState() => const Center(
               child: Text('Could not load this delivery.'),
             ),
@@ -135,7 +142,8 @@ class _DeliveryDetailViewState extends State<_DeliveryDetailView> {
                 FilledButton(
                   onPressed: busy
                       ? null
-                      : () => context.read<OtpVerifyCubit>().requestDeliveryOtp(),
+                      : () =>
+                            context.read<OtpVerifyCubit>().requestDeliveryOtp(),
                   child: const Text('Request delivery code'),
                 ),
               const SizedBox(height: 16),

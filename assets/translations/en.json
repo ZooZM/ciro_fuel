@@ -1,3 +1,48 @@
 {
-    "hello_in_ciro":"Hello In Ciro"
+  "common": {
+    "language_name": "English",
+    "cancel": "Cancel"
+  },
+  "login": {
+    "welcome_title": "Welcome to Ciro",
+    "welcome_subtitle": "Order your fuel and track delivery moment by moment",
+
+    "phone_label": "Mobile number",
+    "phone_hint": "5X XXX XXXX",
+    "phone_required": "Enter your mobile number",
+    "phone_invalid": "Invalid mobile number",
+
+    "password_hint": "Password",
+    "password_required": "Enter your password",
+    "show_password": "Show password",
+    "hide_password": "Hide password",
+
+    "remember_me": "Remember me",
+    "forgot_password": "Forgot password?",
+    "submit": "Sign in",
+
+    "alternatives_divider": "Or sign in with",
+    "face_id": "Face ID",
+    "fingerprint": "Fingerprint",
+    "biometric_reason": "Confirm your identity to access your account",
+
+    "continue_with_apple": "Apple",
+    "continue_with_google": "Google",
+    "coming_soon": "Coming soon",
+
+    "support": "Support & help",
+    "security_note": "Secure, encrypted connection to the highest standards"
+  },
+  "forgot_password": {
+    "title": "Reset password",
+    "body": "We'll send a verification code to your mobile number so you can set a new password."
+  },
+  "errors": {
+    "invalid_credentials": "Incorrect mobile number or password.",
+    "throttled": "Too many attempts. Please wait and try again.",
+    "network": "Check your connection and try again.",
+    "generic": "Something went wrong. Please try again.",
+    "biometric_unavailable": "No saved session on this device. Sign in with your password first.",
+    "biometric_failed": "We couldn't verify your identity. Please try again."
+  }
 }

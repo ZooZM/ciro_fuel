@@ -42,7 +42,8 @@ void main() {
     statusHandler = null;
     when(() => socket.onStatus(any())).thenAnswer((invocation) {
       statusHandler =
-          invocation.positionalArguments[0] as void Function(Map<String, dynamic>);
+          invocation.positionalArguments[0]
+              as void Function(Map<String, dynamic>);
     });
     when(() => socket.onOtp(any())).thenAnswer((_) {});
   });
@@ -81,7 +82,10 @@ void main() {
         return Right(
           call == 1
               ? orderAt(OrderStatus.pendingApproval, baseTime)
-              : orderAt(OrderStatus.approved, baseTime.add(const Duration(minutes: 1))),
+              : orderAt(
+                  OrderStatus.approved,
+                  baseTime.add(const Duration(minutes: 1)),
+                ),
         );
       });
     },
@@ -109,9 +113,9 @@ void main() {
   blocTest<OrderDetailCubit, OrderDetailState>(
     'an out-of-order (older-or-equal timestamp) push triggers no re-fetch',
     setUp: () {
-      when(
-        () => getOrder(orderId),
-      ).thenAnswer((_) async => Right(orderAt(OrderStatus.pendingPayment, baseTime)));
+      when(() => getOrder(orderId)).thenAnswer(
+        (_) async => Right(orderAt(OrderStatus.pendingPayment, baseTime)),
+      );
     },
     build: build,
     act: (cubit) async {
@@ -132,7 +136,9 @@ void main() {
   blocTest<OrderDetailCubit, OrderDetailState>(
     'load() failure surfaces the mapped Failure',
     setUp: () {
-      when(() => getOrder(orderId)).thenAnswer((_) async => const Left(Failure.notFound()));
+      when(
+        () => getOrder(orderId),
+      ).thenAnswer((_) async => const Left(Failure.notFound()));
     },
     build: build,
     act: (cubit) => cubit.load(),

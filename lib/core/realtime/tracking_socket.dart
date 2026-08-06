@@ -17,19 +17,17 @@ class TrackingSocket {
 
   Future<void> connect() async {
     final token = await _tokenStore.accessToken;
-    _socket =
-        io.io(
-          '${Env.wsBaseUrl}/tracking',
-          io.OptionBuilder()
-              .setTransports(['websocket'])
-              .disableAutoConnect()
-              .setAuth({'token': token})
-              .setReconnectionDelay(
-                AppDurations.socketReconnectDelay.inMilliseconds,
-              )
-              .build(),
-        )
-        ..connect();
+    _socket = io.io(
+      '${Env.wsBaseUrl}/tracking',
+      io.OptionBuilder()
+          .setTransports(['websocket'])
+          .disableAutoConnect()
+          .setAuth({'token': token})
+          .setReconnectionDelay(
+            AppDurations.socketReconnectDelay.inMilliseconds,
+          )
+          .build(),
+    )..connect();
   }
 
   /// Re-establishes the connection with a freshly renewed access token
@@ -67,8 +65,10 @@ class TrackingSocket {
     return _asMap(ack);
   }
 
-  void onLocation(void Function(Map<String, dynamic>) handler) =>
-      _socket?.on(SocketEvents.orderLocation, (dynamic d) => handler(_asMap(d)));
+  void onLocation(void Function(Map<String, dynamic>) handler) => _socket?.on(
+    SocketEvents.orderLocation,
+    (dynamic d) => handler(_asMap(d)),
+  );
 
   void onStatus(void Function(Map<String, dynamic>) handler) =>
       _socket?.on(SocketEvents.orderStatus, (dynamic d) => handler(_asMap(d)));

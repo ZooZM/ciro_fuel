@@ -9,8 +9,10 @@ class SignIn {
 
   final AuthRepository _repository;
 
+  /// [phone] is an E.164 identifier (e.g. `+9665XXXXXXX`) — compose it with
+  /// [CountryDialCode.toE164] rather than passing raw user input.
   Future<Either<Failure, AuthUser>> call({
-    required String email,
+    required String phone,
     required String password,
-  }) => _repository.signIn(email: email, password: password);
+  }) => _repository.signIn(phone: phone, password: password);
 }

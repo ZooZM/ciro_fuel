@@ -1,3 +1,48 @@
 {
-    "hello_in_ciro":"مرحبا بك في سيرو"
+  "common": {
+    "language_name": "العربية",
+    "cancel": "إلغاء"
+  },
+  "login": {
+    "welcome_title": "مرحباً بك في سيرو",
+    "welcome_subtitle": "لطلب وقودك و متابعة الاستلام لحظة بلحظة",
+
+    "phone_label": "رقم الجوال",
+    "phone_hint": "5X XXX XXXX",
+    "phone_required": "أدخل رقم الجوال",
+    "phone_invalid": "رقم جوال غير صحيح",
+
+    "password_hint": "كلمة المرور",
+    "password_required": "أدخل كلمة المرور",
+    "show_password": "إظهار كلمة المرور",
+    "hide_password": "إخفاء كلمة المرور",
+
+    "remember_me": "تذكرني",
+    "forgot_password": "نسيت كلمة المرور ؟",
+    "submit": "دخول",
+
+    "alternatives_divider": "أو سجل الدخول باستخدام",
+    "face_id": "بصمة الوجه",
+    "fingerprint": "بصمة الإصبع",
+    "biometric_reason": "أكد هويتك للدخول إلى حسابك",
+
+    "continue_with_apple": "Apple",
+    "continue_with_google": "Google",
+    "coming_soon": "قريباً",
+
+    "support": "الدعم و المساعدة",
+    "security_note": "اتصال آمن و مشفر وفق أعلى معايير الحماية"
+  },
+  "forgot_password": {
+    "title": "استعادة كلمة المرور",
+    "body": "سنرسل لك رمز تحقق على رقم جوالك لإعادة تعيين كلمة المرور."
+  },
+  "errors": {
+    "invalid_credentials": "رقم الجوال أو كلمة المرور غير صحيحة.",
+    "throttled": "محاولات كثيرة. يرجى الانتظار ثم المحاولة مرة أخرى.",
+    "network": "تحقق من اتصالك بالإنترنت ثم حاول مرة أخرى.",
+    "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+    "biometric_unavailable": "لا توجد جلسة محفوظة على هذا الجهاز. سجل الدخول بكلمة المرور أولاً.",
+    "biometric_failed": "تعذر التحقق من هويتك. حاول مرة أخرى."
+  }
 }

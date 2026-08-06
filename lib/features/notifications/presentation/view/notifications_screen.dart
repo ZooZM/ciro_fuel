@@ -23,14 +23,17 @@ class NotificationsScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Notifications')),
       body: BlocBuilder<NotificationsCubit, NotificationsState>(
         builder: (context, state) => switch (state) {
-          NotificationsLoading() => const Center(child: CircularProgressIndicator()),
+          NotificationsLoading() => const Center(
+            child: CircularProgressIndicator(),
+          ),
           NotificationsFailureState() => Center(
             child: TextButton(
               onPressed: () => context.read<NotificationsCubit>().load(),
               child: const Text('Could not load notifications. Tap to retry.'),
             ),
           ),
-          NotificationsLoaded(:final notifications) when notifications.isEmpty =>
+          NotificationsLoaded(:final notifications)
+              when notifications.isEmpty =>
             const Center(child: Text('No notifications yet')),
           NotificationsLoaded(:final notifications) => RefreshIndicator(
             onRefresh: () => context.read<NotificationsCubit>().load(),
@@ -63,7 +66,9 @@ class _NotificationTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       leading: Icon(
-        notification.isRead ? Icons.notifications_none : Icons.notifications_active,
+        notification.isRead
+            ? Icons.notifications_none
+            : Icons.notifications_active,
       ),
       title: Text(_label),
       subtitle: Text(notification.createdAt.toLocal().toString()),

@@ -48,28 +48,47 @@ class _ScriptedDriverAdapter implements HttpClientAdapter {
     if (options.method == 'POST' && options.path == '/orders/o1/arrive') {
       return ResponseBody.fromString('{}', 200, headers: headers);
     }
-    if (options.method == 'POST' && options.path == '/orders/o1/verify-arrival') {
+    if (options.method == 'POST' &&
+        options.path == '/orders/o1/verify-arrival') {
       final otp = (options.data as Map)['otp'];
       if (otp == 'CORRECT1') {
         return ResponseBody.fromString('{}', 200, headers: headers);
       }
       wrongArrivalAttempts++;
       if (wrongArrivalAttempts > maxWrongAttempts) {
-        return ResponseBody.fromString('{"message":"throttled"}', 429, headers: headers);
+        return ResponseBody.fromString(
+          '{"message":"throttled"}',
+          429,
+          headers: headers,
+        );
       }
-      return ResponseBody.fromString('{"message":"wrong otp"}', 422, headers: headers);
+      return ResponseBody.fromString(
+        '{"message":"wrong otp"}',
+        422,
+        headers: headers,
+      );
     }
-    if (options.method == 'POST' && options.path == '/orders/o1/request-delivery-otp') {
+    if (options.method == 'POST' &&
+        options.path == '/orders/o1/request-delivery-otp') {
       return ResponseBody.fromString('{}', 200, headers: headers);
     }
-    if (options.method == 'POST' && options.path == '/orders/o1/verify-delivery') {
+    if (options.method == 'POST' &&
+        options.path == '/orders/o1/verify-delivery') {
       final otp = (options.data as Map)['otp'];
       if (otp == 'CORRECT2') {
         return ResponseBody.fromString('{}', 200, headers: headers);
       }
-      return ResponseBody.fromString('{"message":"wrong otp"}', 422, headers: headers);
+      return ResponseBody.fromString(
+        '{"message":"wrong otp"}',
+        422,
+        headers: headers,
+      );
     }
-    return ResponseBody.fromString('{"message":"not found"}', 404, headers: headers);
+    return ResponseBody.fromString(
+      '{"message":"not found"}',
+      404,
+      headers: headers,
+    );
   }
 
   @override
@@ -78,74 +97,84 @@ class _ScriptedDriverAdapter implements HttpClientAdapter {
 
 class _MockTrackingSocket extends Mock implements TrackingSocket {}
 
-class _MockLocationStreamService extends Mock implements LocationStreamService {}
+class _MockLocationStreamService extends Mock
+    implements LocationStreamService {}
 
 void main() {
-  test('assigned -> stream -> arrival OTP -> unloading -> delivery OTP -> delivered', () async {
-    final adapter = _ScriptedDriverAdapter();
-    final dio = Dio(BaseOptions(baseUrl: 'https://api.test'))
-      ..httpClientAdapter = adapter
-      ..interceptors.add(ErrorInterceptor());
-    final dataSource = DeliveryRemoteDataSourceImpl(dio);
-    final repository = DeliveryRepositoryImpl(dataSource);
+  test(
+    'assigned -> stream -> arrival OTP -> unloading -> delivery OTP -> delivered',
+    () async {
+      final adapter = _ScriptedDriverAdapter();
+      final dio = Dio(BaseOptions(baseUrl: 'https://api.test'))
+        ..httpClientAdapter = adapter
+        ..interceptors.add(ErrorInterceptor());
+      final dataSource = DeliveryRemoteDataSourceImpl(dio);
+      final repository = DeliveryRepositoryImpl(dataSource);
 
-    final socket = _MockTrackingSocket();
-    when(() => socket.onStatus(any())).thenAnswer((_) {});
+      final socket = _MockTrackingSocket();
+      when(() => socket.onStatus(any())).thenAnswer((_) {});
 
-    final locationStream = _MockLocationStreamService();
-    when(locationStream.start).thenAnswer((_) async => true);
-    when(locationStream.stop).thenAnswer((_) async {});
+      final locationStream = _MockLocationStreamService();
+      when(locationStream.start).thenAnswer((_) async => true);
+      when(locationStream.stop).thenAnswer((_) async {});
 
-    final deliveryCubit = DeliveryCubit(
-      getActiveOrder: GetActiveOrder(repository),
-      locationStream: locationStream,
-      socket: socket,
-    );
-    final otpCubit = OtpVerifyCubit(
-      orderId: 'o1',
-      markArrived: MarkArrived(repository),
-      verifyArrivalOtp: VerifyArrivalOtp(repository),
-      requestDeliveryOtp: RequestDeliveryOtp(repository),
-      verifyDeliveryOtp: VerifyDeliveryOtp(repository),
-    );
-    addTearDown(() {
-      deliveryCubit.close();
-      otpCubit.close();
-    });
+      final deliveryCubit = DeliveryCubit(
+        getActiveOrder: GetActiveOrder(repository),
+        locationStream: locationStream,
+        socket: socket,
+      );
+      final otpCubit = OtpVerifyCubit(
+        orderId: 'o1',
+        markArrived: MarkArrived(repository),
+        verifyArrivalOtp: VerifyArrivalOtp(repository),
+        requestDeliveryOtp: RequestDeliveryOtp(repository),
+        verifyDeliveryOtp: VerifyDeliveryOtp(repository),
+      );
+      addTearDown(() {
+        deliveryCubit.close();
+        otpCubit.close();
+      });
 
-    // --- Assigned job appears, location streaming starts ---
-    await deliveryCubit.load();
-    expect(deliveryCubit.state, isA<DeliveryActive>());
-    expect((deliveryCubit.state as DeliveryActive).streaming, isTrue);
-    verify(locationStream.start).called(1);
+      // --- Assigned job appears, location streaming starts ---
+      await deliveryCubit.load();
+      expect(deliveryCubit.state, isA<DeliveryActive>());
+      expect((deliveryCubit.state as DeliveryActive).streaming, isTrue);
+      verify(locationStream.start).called(1);
 
-    // --- Driver marks arrived (generates the arrival OTP; never sees it) ---
-    await otpCubit.markArrived();
-    expect(otpCubit.state, const OtpVerifyState.idle());
+      // --- Driver marks arrived (generates the arrival OTP; never sees it) ---
+      await otpCubit.markArrived();
+      expect(otpCubit.state, const OtpVerifyState.idle());
 
-    // --- Wrong arrival codes are rejected, then throttled ---
-    await otpCubit.submitArrivalOtp('WRONG-A');
-    expect(otpCubit.state, const OtpVerifyState.rejected());
-    await otpCubit.submitArrivalOtp('WRONG-B');
-    expect(otpCubit.state, const OtpVerifyState.rejected());
-    await otpCubit.submitArrivalOtp('WRONG-C');
-    expect(otpCubit.state, isA<OtpVerifyThrottled>());
+      // --- Wrong arrival codes are rejected, then throttled ---
+      await otpCubit.submitArrivalOtp('WRONG-A');
+      expect(otpCubit.state, const OtpVerifyState.rejected());
+      await otpCubit.submitArrivalOtp('WRONG-B');
+      expect(otpCubit.state, const OtpVerifyState.rejected());
+      await otpCubit.submitArrivalOtp('WRONG-C');
+      expect(otpCubit.state, isA<OtpVerifyThrottled>());
 
-    // --- Correct arrival code advances to unloading ---
-    await otpCubit.submitArrivalOtp('CORRECT1');
-    expect(otpCubit.state, const OtpVerifyState.advanced(OrderStatus.unloading));
+      // --- Correct arrival code advances to unloading ---
+      await otpCubit.submitArrivalOtp('CORRECT1');
+      expect(
+        otpCubit.state,
+        const OtpVerifyState.advanced(OrderStatus.unloading),
+      );
 
-    // --- Driver requests + submits the delivery code ---
-    await otpCubit.requestDeliveryOtp();
-    expect(otpCubit.state, const OtpVerifyState.idle());
+      // --- Driver requests + submits the delivery code ---
+      await otpCubit.requestDeliveryOtp();
+      expect(otpCubit.state, const OtpVerifyState.idle());
 
-    await otpCubit.submitDeliveryOtp('WRONG-D');
-    expect(otpCubit.state, const OtpVerifyState.rejected());
+      await otpCubit.submitDeliveryOtp('WRONG-D');
+      expect(otpCubit.state, const OtpVerifyState.rejected());
 
-    await otpCubit.submitDeliveryOtp('CORRECT2');
-    expect(otpCubit.state, const OtpVerifyState.advanced(OrderStatus.delivered));
+      await otpCubit.submitDeliveryOtp('CORRECT2');
+      expect(
+        otpCubit.state,
+        const OtpVerifyState.advanced(OrderStatus.delivered),
+      );
 
-    // No point in this flow ever constructs a type holding the OTP value —
-    // OtpVerifyCubit's states above are exhaustively code-free (SC-008).
-  });
+      // No point in this flow ever constructs a type holding the OTP value —
+      // OtpVerifyCubit's states above are exhaustively code-free (SC-008).
+    },
+  );
 }

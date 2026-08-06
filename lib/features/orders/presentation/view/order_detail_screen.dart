@@ -37,15 +37,16 @@ class OrderDetailScreen extends StatelessWidget {
           )..load(),
         ),
         BlocProvider(
-          create: (_) =>
-              PaymentCubit(
-                orderId: orderId,
-                gateway: getIt(),
-                socket: getIt(),
-                getOrder: getIt(),
-              ),
+          create: (_) => PaymentCubit(
+            orderId: orderId,
+            gateway: getIt(),
+            socket: getIt(),
+            getOrder: getIt(),
+          ),
         ),
-        BlocProvider(create: (_) => TrackingCubit(socket: getIt<TrackingSocket>())),
+        BlocProvider(
+          create: (_) => TrackingCubit(socket: getIt<TrackingSocket>()),
+        ),
       ],
       child: _OrderDetailView(orderId: orderId),
     );
@@ -109,7 +110,9 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
           }
         },
         builder: (context, state) => switch (state) {
-          OrderDetailLoading() => const Center(child: CircularProgressIndicator()),
+          OrderDetailLoading() => const Center(
+            child: CircularProgressIndicator(),
+          ),
           OrderDetailFailureState() => Center(
             child: TextButton(
               onPressed: () => context.read<OrderDetailCubit>().load(),
@@ -163,7 +166,8 @@ class _PaymentSection extends StatelessWidget {
         }
       },
       builder: (context, state) {
-        final isBusy = state is PaymentInitiating || state is PaymentAwaitingConfirmation;
+        final isBusy =
+            state is PaymentInitiating || state is PaymentAwaitingConfirmation;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -252,7 +256,10 @@ class _LiveMap extends StatelessWidget {
                     child: Card(
                       color: Colors.amber,
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         child: Text('Position may be out of date'),
                       ),
                     ),

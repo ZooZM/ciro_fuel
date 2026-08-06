@@ -24,13 +24,17 @@ class NotificationBannerPresenter extends StatefulWidget {
       _NotificationBannerPresenterState();
 }
 
-class _NotificationBannerPresenterState extends State<NotificationBannerPresenter> {
+class _NotificationBannerPresenterState
+    extends State<NotificationBannerPresenter> {
   String? _lastSeenId;
 
   String _messageFor(NotificationType type) => switch (type) {
-    NotificationType.finalPriceReady => 'Your order has been priced — payment is ready.',
-    NotificationType.paymentTimeout => 'Payment window expired for one of your orders.',
-    NotificationType.noEligibleDriver => 'No driver is available for an order right now.',
+    NotificationType.finalPriceReady =>
+      'Your order has been priced — payment is ready.',
+    NotificationType.paymentTimeout =>
+      'Payment window expired for one of your orders.',
+    NotificationType.noEligibleDriver =>
+      'No driver is available for an order right now.',
     NotificationType.deliveryCompleted => 'A delivery has been completed.',
     NotificationType.unknown => 'You have a new notification.',
   };
@@ -39,7 +43,9 @@ class _NotificationBannerPresenterState extends State<NotificationBannerPresente
   Widget build(BuildContext context) {
     return BlocListener<NotificationsCubit, NotificationsState>(
       listener: (context, state) {
-        if (state is! NotificationsLoaded || state.notifications.isEmpty) return;
+        if (state is! NotificationsLoaded || state.notifications.isEmpty) {
+          return;
+        }
 
         final head = state.notifications.first;
         final isFirstObservedList = _lastSeenId == null;

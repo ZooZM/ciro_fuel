@@ -8,7 +8,8 @@ part 'payment_state.freezed.dart';
 sealed class PaymentState with _$PaymentState {
   const factory PaymentState.idle() = PaymentIdle;
   const factory PaymentState.initiating() = PaymentInitiating;
-  const factory PaymentState.awaitingConfirmation() = PaymentAwaitingConfirmation;
+  const factory PaymentState.awaitingConfirmation() =
+      PaymentAwaitingConfirmation;
 
   /// Set ONLY on the backend's `order:status → inTransit` push
   /// (research R3/R7) — never asserted locally from the gateway's return.

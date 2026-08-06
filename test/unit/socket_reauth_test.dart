@@ -30,7 +30,11 @@ class _FakeAdapter implements HttpClientAdapter {
         headers: headers,
       );
     }
-    return ResponseBody.fromString('{"message":"unauthorized"}', 401, headers: headers);
+    return ResponseBody.fromString(
+      '{"message":"unauthorized"}',
+      401,
+      headers: headers,
+    );
   }
 
   @override
@@ -42,7 +46,10 @@ void main() {
     final backing = <String, String>{};
     final storagePlatform = _FakeSecureStoragePlatform();
     when(
-      () => storagePlatform.read(key: any(named: 'key'), options: any(named: 'options')),
+      () => storagePlatform.read(
+        key: any(named: 'key'),
+        options: any(named: 'options'),
+      ),
     ).thenAnswer((i) async => backing[i.namedArguments[#key] as String]);
     when(
       () => storagePlatform.write(
@@ -51,10 +58,14 @@ void main() {
         options: any(named: 'options'),
       ),
     ).thenAnswer((i) async {
-      backing[i.namedArguments[#key] as String] = i.namedArguments[#value] as String;
+      backing[i.namedArguments[#key] as String] =
+          i.namedArguments[#value] as String;
     });
     when(
-      () => storagePlatform.delete(key: any(named: 'key'), options: any(named: 'options')),
+      () => storagePlatform.delete(
+        key: any(named: 'key'),
+        options: any(named: 'options'),
+      ),
     ).thenAnswer((i) async => backing.remove(i.namedArguments[#key] as String));
     FlutterSecureStoragePlatform.instance = storagePlatform;
   });
@@ -101,11 +112,14 @@ void main() {
     },
   );
 
-  test('reauthenticate() is a safe no-op before the socket has ever connected', () async {
-    final tokenStore = TokenStore();
-    await tokenStore.save(access: 'token', refresh: 'refresh');
-    final socket = TrackingSocket(tokenStore: tokenStore);
+  test(
+    'reauthenticate() is a safe no-op before the socket has ever connected',
+    () async {
+      final tokenStore = TokenStore();
+      await tokenStore.save(access: 'token', refresh: 'refresh');
+      final socket = TrackingSocket(tokenStore: tokenStore);
 
-    await expectLater(socket.reauthenticate(), completes);
-  });
+      await expectLater(socket.reauthenticate(), completes);
+    },
+  );
 }

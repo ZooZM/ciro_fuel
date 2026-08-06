@@ -53,7 +53,11 @@ class _ScriptedOrdersAdapter implements HttpClientAdapter {
         headers: headers,
       );
     }
-    return ResponseBody.fromString('{"message":"not found"}', 404, headers: headers);
+    return ResponseBody.fromString(
+      '{"message":"not found"}',
+      404,
+      headers: headers,
+    );
   }
 
   String _orderJson(String id) =>
@@ -106,13 +110,19 @@ void main() {
       final otpHandlers = <void Function(Map<String, dynamic>)>[];
       final locationHandlers = <void Function(Map<String, dynamic>)>[];
       when(() => socket.onStatus(any())).thenAnswer((i) {
-        statusHandlers.add(i.positionalArguments[0] as void Function(Map<String, dynamic>));
+        statusHandlers.add(
+          i.positionalArguments[0] as void Function(Map<String, dynamic>),
+        );
       });
       when(() => socket.onOtp(any())).thenAnswer((i) {
-        otpHandlers.add(i.positionalArguments[0] as void Function(Map<String, dynamic>));
+        otpHandlers.add(
+          i.positionalArguments[0] as void Function(Map<String, dynamic>),
+        );
       });
       when(() => socket.onLocation(any())).thenAnswer((i) {
-        locationHandlers.add(i.positionalArguments[0] as void Function(Map<String, dynamic>));
+        locationHandlers.add(
+          i.positionalArguments[0] as void Function(Map<String, dynamic>),
+        );
       });
       void fireStatus(Map<String, dynamic> payload) {
         for (final handler in statusHandlers) {
@@ -131,16 +141,17 @@ void main() {
           handler(payload);
         }
       }
-      when(
-        () => socket.watchOrder('o1'),
-      ).thenAnswer((_) async => {'ok': true});
+
+      when(() => socket.watchOrder('o1')).thenAnswer((_) async => {'ok': true});
 
       // --- Create ---
       final createResult = await CreateOrder(repository)(
         fuelType: FuelType.diesel,
         quantityLiters: 500,
       );
-      final createdOrder = createResult.getOrElse(() => throw StateError('create failed'));
+      final createdOrder = createResult.getOrElse(
+        () => throw StateError('create failed'),
+      );
       expect(createdOrder.id, 'o1');
       expect(createdOrder.status.wire, 'PENDING_APPROVAL');
 
@@ -164,7 +175,10 @@ void main() {
       });
 
       await detailCubit.load();
-      expect((detailCubit.state as OrderDetailLoaded).order.status.wire, 'PENDING_APPROVAL');
+      expect(
+        (detailCubit.state as OrderDetailLoaded).order.status.wire,
+        'PENDING_APPROVAL',
+      );
 
       // --- Backend (COMPANY_ADMIN) approves with a final price ---
       adapter.status = 'APPROVED';
@@ -179,11 +193,15 @@ void main() {
       await _pollUntil(
         () =>
             detailCubit.state is OrderDetailLoaded &&
-            (detailCubit.state as OrderDetailLoaded).order.status.wire == 'APPROVED',
+            (detailCubit.state as OrderDetailLoaded).order.status.wire ==
+                'APPROVED',
       );
       final approved = (detailCubit.state as OrderDetailLoaded).order;
       expect(approved.status.wire, 'APPROVED');
-      expect(approved.finalPrice!.amountMinor, 45050); // picked up from REST, not the push
+      expect(
+        approved.finalPrice!.amountMinor,
+        45050,
+      ); // picked up from REST, not the push
 
       // --- Pay: gateway succeeds but confirmation waits on the backend ---
       when(
@@ -193,7 +211,11 @@ void main() {
       expect(paymentCubit.state, const PaymentState.awaitingConfirmation());
 
       adapter.status = 'IN_TRANSIT';
-      fireStatus({'orderId': 'o1', 'to': 'IN_TRANSIT', 'at': '2026-01-01T12:10:00Z'});
+      fireStatus({
+        'orderId': 'o1',
+        'to': 'IN_TRANSIT',
+        'at': '2026-01-01T12:10:00Z',
+      });
       await Future<void>.delayed(Duration.zero);
       expect(paymentCubit.state, const PaymentState.confirmed());
 
