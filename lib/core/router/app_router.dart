@@ -102,7 +102,10 @@ class AppRouter {
         ),
         GoRoute(
           path: AppRoutes.clientCreateOrder,
-          builder: (context, state) => const CreateOrderScreen(),
+          // `extra` carries the fuel-grade badge ('95', 'D', …) when the order
+          // form is opened from a طلب سريع tile, so it starts on that grade.
+          builder: (context, state) =>
+              CreateOrderScreen(initialGradeBadge: state.extra as String?),
         ),
         GoRoute(
           path: AppRoutes.clientOrderDetailPattern,
@@ -143,17 +146,17 @@ class AppRouter {
     return switch (session) {
       // Splash/launch: stay on the current route while session restore runs.
       SessionUnknown() => null,
-      SessionUnauthenticated() => (atLogin || atSupport) ? null : AppRoutes.login,
-      SessionAuthenticated(:final user) =>
-        _redirectAuthenticated(user.role, state.matchedLocation, atLogin),
+      SessionUnauthenticated() =>
+        (atLogin || atSupport) ? null : AppRoutes.login,
+      SessionAuthenticated(:final user) => _redirectAuthenticated(
+        user.role,
+        state.matchedLocation,
+        atLogin,
+      ),
     };
   }
 
-  String? _redirectAuthenticated(
-    UserRole role,
-    String location,
-    bool atLogin,
-  ) {
+  String? _redirectAuthenticated(UserRole role, String location, bool atLogin) {
     if (atLogin) {
       return role == UserRole.driver
           ? AppRoutes.driverHome

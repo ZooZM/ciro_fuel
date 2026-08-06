@@ -113,6 +113,12 @@ flutter:
     # Asset directories are not recursive, so nested folders need their own entry.
     - assets/HomePage/flow/
     - assets/Notification Page/
+    - assets/Order/
+    - assets/Order/zoom_in.svg
+    - assets/Order/zoom_out.svg
+    - assets/Order/reload.svg
+    - assets/Order/share.svg
+    - assets/Order/tank_truck.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

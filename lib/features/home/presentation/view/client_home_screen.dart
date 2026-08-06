@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/widgets/order_flow.dart';
 
 const _kAppBarLogo = 'assets/HomePage/appBar Logo.svg';
 const _kProfileImage = 'assets/HomePage/profile image.png';
@@ -22,10 +23,9 @@ const _kDriverIcon = 'assets/HomePage/profile.svg';
 const _kLorryIcon = 'assets/HomePage/السائق.svg';
 const _kDateIcon = 'assets/HomePage/date.svg';
 const _kHourIcon = 'assets/HomePage/flow/hour.svg';
-// These two already carry their own filled circle, so they replace the whole
-// step bubble rather than sitting inside it.
-const _kFlowDropIcon = 'assets/HomePage/flow/drop.svg';
-const _kFlowTruckIcon = 'assets/HomePage/flow/truck.svg';
+
+// Grey (#9CA3AF) artwork, so it is tinted to the counter's colour at use.
+const _kStatTruckIcon = 'assets/Icons/truck.svg';
 
 const _kPhone = 'assets/Icons/phone.svg';
 const _kMap = 'assets/HomePage/map.svg';
@@ -34,7 +34,6 @@ const _kAdd = 'assets/HomePage/add.svg';
 // Pump geometry inside 'gas station.svg', as fractions of the icon box, so the
 // fuel grade can be laid on the pump's face rather than the icon's centre.
 const _kActionButtonHeight = 40.0;
-const _kStepBubbleSize = 24.0;
 const _kFuelIconSize = 26.0;
 const _kPumpBodyLeft = 0.05;
 const _kPumpBodyWidth = 0.63;
@@ -296,25 +295,40 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
   /// Order-status counters. Listed so that, in RTL, تم التوصيل ends up on the
   /// left and ملغاة on the right — the order shown in the design.
   Widget _buildQuickGlance() {
-    const stats = [
-      (label: 'ملغاة', count: '0', color: _kStatRed, icon: Icons.block),
+    // `asset` wins over `icon` where artwork exists; the other three counters
+    // have none yet and fall back to the closest Material glyph.
+    const List<
+      ({String label, String count, Color color, IconData? icon, String? asset})
+    >
+    stats = [
       (
-        label: 'قيد التحضير',
+        label: 'ملغاة',
+        count: '0',
+        color: _kStatRed,
+        icon: Icons.highlight_off,
+        asset: null,
+      ),
+      (
+        label: 'قيد التجهيز',
         count: '1',
         color: _kStatAmber,
         icon: Icons.hourglass_empty,
+        asset: null,
       ),
       (
         label: 'قيد التوصيل',
         count: '3',
         color: _kBlue,
         icon: Icons.access_time,
+        asset: null,
       ),
       (
         label: 'تم التوصيل',
         count: '12',
         color: _kGreen,
-        icon: Icons.inventory_2_outlined,
+        // Uses the truck artwork, so it has no Material fallback.
+        icon: null,
+        asset: _kStatTruckIcon,
       ),
     ];
 
@@ -336,15 +350,8 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: stat.color.withValues(alpha: 0.10),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Icon(stat.icon, size: 12, color: stat.color),
-                      ),
-                      const SizedBox(width: 4),
+                      // Count first so it sits right-most in RTL, putting the
+                      // icon immediately to its left.
                       Text(
                         stat.count,
                         style: TextStyle(
@@ -352,6 +359,24 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
                         ),
+                      ),
+                      const SizedBox(width: 4),
+                      // SvgPicture keeps the source aspect ratio, so the 17x16
+                      // truck would sit 1px wider than the Material glyphs
+                      // beside it — the SizedBox pins every icon to 16x16.
+                      SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: stat.asset == null
+                            ? Icon(stat.icon, size: 16, color: stat.color)
+                            : SvgPicture.asset(
+                                stat.asset!,
+                                fit: BoxFit.contain,
+                                colorFilter: ColorFilter.mode(
+                                  stat.color,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
                       ),
                     ],
                   ),
@@ -465,7 +490,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          onTap: () {},
+          onTap: () => context.push(AppRoutes.clientCreateOrder),
           child: Padding(
             padding: const EdgeInsets.symmetric(
               vertical: 16.0,
@@ -752,7 +777,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
 
             const SizedBox(height: 24),
             // Stepper
-            _buildOrderStepper(),
+            const OrderFlow(),
             const SizedBox(height: 24),
 
             // Action Buttons — a shared height and label widget keep the two
@@ -767,7 +792,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                       onPressed: () {},
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _kBlue,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -785,7 +810,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                     child: OutlinedButton(
                       onPressed: () {},
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -808,122 +833,6 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
     );
   }
 
-  Widget _buildOrderStepper() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildStepItem(
-          title: 'تم قبول الطلب',
-          isActive: true,
-          isCompleted: true,
-        ),
-        _buildStepDivider(isActive: true),
-        _buildStepItem(
-          title: 'جاري التحميل',
-          isActive: true,
-          isCompleted: true,
-          asset: _kFlowDropIcon,
-        ),
-        _buildStepDivider(isActive: true),
-        _buildStepItem(
-          title: 'خرجت الشاحنة',
-          isActive: true,
-          isCompleted: true,
-          asset: _kFlowTruckIcon,
-        ),
-        _buildStepDivider(isActive: true, isDashed: true),
-        _buildStepItem(
-          title: 'في الطريق',
-          isActive: true,
-          isCompleted: false,
-          isCurrent: true,
-        ),
-        _buildStepDivider(isActive: false, isDashed: true),
-        _buildStepItem(
-          title: 'تم التسليم',
-          isActive: false,
-          isCompleted: false,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStepItem({
-    required String title,
-    required bool isActive,
-    required bool isCompleted,
-    bool isCurrent = false,
-    String? asset,
-  }) {
-    Color color = _kGrey;
-    if (isCurrent)
-      color = _kBlue;
-    else if (isCompleted)
-      color = _kGreen;
-
-    return Expanded(
-      flex: 2,
-      child: Column(
-        children: [
-          // The flow assets are drawn with their own filled circle, so they
-          // stand in for the whole bubble instead of sitting inside one.
-          if (asset != null)
-            SvgPicture.asset(
-              asset,
-              width: _kStepBubbleSize,
-              height: _kStepBubbleSize,
-            )
-          else
-            Container(
-              width: _kStepBubbleSize,
-              height: _kStepBubbleSize,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: color, width: 1),
-                color: isCurrent ? _kBlue.withOpacity(0.1) : Colors.white,
-              ),
-              child: Center(
-                child: isCompleted
-                    ? Icon(Icons.check, size: 14, color: color)
-                    : (isCurrent
-                          ? SvgPicture.asset(
-                              _kTruckIcon,
-                              width: 14,
-                              height: 14,
-                              colorFilter: ColorFilter.mode(
-                                color,
-                                BlendMode.srcIn,
-                              ),
-                            )
-                          : null),
-              ),
-            ),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            style: TextStyle(
-              color: color,
-              fontSize: 8,
-              fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStepDivider({required bool isActive, bool isDashed = false}) {
-    return Expanded(
-      flex: 1,
-      child: Container(
-        height: 1,
-        color: isActive ? _kGreen : const Color(0xFFE6E9F0),
-        margin: const EdgeInsets.only(top: 12),
-      ),
-    );
-  }
-
   Widget _buildQuickRequestList() {
     final List<Map<String, dynamic>> items = [
       {'title': 'كيروسين', 'color': const Color(0xFF2563EB), 'icon': 'K'},
@@ -942,75 +851,83 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
           for (final (index, item) in items.indexed) ...[
             if (index > 0) const SizedBox(width: 8),
             Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFE6E9F0)),
+              child: GestureDetector(
+                // Opens the order form already on the grade that was tapped —
+                // the badge ('95', 'D', …) is what the form matches on.
+                onTap: () => context.push(
+                  AppRoutes.clientCreateOrder,
+                  extra: item['icon'] as String,
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: item['color'] as Color,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: SizedBox(
-                        width: _kFuelIconSize,
-                        height: _kFuelIconSize,
-                        child: Stack(
-                          children: [
-                            SvgPicture.asset(
-                              _kGasStationIcon,
-                              width: _kFuelIconSize,
-                              height: _kFuelIconSize,
-                              colorFilter: const ColorFilter.mode(
-                                Colors.white,
-                                BlendMode.srcIn,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFE6E9F0)),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: item['color'] as Color,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: SizedBox(
+                          width: _kFuelIconSize,
+                          height: _kFuelIconSize,
+                          child: Stack(
+                            children: [
+                              SvgPicture.asset(
+                                _kGasStationIcon,
+                                width: _kFuelIconSize,
+                                height: _kFuelIconSize,
+                                colorFilter: const ColorFilter.mode(
+                                  Colors.white,
+                                  BlendMode.srcIn,
+                                ),
                               ),
-                            ),
-                            // The grade goes on the pump's body, not in the middle
-                            // of the icon — the nozzle takes up the right third.
-                            // Centring inside the body rect keeps one-character
-                            // grades ('K') and two-digit ones ('98') aligned the
-                            // same. The white tint makes the body solid white, so
-                            // the grade is drawn in the tile colour to stay legible.
-                            Positioned(
-                              left: _kFuelIconSize * _kPumpBodyLeft,
-                              width: _kFuelIconSize * _kPumpBodyWidth,
-                              top: _kFuelIconSize * _kPumpFaceTop,
-                              height: _kFuelIconSize * _kPumpFaceHeight,
-                              child: Center(
-                                child: Text(
-                                  item['icon'] as String,
-                                  style: TextStyle(
-                                    color: item['color'] as Color,
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.w700,
-                                    height: 1.0,
+                              // The grade goes on the pump's body, not in the middle
+                              // of the icon — the nozzle takes up the right third.
+                              // Centring inside the body rect keeps one-character
+                              // grades ('K') and two-digit ones ('98') aligned the
+                              // same. The white tint makes the body solid white, so
+                              // the grade is drawn in the tile colour to stay legible.
+                              Positioned(
+                                left: _kFuelIconSize * _kPumpBodyLeft,
+                                width: _kFuelIconSize * _kPumpBodyWidth,
+                                top: _kFuelIconSize * _kPumpFaceTop,
+                                height: _kFuelIconSize * _kPumpFaceHeight,
+                                child: Center(
+                                  child: Text(
+                                    item['icon'] as String,
+                                    style: TextStyle(
+                                      color: item['color'] as Color,
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w700,
+                                      height: 1.0,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      item['title'] as String,
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: _kNavy,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
+                      const SizedBox(height: 8),
+                      Text(
+                        item['title'] as String,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: _kNavy,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

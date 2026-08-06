@@ -12,12 +12,7 @@ const _kGrey = Color(0xFF9CA3AF);
 const _kDark = Color(0xFF1A1A2E);
 
 class MainNavBar extends StatelessWidget {
-  const MainNavBar({
-    super.key,
-    required this.currentIndex,
-    required this.onTap,
-    this.notificationCount = 0,
-  });
+  const MainNavBar({super.key, required this.currentIndex, required this.onTap, this.notificationCount = 0});
 
   final int currentIndex;
   final ValueChanged<int> onTap;
@@ -31,16 +26,12 @@ class MainNavBar extends StatelessWidget {
         alignment: Alignment.bottomCenter,
         clipBehavior: Clip.none,
         children: [
-
           // ── Layer 2: White navbar with notch cutout ──
           Positioned(
             left: 0,
             right: 0,
             bottom: 0,
-            child: CustomPaint(
-              size: const Size(double.infinity, 80),
-              painter: _NavBarPainter(),
-            ),
+            child: CustomPaint(size: const Size(double.infinity, 80), painter: _NavBarPainter()),
           ),
 
           // ── Layer 3: Navigation items ──
@@ -81,9 +72,7 @@ class MainNavBar extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 11,
                             color: currentIndex == 2 ? _kGreen : _kGrey,
-                            fontWeight: currentIndex == 2
-                                ? FontWeight.w700
-                                : FontWeight.w500,
+                            fontWeight: currentIndex == 2 ? FontWeight.w700 : FontWeight.w500,
                           ),
                         ),
                       ),
@@ -132,10 +121,7 @@ class MainNavBar extends StatelessWidget {
                     _kHome,
                     width: 26,
                     height: 26,
-                    colorFilter: const ColorFilter.mode(
-                      Colors.white,
-                      BlendMode.srcIn,
-                    ),
+                    colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                   ),
                 ),
               ),
@@ -189,10 +175,7 @@ class _NavItem extends StatelessWidget {
                     top: -6,
                     child: Container(
                       padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                      ),
+                      decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
                       child: Text(
                         badgeCount.toString(),
                         style: const TextStyle(
@@ -249,18 +232,10 @@ class _NavBarPainter extends CustomPainter {
     path.lineTo(center - notchSpread, 0);
 
     // Smooth cubic bezier into the notch
-    path.cubicTo(
-      center - notchSpread + 20, 0,
-      center - notchRadius + 8, notchDepth,
-      center, notchDepth,
-    );
+    path.cubicTo(center - notchSpread + 20, 0, center - notchRadius + 8, notchDepth, center, notchDepth);
 
     // Smooth cubic bezier out of the notch
-    path.cubicTo(
-      center + notchRadius - 8, notchDepth,
-      center + notchSpread - 20, 0,
-      center + notchSpread, 0,
-    );
+    path.cubicTo(center + notchRadius - 8, notchDepth, center + notchSpread - 20, 0, center + notchSpread, 0);
 
     // Line to the top-right corner (rounded)
     path.lineTo(w - cornerRadius, 0);

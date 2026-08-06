@@ -41,7 +41,7 @@ void main() {
     expect(find.text('نظرة سريعة'), findsOneWidget);
     // findsWidgets, not findsOneWidget: 'قيد التوصيل' is both a counter label
     // and the current order's status badge.
-    for (final label in ['تم التوصيل', 'قيد التوصيل', 'قيد التحضير', 'ملغاة']) {
+    for (final label in ['تم التوصيل', 'قيد التوصيل', 'قيد التجهيز', 'ملغاة']) {
       expect(find.text(label), findsWidgets, reason: label);
     }
     expect(find.text('أحمد السبيعي'), findsOneWidget);
