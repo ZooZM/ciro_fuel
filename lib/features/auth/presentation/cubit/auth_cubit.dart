@@ -9,6 +9,19 @@ import '../../domain/usecases/sign_in.dart';
 import 'auth_state.dart';
 import 'session_cubit.dart';
 
+/// TODO: Remove this dev bypass once the backend is available.
+/// While true, any non-empty credentials sign in as a local CLIENT user so
+/// the UI can be walked through without a server. Flip to false to restore
+/// the real `/auth/login` call.
+const bool kDevLoginBypass = true;
+
+const AuthUser _kDevUser = AuthUser(
+  id: 'dev-user-001',
+  role: UserRole.client,
+  companyId: 'dev-company-001',
+  fullName: 'مستخدم تجريبي',
+);
+
 /// Drives the login form. On success, authenticates [SessionCubit] — the
 /// app-wide identity — which is what the router actually reacts to.
 class AuthCubit extends Cubit<AuthState> {

@@ -29,9 +29,7 @@ class OrdersListScreen extends StatelessWidget {
                 child: const Text('Could not load orders. Tap to retry.'),
               ),
             ),
-            OrdersLoaded(:final orders) when orders.isEmpty => const Center(
-              child: Text('No orders yet'),
-            ),
+            OrdersLoaded(:final orders) when orders.isEmpty => const Center(child: Text('No orders yet')),
             OrdersLoaded(:final orders) => RefreshIndicator(
               onRefresh: () => context.read<OrdersCubit>().load(),
               child: ListView.builder(
@@ -43,8 +41,7 @@ class OrdersListScreen extends StatelessWidget {
                       '${order.quantityLiters} L · ${order.fuelType.name}',
                     ),
                     subtitle: Text(order.status.wire),
-                    onTap: () =>
-                        context.push(AppRoutes.clientOrderDetail(order.id)),
+                    onTap: () => context.push(AppRoutes.clientOrderDetail(order.id)),
                   );
                 },
               ),
