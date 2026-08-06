@@ -32,10 +32,17 @@ class InvoicePaymentScreen extends StatelessWidget {
                   Center(
                     child: TextButton.icon(
                       onPressed: () {},
-                      icon: const Icon(Icons.file_download_outlined, color: Color(0xFF1E5FFF)),
+                      icon: const Icon(
+                        Icons.file_download_outlined,
+                        color: Color(0xFF1E5FFF),
+                      ),
                       label: const Text(
                         'تنزيل الإيصال',
-                        style: TextStyle(color: Color(0xFF1E5FFF), fontSize: 14, fontWeight: FontWeight.w700),
+                        style: TextStyle(
+                          color: Color(0xFF1E5FFF),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ),
@@ -50,20 +57,28 @@ class InvoicePaymentScreen extends StatelessWidget {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF1E5FFF),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                       elevation: 0,
                     ),
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute<void>(
-                          builder: (_) =>
-                              const OrderDetailScreen(orderId: 'mock', mockState: MockOrderState.paid),
+                          builder: (_) => const OrderDetailScreen(
+                            orderId: 'mock',
+                            mockState: MockOrderState.paid,
+                          ),
                         ),
                       );
                     },
                     child: const Text(
                       'تأكيد و إتمام الطلب',
-                      style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ),
@@ -87,9 +102,18 @@ class InvoicePaymentScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(14),
-                boxShadow: const [BoxShadow(color: Color(0x0F000000), blurRadius: 10, offset: Offset(0, 2))],
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x0F000000),
+                    blurRadius: 10,
+                    offset: Offset(0, 2),
+                  ),
+                ],
               ),
-              child: const Icon(Icons.notifications_none, color: Color(0xFF0F1B2E)),
+              child: const Icon(
+                Icons.notifications_none,
+                color: Color(0xFF0F1B2E),
+              ),
             ),
             Positioned(
               right: -4,
@@ -98,10 +122,17 @@ class InvoicePaymentScreen extends StatelessWidget {
                 width: 20,
                 height: 20,
                 alignment: Alignment.center,
-                decoration: const BoxDecoration(color: Color(0xFFEF3F3F), shape: BoxShape.circle),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFEF3F3F),
+                  shape: BoxShape.circle,
+                ),
                 child: const Text(
                   '3',
-                  style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ),
@@ -115,11 +146,21 @@ class InvoicePaymentScreen extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(14),
-              boxShadow: const [BoxShadow(color: Color(0x0F000000), blurRadius: 10, offset: Offset(0, 2))],
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x0F000000),
+                  blurRadius: 10,
+                  offset: Offset(0, 2),
+                ),
+              ],
             ),
             child: const Directionality(
               textDirection: TextDirection.ltr,
-              child: Icon(Icons.arrow_back_ios, size: 20, color: Color(0xFF0F1B2E)),
+              child: Icon(
+                Icons.arrow_back_ios,
+                size: 20,
+                color: Color(0xFF0F1B2E),
+              ),
             ),
           ),
         ),
@@ -146,10 +187,17 @@ class InvoicePaymentScreen extends StatelessWidget {
                 children: [
                   const Text(
                     'بيانات الفاتورة',
-                    style: TextStyle(color: Color(0xFF0F1B2E), fontSize: 16, fontWeight: FontWeight.w800),
+                    style: TextStyle(
+                      color: Color(0xFF0F1B2E),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                   const SizedBox(height: 4),
-                  const Text('# 889241035', style: TextStyle(color: Color(0xFF8A93A6), fontSize: 12)),
+                  const Text(
+                    '# 889241035',
+                    style: TextStyle(color: Color(0xFF8A93A6), fontSize: 12),
+                  ),
                 ],
               ),
               SvgPicture.asset('assets/Order/Sadaad.svg', height: 32),
@@ -164,13 +212,20 @@ class InvoicePaymentScreen extends StatelessWidget {
                 children: [
                   const Text(
                     'رقم الفاتورة',
-                    style: TextStyle(color: Color(0xFF8A93A6), fontSize: 12, fontWeight: FontWeight.w700),
+                    style: TextStyle(
+                      color: Color(0xFF8A93A6),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFFEEF2FF),
                           borderRadius: BorderRadius.circular(8),
@@ -186,10 +241,13 @@ class InvoicePaymentScreen extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       SvgPicture.asset(
-                        'assets/Icons/copy.svg',
+                        'assets/icons/copy.svg',
                         width: 18,
                         height: 18,
-                        colorFilter: const ColorFilter.mode(Color(0xFF17A34A), BlendMode.srcIn),
+                        colorFilter: const ColorFilter.mode(
+                          Color(0xFF17A34A),
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ],
                   ),
@@ -200,21 +258,32 @@ class InvoicePaymentScreen extends StatelessWidget {
                 children: [
                   const Text(
                     'رقم المؤسسة',
-                    style: TextStyle(color: Color(0xFF8A93A6), fontSize: 12, fontWeight: FontWeight.w700),
+                    style: TextStyle(
+                      color: Color(0xFF8A93A6),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
                       const Text(
                         '889241035',
-                        style: TextStyle(color: Color(0xFF0F1B2E), fontSize: 18, fontWeight: FontWeight.w800),
+                        style: TextStyle(
+                          color: Color(0xFF0F1B2E),
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                       const SizedBox(width: 8),
                       SvgPicture.asset(
-                        'assets/Icons/copy.svg',
+                        'assets/icons/copy.svg',
                         width: 18,
                         height: 18,
-                        colorFilter: const ColorFilter.mode(Color(0xFF17A34A), BlendMode.srcIn),
+                        colorFilter: const ColorFilter.mode(
+                          Color(0xFF17A34A),
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ],
                   ),
@@ -228,11 +297,19 @@ class InvoicePaymentScreen extends StatelessWidget {
             children: [
               const Text(
                 'صالحة حتى',
-                style: TextStyle(color: Color(0xFF8A93A6), fontSize: 12, fontWeight: FontWeight.w700),
+                style: TextStyle(
+                  color: Color(0xFF8A93A6),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               const Text(
                 'اليوم 06:30 صباحاً',
-                style: TextStyle(color: Color(0xFF17A34A), fontSize: 12, fontWeight: FontWeight.w700),
+                style: TextStyle(
+                  color: Color(0xFF17A34A),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ],
           ),
@@ -244,10 +321,17 @@ class InvoicePaymentScreen extends StatelessWidget {
   Widget _buildInvoiceDetailsCard() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: Column(
         children: [
-          _buildBreakdownRow('بنزين 95 • 20,000 لتر', '450,000.00 ر.س', isMain: true),
+          _buildBreakdownRow(
+            'بنزين 95 • 20,000 لتر',
+            '450,000.00 ر.س',
+            isMain: true,
+          ),
           const SizedBox(height: 8),
           _buildBreakdownRow('رسوم التوصيل', '30.00 ر.س'),
           const SizedBox(height: 8),
@@ -262,10 +346,13 @@ class InvoicePaymentScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: SvgPicture.asset(
-                  'assets/Icons/copy.svg',
+                  'assets/icons/copy.svg',
                   width: 16,
                   height: 16,
-                  colorFilter: const ColorFilter.mode(Color(0xFF1E5FFF), BlendMode.srcIn),
+                  colorFilter: const ColorFilter.mode(
+                    Color(0xFF1E5FFF),
+                    BlendMode.srcIn,
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -274,7 +361,11 @@ class InvoicePaymentScreen extends StatelessWidget {
                 children: [
                   const Text(
                     'فاتورة مؤجلة',
-                    style: TextStyle(color: Color(0xFFF97316), fontSize: 14, fontWeight: FontWeight.w800),
+                    style: TextStyle(
+                      color: Color(0xFFF97316),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                   const Text(
                     'يجب دفع الفاتورة المؤجلة لاستكمال العملية الحالية',
@@ -300,10 +391,18 @@ class InvoicePaymentScreen extends StatelessWidget {
                   children: [
                     const Text(
                       'إخفاء التفاصيل',
-                      style: TextStyle(color: Color(0xFF17A34A), fontSize: 10, fontWeight: FontWeight.w700),
+                      style: TextStyle(
+                        color: Color(0xFF17A34A),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     const SizedBox(width: 4),
-                    const Icon(Icons.visibility_off_outlined, color: Color(0xFF17A34A), size: 14),
+                    const Icon(
+                      Icons.visibility_off_outlined,
+                      color: Color(0xFF17A34A),
+                      size: 14,
+                    ),
                   ],
                 ),
               ),
@@ -316,14 +415,22 @@ class InvoicePaymentScreen extends StatelessWidget {
             children: [
               const Text(
                 'الإجمالي',
-                style: TextStyle(color: Color(0xFF0F1B2E), fontSize: 16, fontWeight: FontWeight.w800),
+                style: TextStyle(
+                  color: Color(0xFF0F1B2E),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
               RichText(
                 text: const TextSpan(
                   children: [
                     TextSpan(
                       text: '600,120.00 ',
-                      style: TextStyle(color: Color(0xFF17A34A), fontSize: 18, fontWeight: FontWeight.w800),
+                      style: TextStyle(
+                        color: Color(0xFF17A34A),
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                     TextSpan(
                       text: 'ر.س',

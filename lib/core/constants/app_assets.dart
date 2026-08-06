@@ -5,7 +5,7 @@
 /// extension. Those quirks are contained here rather than being repeated —
 /// and mistyped — across the widget tree.
 abstract final class AppAssets {
-  static const String _signIn = 'assets/sign in';
+  static const String _signIn = 'assets/SignIn';
   static const String _logo = 'assets/logo';
   static const String _icons = 'assets/icons';
   static const String _biometric = 'assets/biometric';

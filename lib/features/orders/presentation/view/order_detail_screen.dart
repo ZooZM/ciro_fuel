@@ -602,7 +602,7 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: SvgPicture.asset(
-                    'assets/Icons/copy.svg',
+                    'assets/icons/copy.svg',
                     width: 16,
                     height: 16,
                     colorFilter: const ColorFilter.mode(
@@ -882,7 +882,7 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
                     ),
                     const SizedBox(height: 4),
                     Image.asset(
-                      'assets/Icons/QR Code.png',
+                      'assets/icons/QR Code.png',
                       width: 72,
                       height: 72,
                     ),

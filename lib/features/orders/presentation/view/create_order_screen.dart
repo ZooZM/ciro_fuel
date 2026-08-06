@@ -10,7 +10,7 @@ import '../../../../core/widgets/order_card.dart';
 import '../../../../shared/enums/fuel_type.dart';
 
 const _kAppBarLogo = 'assets/HomePage/appBar Logo.svg';
-const _kNotification = 'assets/Icons/notification.svg';
+const _kNotification = 'assets/icons/notification.svg';
 // 'station.svg' is a 1024x1024 PNG embedded as base64 and painted through an
 // SVG <pattern>. flutter_svg does not rasterise <image> elements, so it draws
 // nothing — this is that same bitmap, extracted so it can be shown directly.
@@ -37,8 +37,18 @@ typedef _Grade = ({String label, String badge, Color color, FuelType? type});
 
 // Laid out right-to-left in the design: 91 leads and كيروسين trails.
 const List<_Grade> _kGrades = [
-  (label: 'بنزين 91', badge: '91', color: Color(0xFFDC2626), type: FuelType.gasoline91),
-  (label: 'بنزين 95', badge: '95', color: Color(0xFF9333EA), type: FuelType.gasoline95),
+  (
+    label: 'بنزين 91',
+    badge: '91',
+    color: Color(0xFFDC2626),
+    type: FuelType.gasoline91,
+  ),
+  (
+    label: 'بنزين 95',
+    badge: '95',
+    color: Color(0xFF9333EA),
+    type: FuelType.gasoline95,
+  ),
   (label: 'بنزين 98', badge: '98', color: Color(0xFF16A34A), type: null),
   (label: 'ديزل', badge: 'D', color: Color(0xFFF97316), type: FuelType.diesel),
   (label: 'كيروسين', badge: 'K', color: Color(0xFF2563EB), type: null),
@@ -101,9 +111,9 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
 
   Future<void> _submit() async {
     if (_quantities.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('الرجاء اختيار نوع وقود واحد على الأقل')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('الرجاء اختيار نوع وقود واحد على الأقل')),
+      );
       return;
     }
 
@@ -114,9 +124,9 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
       final quantity = entry.value ?? int.tryParse(controller.text.trim());
 
       if (quantity == null || quantity <= 0) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('أدخل كمية صحيحة لـ ${grade.label}')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('أدخل كمية صحيحة لـ ${grade.label}')),
+        );
         return;
       }
 
@@ -188,7 +198,9 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                     filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
                     child: Container(
                       padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-                      decoration: BoxDecoration(color: Colors.white.withOpacity(0.8)),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.8),
+                      ),
                       child: _buildConfirmButton(),
                     ),
                   ),
@@ -226,10 +238,17 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                 width: 20,
                 height: 20,
                 alignment: Alignment.center,
-                decoration: const BoxDecoration(color: Color(0xFFEF3F3F), shape: BoxShape.circle),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFEF3F3F),
+                  shape: BoxShape.circle,
+                ),
                 child: const Text(
                   '3',
-                  style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ),
@@ -241,7 +260,9 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
             textDirection: TextDirection.ltr,
             child: Icon(Icons.arrow_back_ios, size: 20, color: _kNavy),
           ),
-          onTap: () => context.canPop() ? context.pop() : context.go(AppRoutes.clientHome),
+          onTap: () => context.canPop()
+              ? context.pop()
+              : context.go(AppRoutes.clientHome),
         ),
       ],
     );
@@ -267,21 +288,32 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                       children: [
                         const Text(
                           'المحطة الحالية',
-                          style: TextStyle(color: _kGreen, fontSize: 13, fontWeight: FontWeight.w700),
+                          style: TextStyle(
+                            color: _kGreen,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                         const SizedBox(width: 6),
                         SvgPicture.asset(
                           _kPin,
                           width: 18,
                           height: 18,
-                          colorFilter: const ColorFilter.mode(_kGreen, BlendMode.srcIn),
+                          colorFilter: const ColorFilter.mode(
+                            _kGreen,
+                            BlendMode.srcIn,
+                          ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
                     const Text(
                       'محطة الرحاب',
-                      style: TextStyle(color: _kNavy, fontSize: 18, fontWeight: FontWeight.w700),
+                      style: TextStyle(
+                        color: _kNavy,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     const Text(
@@ -300,7 +332,10 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
             children: [
               const Icon(Icons.star_border_rounded, size: 18, color: _kGrey),
               const SizedBox(width: 6),
-              const Text('محطاتك المفضلة', style: TextStyle(color: _kGrey, fontSize: 13)),
+              const Text(
+                'محطاتك المفضلة',
+                style: TextStyle(color: _kGrey, fontSize: 13),
+              ),
             ],
           ),
           const SizedBox(height: 10),
@@ -320,7 +355,11 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
             children: [
               const Text(
                 'تغيير المحطة',
-                style: TextStyle(color: _kGreen, fontSize: 14, fontWeight: FontWeight.w700),
+                style: TextStyle(
+                  color: _kGreen,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               const SizedBox(width: 4),
               const Directionality(
@@ -370,7 +409,10 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     if (_quantities.isEmpty) {
       return _Section(
         title: '3. الكمية',
-        child: const Text('الرجاء اختيار نوع الوقود أولاً', style: TextStyle(color: _kGrey, fontSize: 13)),
+        child: const Text(
+          'الرجاء اختيار نوع الوقود أولاً',
+          style: TextStyle(color: _kGrey, fontSize: 13),
+        ),
       );
     }
 
@@ -390,7 +432,11 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
             if (_quantities.length > 1) ...[
               Text(
                 _kGrades[entry.key].label,
-                style: const TextStyle(color: _kNavy, fontSize: 13, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  color: _kNavy,
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
             ],
@@ -399,7 +445,8 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                 Expanded(
                   child: _CustomQuantityField(
                     controller: _customQuantityControllers[entry.key]!,
-                    onChanged: (_) => setState(() => _quantities[entry.key] = null),
+                    onChanged: (_) =>
+                        setState(() => _quantities[entry.key] = null),
                   ),
                 ),
                 for (final litres in _kQuantities.reversed) ...[
@@ -434,7 +481,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
           children: [
             Expanded(
               child: _DeliveryTile(
-                asset: 'assets/Icons/schedule.svg',
+                asset: 'assets/icons/schedule.svg',
                 title: 'جدول موعد',
                 subtitle: 'اختر التاريخ و الوقت',
                 selected: _delivery == _Delivery.schedule,
@@ -489,7 +536,8 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
 
     final grade = _kGrades[firstEntry.key];
     final controller = _customQuantityControllers[firstEntry.key]!;
-    final quantity = firstEntry.value ?? int.tryParse(controller.text.trim()) ?? 0;
+    final quantity =
+        firstEntry.value ?? int.tryParse(controller.text.trim()) ?? 0;
 
     final pricePerLiter = 2.33;
     final fuelTotal = quantity * pricePerLiter;
@@ -506,7 +554,11 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
               SizedBox(width: 8),
               Text(
                 'ملخص الطلب',
-                style: TextStyle(color: _kNavy, fontSize: 15, fontWeight: FontWeight.w700),
+                style: TextStyle(
+                  color: _kNavy,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ],
           ),
@@ -518,10 +570,16 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                 child: _SummaryColumn(title: 'نوع الوقود', value: grade.label),
               ),
               Expanded(
-                child: _SummaryColumn(title: 'الكمية', value: '${_formatNumber(quantity)} لتر'),
+                child: _SummaryColumn(
+                  title: 'الكمية',
+                  value: '${_formatNumber(quantity)} لتر',
+                ),
               ),
               Expanded(
-                child: _SummaryColumn(title: 'سعر اللتر', value: '${pricePerLiter.toStringAsFixed(2)} ريال'),
+                child: _SummaryColumn(
+                  title: 'سعر اللتر',
+                  value: '${pricePerLiter.toStringAsFixed(2)} ريال',
+                ),
               ),
               Expanded(
                 child: _SummaryColumn(
@@ -541,11 +599,18 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
-                child: _SummaryColumn(title: 'رسوم النقل', value: '${_formatCurrency(transportFees)} ريال'),
+                child: _SummaryColumn(
+                  title: 'رسوم النقل',
+                  value: '${_formatCurrency(transportFees)} ريال',
+                ),
               ),
               const Text(
                 '+',
-                style: TextStyle(color: _kBlue, fontSize: 18, fontWeight: FontWeight.w700),
+                style: TextStyle(
+                  color: _kBlue,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               Expanded(
                 child: _SummaryColumn(
@@ -555,7 +620,11 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
               ),
               const Text(
                 '=',
-                style: TextStyle(color: _kBlue, fontSize: 18, fontWeight: FontWeight.w700),
+                style: TextStyle(
+                  color: _kBlue,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               Expanded(
                 child: _SummaryColumn(
@@ -583,7 +652,11 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
               children: [
                 const Text(
                   'ملاحظات للسائق (اختياري)',
-                  style: TextStyle(color: _kGrey, fontSize: 13, fontWeight: FontWeight.w700),
+                  style: TextStyle(
+                    color: _kGrey,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 TextField(
@@ -601,7 +674,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
           ),
           const SizedBox(width: 8),
           SvgPicture.asset(
-            'assets/Icons/locked.svg',
+            'assets/icons/locked.svg',
             width: 18,
             height: 18,
             colorFilter: const ColorFilter.mode(_kNavy, BlendMode.srcIn),
@@ -639,20 +712,31 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
           foregroundColor: Colors.white,
           elevation: 0,
           padding: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
         child: _submitting
             ? const SizedBox(
                 width: 22,
                 height: 22,
-                child: CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.4,
+                  color: Colors.white,
+                ),
               )
             : Stack(
                 fit: StackFit.expand,
                 children: [
                   const Align(
                     alignment: Alignment.center,
-                    child: Text('تأكيد الطلب', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                    child: Text(
+                      'تأكيد الطلب',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
                   Positioned(
                     left: 16,
@@ -663,7 +747,10 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                         _kPumpGlyph,
                         width: 22,
                         height: 22,
-                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                        colorFilter: const ColorFilter.mode(
+                          Colors.white,
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ),
                   ),
@@ -683,10 +770,17 @@ class _Title extends StatelessWidget {
       children: [
         Text(
           'طلب وقود جديد',
-          style: TextStyle(color: _kNavy, fontSize: 20, fontWeight: FontWeight.w700),
+          style: TextStyle(
+            color: _kNavy,
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+          ),
         ),
         SizedBox(height: 4),
-        Text('اطلب الوقود خلال أقل من دقيقة', style: TextStyle(color: _kGrey, fontSize: 12)),
+        Text(
+          'اطلب الوقود خلال أقل من دقيقة',
+          style: TextStyle(color: _kGrey, fontSize: 12),
+        ),
       ],
     );
   }
@@ -707,7 +801,13 @@ class _IconCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
-          boxShadow: const [BoxShadow(color: Color(0x0F000000), blurRadius: 10, offset: Offset(0, 2))],
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x0F000000),
+              blurRadius: 10,
+              offset: Offset(0, 2),
+            ),
+          ],
         ),
         child: child,
       ),
@@ -753,7 +853,11 @@ class _FavouriteStationChip extends StatelessWidget {
                   station.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: _kNavy, fontSize: 11, fontWeight: FontWeight.w700),
+                  style: const TextStyle(
+                    color: _kNavy,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 Text(
                   station.area,
@@ -773,7 +877,11 @@ class _FavouriteStationChip extends StatelessWidget {
 }
 
 class _GradeTile extends StatelessWidget {
-  const _GradeTile({required this.grade, required this.selected, required this.onTap});
+  const _GradeTile({
+    required this.grade,
+    required this.selected,
+    required this.onTap,
+  });
 
   final _Grade grade;
   final bool selected;
@@ -788,7 +896,10 @@ class _GradeTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected ? _kGreenTint : Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: selected ? _kGreen : _kItemBorder, width: selected ? 1.4 : 1),
+          border: Border.all(
+            color: selected ? _kGreen : _kItemBorder,
+            width: selected ? 1.4 : 1,
+          ),
         ),
         child: Stack(
           children: [
@@ -799,14 +910,25 @@ class _GradeTile extends StatelessWidget {
                   Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      FuelPumpIcon(grade: grade.badge, color: grade.color, size: 38),
+                      FuelPumpIcon(
+                        grade: grade.badge,
+                        color: grade.color,
+                        size: 38,
+                      ),
                       if (selected)
                         Positioned(
                           top: -4,
                           right: -4,
                           child: Container(
-                            decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white),
-                            child: const Icon(Icons.check_circle, size: 18, color: _kGreen),
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white,
+                            ),
+                            child: const Icon(
+                              Icons.check_circle,
+                              size: 18,
+                              color: _kGreen,
+                            ),
                           ),
                         ),
                     ],
@@ -816,7 +938,11 @@ class _GradeTile extends StatelessWidget {
                     grade.label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: _kNavy, fontSize: 11, fontWeight: FontWeight.w700),
+                    style: const TextStyle(
+                      color: _kNavy,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ],
               ),
@@ -829,7 +955,11 @@ class _GradeTile extends StatelessWidget {
 }
 
 class _QuantityTile extends StatelessWidget {
-  const _QuantityTile({required this.litres, required this.selected, required this.onTap});
+  const _QuantityTile({
+    required this.litres,
+    required this.selected,
+    required this.onTap,
+  });
 
   final int litres;
   final bool selected;
@@ -855,16 +985,26 @@ class _QuantityTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected ? _kBlueTint : Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: selected ? _kBlue : _kItemBorder, width: selected ? 1.4 : 1),
+          border: Border.all(
+            color: selected ? _kBlue : _kItemBorder,
+            width: selected ? 1.4 : 1,
+          ),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               _format(litres),
-              style: TextStyle(color: selected ? _kBlue : _kNavy, fontSize: 14, fontWeight: FontWeight.w700),
+              style: TextStyle(
+                color: selected ? _kBlue : _kNavy,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+              ),
             ),
-            Text('لتر', style: TextStyle(color: selected ? _kBlue : _kNavy, fontSize: 11)),
+            Text(
+              'لتر',
+              style: TextStyle(color: selected ? _kBlue : _kNavy, fontSize: 11),
+            ),
           ],
         ),
       ),
@@ -873,7 +1013,10 @@ class _QuantityTile extends StatelessWidget {
 }
 
 class _CustomQuantityField extends StatelessWidget {
-  const _CustomQuantityField({required this.controller, required this.onChanged});
+  const _CustomQuantityField({
+    required this.controller,
+    required this.onChanged,
+  });
 
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
@@ -897,7 +1040,11 @@ class _CustomQuantityField extends StatelessWidget {
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               textAlign: TextAlign.center,
-              style: const TextStyle(color: _kNavy, fontSize: 13, fontWeight: FontWeight.w700),
+              style: const TextStyle(
+                color: _kNavy,
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+              ),
               decoration: const InputDecoration(
                 isDense: true,
                 border: InputBorder.none,
@@ -945,7 +1092,10 @@ class _DeliveryTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected ? _kGreenTint : Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: selected ? _kGreen : _kItemBorder, width: selected ? 1.4 : 1),
+          border: Border.all(
+            color: selected ? _kGreen : _kItemBorder,
+            width: selected ? 1.4 : 1,
+          ),
         ),
         child: Stack(
           children: [
@@ -963,7 +1113,11 @@ class _DeliveryTile extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.end,
-                          style: TextStyle(color: titleColor, fontSize: 12, fontWeight: FontWeight.w700),
+                          style: TextStyle(
+                            color: titleColor,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -988,7 +1142,10 @@ class _DeliveryTile extends StatelessWidget {
                           asset,
                           width: 20,
                           height: 20,
-                          colorFilter: ColorFilter.mode(glyphColor, BlendMode.srcIn),
+                          colorFilter: ColorFilter.mode(
+                            glyphColor,
+                            BlendMode.srcIn,
+                          ),
                         ),
                         if (withClock)
                           Positioned(
@@ -999,7 +1156,11 @@ class _DeliveryTile extends StatelessWidget {
                                 color: selected ? Colors.white : _kBackground,
                                 shape: BoxShape.circle,
                               ),
-                              child: Icon(Icons.access_time_filled, size: 10, color: glyphColor),
+                              child: Icon(
+                                Icons.access_time_filled,
+                                size: 10,
+                                color: glyphColor,
+                              ),
                             ),
                           ),
                       ],
@@ -1009,7 +1170,11 @@ class _DeliveryTile extends StatelessWidget {
               ),
             ),
             if (selected)
-              const Positioned(top: 6, right: 6, child: Icon(Icons.check_circle, size: 14, color: _kGreen)),
+              const Positioned(
+                top: 6,
+                right: 6,
+                child: Icon(Icons.check_circle, size: 14, color: _kGreen),
+              ),
           ],
         ),
       ),
@@ -1018,7 +1183,11 @@ class _DeliveryTile extends StatelessWidget {
 }
 
 class _SummaryColumn extends StatelessWidget {
-  const _SummaryColumn({required this.title, required this.value, this.valueColor = const Color(0xFF0F1B2E)});
+  const _SummaryColumn({
+    required this.title,
+    required this.value,
+    this.valueColor = const Color(0xFF0F1B2E),
+  });
 
   final String title;
   final String value;
@@ -1037,7 +1206,11 @@ class _SummaryColumn extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           value,
-          style: TextStyle(color: valueColor, fontSize: 12, fontWeight: FontWeight.w700),
+          style: TextStyle(
+            color: valueColor,
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ],
     );

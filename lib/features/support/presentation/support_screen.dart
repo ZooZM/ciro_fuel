@@ -3,7 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 const _kLogo = 'assets/Logo/Logo.svg';
-const _kPhoneIcon = 'assets/Icons/phone.svg';
+const _kPhoneIcon = 'assets/icons/phone.svg';
 
 const _kFacebook = 'assets/Social Media/facebook.svg';
 const _kTelegram = 'assets/Social Media/telegram.svg';

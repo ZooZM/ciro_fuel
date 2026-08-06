@@ -113,9 +113,10 @@ flutter:
   assets:
     - assets/SignIn/
     - assets/Biometric/
-    - assets/Social Media/
-    - assets/Logo/
-    - assets/Icons/
+    - assets/social media/
+    - assets/logo/
+    - assets/icons/
+    - assets/images/
     - assets/Help Screen/
     - assets/NavBar/
     - assets/HomePage/
@@ -128,6 +129,7 @@ flutter:
     - assets/Order/reload.svg
     - assets/Order/share.svg
     - assets/Order/tank_truck.png
+    - assets/translations/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

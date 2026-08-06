@@ -187,9 +187,8 @@ Future<void> _registerAuthFeature() async {
   // genuine mid-session expiry surfaced via AuthInterceptor's callback.
   final result = await getIt<RestoreSession>()();
   result.fold(
-    // No stored session (or no backend yet): land on the login screen. The
-    // matching dev bypass now lives in AuthCubit.submit, so signing in is a
-    // deliberate tap rather than something that happens at launch.
+    // No stored session, or the stored one no longer validates: land on the
+    // login screen rather than blocking the first frame on a retry.
     (_) => sessionCubit.signOut(),
     sessionCubit.authenticate,
   );

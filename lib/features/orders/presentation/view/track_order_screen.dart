@@ -14,9 +14,9 @@ const _kItemBorder = Color(0xFFE6E9F0);
 const _kGreenTint = Color(0xFFE4F7EC);
 
 const _kAppBarLogo = 'assets/HomePage/appBar Logo.svg';
-const _kNotification = 'assets/Icons/notification.svg';
-const _kCopy = 'assets/Icons/copy.svg';
-const _kQrCode = 'assets/Icons/QR Code.png';
+const _kNotification = 'assets/icons/notification.svg';
+const _kCopy = 'assets/icons/copy.svg';
+const _kQrCode = 'assets/icons/QR Code.png';
 const _kTruck = 'assets/HomePage/truck.svg';
 const _kGreenStation = 'assets/HomePage/green station.svg';
 const _kDriverPhoto = 'assets/Order/driver image.png';
@@ -67,7 +67,10 @@ class TrackOrderScreen extends StatelessWidget {
   }
 
   /// The page gutter every card sits in — the map alone opts out of it.
-  Widget _inset(Widget child) => Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: child);
+  Widget _inset(Widget child) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 20),
+    child: child,
+  );
 
   Widget _buildTopBar(BuildContext context) {
     return Row(
@@ -94,10 +97,17 @@ class TrackOrderScreen extends StatelessWidget {
                 width: 20,
                 height: 20,
                 alignment: Alignment.center,
-                decoration: const BoxDecoration(color: Color(0xFFEF3F3F), shape: BoxShape.circle),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFEF3F3F),
+                  shape: BoxShape.circle,
+                ),
                 child: const Text(
                   '3',
-                  style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ),
@@ -133,7 +143,10 @@ class TrackOrderScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('حالة الطلب', style: TextStyle(color: _kGrey, fontSize: 8)),
+                        Text(
+                          'حالة الطلب',
+                          style: TextStyle(color: _kGrey, fontSize: 8),
+                        ),
                         Row(
                           children: [
                             _Dot(),
@@ -143,7 +156,11 @@ class TrackOrderScreen extends StatelessWidget {
                                 'قيد التوصيل',
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: TextStyle(color: _kGreen, fontSize: 11, fontWeight: FontWeight.w800),
+                                style: TextStyle(
+                                  color: _kGreen,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                ),
                               ),
                             ),
                           ],
@@ -166,12 +183,19 @@ class TrackOrderScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('المسافة المتبقية', style: TextStyle(color: _kGrey, fontSize: 8)),
+                  Text(
+                    'المسافة المتبقية',
+                    style: TextStyle(color: _kGrey, fontSize: 8),
+                  ),
                   SizedBox(height: 2),
                   Text(
                     '12.7 كم',
                     maxLines: 1,
-                    style: TextStyle(color: _kNavy, fontSize: 13, fontWeight: FontWeight.w800),
+                    style: TextStyle(
+                      color: _kNavy,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ],
               ),
@@ -192,7 +216,11 @@ class TrackOrderScreen extends StatelessWidget {
                   Text(
                     '04:35 م',
                     maxLines: 1,
-                    style: TextStyle(color: _kGreen, fontSize: 13, fontWeight: FontWeight.w800),
+                    style: TextStyle(
+                      color: _kGreen,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                   Text(
                     '02/05/2024 اليوم',
@@ -215,9 +243,7 @@ class TrackOrderScreen extends StatelessWidget {
       width: double.infinity,
       child: Stack(
         children: [
-          Positioned.fill(
-            child: Image.asset(_kMap, fit: BoxFit.cover),
-          ),
+          Positioned.fill(child: Image.asset(_kMap, fit: BoxFit.cover)),
           Positioned(
             left: 16,
             top: 24,
@@ -234,7 +260,6 @@ class TrackOrderScreen extends StatelessWidget {
               ],
             ),
           ),
-
         ],
       ),
     );
@@ -271,7 +296,11 @@ class TrackOrderScreen extends StatelessWidget {
                       color: const Color(0xFFF3E8FF),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const FuelPumpIcon(grade: '95', color: Color(0xFF9333EA), size: 24),
+                    child: const FuelPumpIcon(
+                      grade: '95',
+                      color: Color(0xFF9333EA),
+                      size: 24,
+                    ),
                   ),
                 ],
               ),
@@ -282,7 +311,11 @@ class TrackOrderScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const _Field(label: 'المركبة', value: 'ABC-1234', center: true),
+                  const _Field(
+                    label: 'المركبة',
+                    value: 'ABC-1234',
+                    center: true,
+                  ),
                   const Text(
                     'شاحنة نقل وقود',
                     maxLines: 1,
@@ -290,7 +323,12 @@ class TrackOrderScreen extends StatelessWidget {
                     style: TextStyle(color: _kGrey, fontSize: 7),
                   ),
                   const SizedBox(height: 4),
-                  Image.asset('assets/Order/tank_truck.png', width: 60, height: 36, fit: BoxFit.contain),
+                  Image.asset(
+                    'assets/Order/tank_truck.png',
+                    width: 60,
+                    height: 36,
+                    fit: BoxFit.contain,
+                  ),
                 ],
               ),
             ),
@@ -310,13 +348,24 @@ class TrackOrderScreen extends StatelessWidget {
                       border: Border.all(color: _kItemBorder),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.phone_outlined, color: _kNavy, size: 18),
+                    child: const Icon(
+                      Icons.phone_outlined,
+                      color: _kNavy,
+                      size: 18,
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(width: 10),
-            ClipOval(child: Image.asset(_kDriverPhoto, width: 54, height: 54, fit: BoxFit.cover)),
+            ClipOval(
+              child: Image.asset(
+                _kDriverPhoto,
+                width: 54,
+                height: 54,
+                fit: BoxFit.cover,
+              ),
+            ),
           ],
         ),
       ),
@@ -329,7 +378,11 @@ class TrackOrderScreen extends StatelessWidget {
         children: [
           const Text(
             'طريقة الاستلام عند وصول الطلب',
-            style: TextStyle(color: _kNavy, fontSize: 14, fontWeight: FontWeight.w800),
+            style: TextStyle(
+              color: _kNavy,
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+            ),
           ),
           const SizedBox(height: 4),
           const Text(
@@ -352,12 +405,19 @@ class TrackOrderScreen extends StatelessWidget {
                     children: [
                       const Text(
                         'QR',
-                        style: TextStyle(color: _kNavy, fontSize: 10, fontWeight: FontWeight.w800),
+                        style: TextStyle(
+                          color: _kNavy,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Image.asset(_kQrCode, width: 72, height: 72),
                       const SizedBox(height: 4),
-                      const Text('اعرض هذا للسائق', style: TextStyle(color: _kGrey, fontSize: 8)),
+                      const Text(
+                        'اعرض هذا للسائق',
+                        style: TextStyle(color: _kGrey, fontSize: 8),
+                      ),
                     ],
                   ),
                 ),
@@ -366,7 +426,11 @@ class TrackOrderScreen extends StatelessWidget {
                   child: Center(
                     child: Text(
                       'أو',
-                      style: TextStyle(color: _kNavy, fontSize: 12, fontWeight: FontWeight.w700),
+                      style: TextStyle(
+                        color: _kNavy,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ),
@@ -382,7 +446,11 @@ class TrackOrderScreen extends StatelessWidget {
                       children: [
                         const Text(
                           'كود الإستلام',
-                          style: TextStyle(color: _kNavy, fontSize: 12, fontWeight: FontWeight.w800),
+                          style: TextStyle(
+                            color: _kNavy,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         Row(
@@ -391,7 +459,9 @@ class TrackOrderScreen extends StatelessWidget {
                               .split(' ')
                               .map(
                                 (e) => Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                  ),
                                   child: Text(
                                     e,
                                     style: const TextStyle(
@@ -405,17 +475,28 @@ class TrackOrderScreen extends StatelessWidget {
                               .toList(),
                         ),
                         const SizedBox(height: 8),
-                        const Text('صالح لمدة', style: TextStyle(color: _kGrey, fontSize: 10)),
+                        const Text(
+                          'صالح لمدة',
+                          style: TextStyle(color: _kGrey, fontSize: 10),
+                        ),
                         const SizedBox(height: 4),
                         const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
                               'د 05:00',
-                              style: TextStyle(color: _kGreen, fontSize: 12, fontWeight: FontWeight.w700),
+                              style: TextStyle(
+                                color: _kGreen,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                             SizedBox(width: 4),
-                            Icon(Icons.timer_outlined, color: _kGreen, size: 14),
+                            Icon(
+                              Icons.timer_outlined,
+                              color: _kGreen,
+                              size: 14,
+                            ),
                           ],
                         ),
                       ],
@@ -429,7 +510,10 @@ class TrackOrderScreen extends StatelessWidget {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 8),
-            decoration: BoxDecoration(color: _kGreenTint, borderRadius: BorderRadius.circular(8)),
+            decoration: BoxDecoration(
+              color: _kGreenTint,
+              borderRadius: BorderRadius.circular(8),
+            ),
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -454,7 +538,11 @@ class TrackOrderScreen extends StatelessWidget {
         children: [
           const Text(
             'مراحل الطلب',
-            style: TextStyle(color: _kNavy, fontSize: 12, fontWeight: FontWeight.w800),
+            style: TextStyle(
+              color: _kNavy,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+            ),
           ),
           const SizedBox(height: 16),
           const OrderFlow(),
@@ -478,12 +566,22 @@ class TrackOrderScreen extends StatelessWidget {
                 style: FilledButton.styleFrom(
                   backgroundColor: _kBlue,
                   padding: const EdgeInsets.symmetric(horizontal: 6),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-                icon: const Icon(Icons.check_circle_outline, size: 18, color: Colors.white),
+                icon: const Icon(
+                  Icons.check_circle_outline,
+                  size: 18,
+                  color: Colors.white,
+                ),
                 label: const Text(
                   'تم الاستلام',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
@@ -498,13 +596,19 @@ class TrackOrderScreen extends StatelessWidget {
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: _kItemBorder),
                   padding: const EdgeInsets.symmetric(horizontal: 6),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 icon: const Icon(Icons.support_agent, color: _kBlue, size: 16),
                 label: const Text(
                   'تواصل مع الدعم',
                   maxLines: 1,
-                  style: TextStyle(color: _kBlue, fontSize: 10.5, fontWeight: FontWeight.w700),
+                  style: TextStyle(
+                    color: _kBlue,
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ),
@@ -524,7 +628,11 @@ class _Title extends StatelessWidget {
       children: [
         const Text(
           'تتبع الطلب',
-          style: TextStyle(color: _kNavy, fontSize: 20, fontWeight: FontWeight.w800),
+          style: TextStyle(
+            color: _kNavy,
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
+          ),
         ),
         const SizedBox(height: 4),
         Row(
@@ -537,7 +645,10 @@ class _Title extends StatelessWidget {
               colorFilter: const ColorFilter.mode(_kNavy, BlendMode.srcIn),
             ),
             const SizedBox(width: 6),
-            const Text('رقم الطلب : ORD-2024-256', style: TextStyle(color: _kGrey, fontSize: 11)),
+            const Text(
+              'رقم الطلب : ORD-2024-256',
+              style: TextStyle(color: _kGrey, fontSize: 11),
+            ),
           ],
         ),
       ],
@@ -560,7 +671,13 @@ class _IconCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
-          boxShadow: const [BoxShadow(color: Color(0x0F000000), blurRadius: 10, offset: Offset(0, 2))],
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x0F000000),
+              blurRadius: 10,
+              offset: Offset(0, 2),
+            ),
+          ],
         ),
         child: child,
       ),
@@ -593,7 +710,9 @@ class _Field extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: center ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+      crossAxisAlignment: center
+          ? CrossAxisAlignment.center
+          : CrossAxisAlignment.start,
       children: [
         Text(
           label,
@@ -605,7 +724,11 @@ class _Field extends StatelessWidget {
           value,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(color: _kNavy, fontSize: 11, fontWeight: FontWeight.w700),
+          style: const TextStyle(
+            color: _kNavy,
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ],
     );

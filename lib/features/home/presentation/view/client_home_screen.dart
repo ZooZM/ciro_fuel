@@ -7,7 +7,7 @@ import '../../../../core/widgets/order_flow.dart';
 
 const _kAppBarLogo = 'assets/HomePage/appBar Logo.svg';
 const _kProfileImage = 'assets/HomePage/profile image.png';
-const _kNotification = 'assets/Icons/notification.svg';
+const _kNotification = 'assets/icons/notification.svg';
 
 const _kStationIcon = 'assets/HomePage/green station.svg';
 const _kStation1Icon = 'assets/HomePage/green gun.svg';
@@ -25,9 +25,9 @@ const _kDateIcon = 'assets/HomePage/date.svg';
 const _kHourIcon = 'assets/HomePage/flow/hour.svg';
 
 // Grey (#9CA3AF) artwork, so it is tinted to the counter's colour at use.
-const _kStatTruckIcon = 'assets/Icons/truck.svg';
+const _kStatTruckIcon = 'assets/icons/truck.svg';
 
-const _kPhone = 'assets/Icons/phone.svg';
+const _kPhone = 'assets/icons/phone.svg';
 const _kMap = 'assets/HomePage/map.svg';
 const _kAdd = 'assets/HomePage/add.svg';
 
