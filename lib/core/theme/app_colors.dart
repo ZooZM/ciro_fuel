@@ -125,6 +125,42 @@ class AppColors {
   static const List<BoxShadow> shadowSheet = [
     BoxShadow(color: Color(0x1A0F1B2E), offset: Offset(0, -8), blurRadius: 24),
   ];
+
+  // ---------------------------------------------------------------------
+  // Screens palette — the mockup-style screens (home dashboard, order
+  // detail/tracking, nav bar) predate [AppPalette] and have no dark variant
+  // yet, so these are mode-independent constants rather than palette
+  // entries. [blue] and [red] happen to match [light]'s brandBlue/brandRed
+  // exactly but are declared flat here (not routed through `light.—`)
+  // because Dart won't fold a field access on a const object into a
+  // constant expression, which made them unusable in the many `const`
+  // widgets across these screens.
+  // ---------------------------------------------------------------------
+  static const Color blue = Color(0xFF1E5FFF);
+  static const Color red = Color(0xFFEF3F3F);
+  static const Color green = Color(0xFF17A34A);
+  static const Color navy = Color(0xFF0F1B2E);
+  static const Color grey = Color(0xFF8A93A6);
+  static const Color screenBackground = Color(0xFFF5F6F8);
+  static const Color itemBorder = Color(0xFFE6E9F0);
+  static const Color amber = Color(0xFFF59E0B);
+
+  /// Warning/pending/deferred accent used across the order screens (the
+  /// order-flow "warning" step, deferred receipts, credit-limit UI).
+  static const Color warningOrange = Color(0xFFF97316);
+
+  /// Background of the muted status pill on the order-detail screen.
+  static const Color chipBackground = Color(0xFFECEFF4);
+
+  /// A second blue tint used for selected-state fills (quantity tiles,
+  /// custom-order screen) and the receipt breakdown's copy-icon chip.
+  /// Distinct from [AppPalette.blueTint] — a separate one-off from the same
+  /// design.
+  static const Color blueTintAlt = Color(0xFFEEF2FF);
+
+  /// Tint behind the credit-card icon on the credit-limit card. Distinct
+  /// from [AppPalette.orangeTint] — a separate one-off from the same design.
+  static const Color creditIconBackground = Color(0xFFFFF7ED);
 }
 
 /// One resolved set of semantic colours. Both [AppColors.light] and

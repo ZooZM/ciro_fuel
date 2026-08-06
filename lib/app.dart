@@ -31,6 +31,9 @@ class App extends StatelessWidget {
         localizationsDelegates: context.localizationDelegates,
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
+        // Default to light regardless of the OS/browser theme; there's no
+        // in-app toggle yet.
+        themeMode: ThemeMode.light,
         routerConfig: getIt<AppRouter>().config,
         builder: (context, child) => NotificationBannerPresenter(
           child: child ?? const SizedBox.shrink(),
