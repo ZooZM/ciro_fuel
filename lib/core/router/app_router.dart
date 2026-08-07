@@ -52,7 +52,7 @@ class AppRouter {
   AppRouter({required SessionCubit sessionCubit})
     : _sessionCubit = sessionCubit {
     config = GoRouter(
-      initialLocation: AppRoutes.clientHome,
+      initialLocation: AppRoutes.login,
       refreshListenable: _StreamRefreshListenable(_sessionCubit.stream),
       redirect: _redirect,
       routes: [
