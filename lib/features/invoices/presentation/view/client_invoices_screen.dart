@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/search_filter_bar.dart';
 
 class ClientInvoicesScreen extends StatefulWidget {
   const ClientInvoicesScreen({super.key});
@@ -56,7 +57,7 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
                     const SizedBox(height: 16),
                     _buildTitleRow(),
                     const SizedBox(height: 16),
-                    _buildSearchAndFilter(),
+                    const SearchFilterBar(),
                     const SizedBox(height: 16),
                     _buildTabs(),
                     const SizedBox(height: 16),
@@ -198,69 +199,6 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
         const SizedBox(width: 8),
         // Download icon button
         SvgPicture.asset('assets/invoices/download.svg', width: 32, height: 32),
-      ],
-    );
-  }
-
-  // ── Search + Filter ────────────────────────────────────────────────
-  Widget _buildSearchAndFilter() {
-    return Row(
-      children: [
-        // Filter button (RTL start = right)
-        Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: AppColors.light.greenTint,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.forestGreen),
-          ),
-          child: Center(
-            child: SvgPicture.asset(
-              'assets/invoices/filter.svg',
-              width: 24,
-              height: 24,
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        // Search field (RTL end = left, takes most space)
-        Expanded(
-          child: Container(
-            height: 44,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.light.borderHairline),
-            ),
-            child: Row(
-              children: [
-                const SizedBox(width: 12),
-                SvgPicture.asset(
-                  'assets/invoices/search.svg',
-                  width: 20,
-                  height: 20,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    textDirection: TextDirection.rtl,
-                    decoration: InputDecoration(
-                      hintText: 'ابحث بكود الفاتورة',
-                      hintStyle: TextStyle(
-                        color: AppColors.light.textTertiary,
-                        fontSize: 14,
-                      ),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-              ],
-            ),
-          ),
-        ),
       ],
     );
   }

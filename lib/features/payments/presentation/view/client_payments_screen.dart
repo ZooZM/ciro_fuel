@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/widgets/search_filter_bar.dart';
 
 class ClientPaymentsScreen extends StatefulWidget {
   const ClientPaymentsScreen({super.key});
@@ -51,7 +52,10 @@ class _ClientPaymentsScreenState extends State<ClientPaymentsScreen> {
               const SizedBox(height: 24),
               _buildTitleRow(),
               const SizedBox(height: 16),
-              _buildSearchAndFilter(),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: SearchFilterBar(),
+              ),
               const SizedBox(height: 16),
               Expanded(
                 child: ListView.builder(
@@ -134,42 +138,6 @@ class _ClientPaymentsScreenState extends State<ClientPaymentsScreen> {
     );
   }
 
-  Widget _buildSearchAndFilter() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          SvgPicture.asset(
-            'assets/Icons/filter.svg',
-            width: 48,
-            height: 48,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Container(
-              height: 48,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF0F2F7),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFE7E9EF)),
-              ),
-              child: const TextField(
-                textAlign: TextAlign.right,
-                textDirection: TextDirection.rtl,
-                decoration: InputDecoration(
-                  hintText: 'ابحث بكود الفاتورة',
-                  hintStyle: TextStyle(color: Color(0xFF8A93A6), fontSize: 14),
-                  border: InputBorder.none,
-                  prefixIcon: Icon(Icons.search, color: Color(0xFF1E5FFF)),
-                  contentPadding: EdgeInsets.symmetric(vertical: 14),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _PaymentCard extends StatelessWidget {
@@ -277,7 +245,7 @@ class _PaymentCard extends StatelessWidget {
           const SizedBox(width: 12),
           // Left Side: Fuel Pump
           SvgPicture.asset(
-            'assets/HomePage/green station.svg',
+            'assets/OrdersPage/fuel_pump.svg',
             width: 50,
             height: 68,
             colorFilter: const ColorFilter.mode(Color(0xFF17A34A), BlendMode.srcIn),

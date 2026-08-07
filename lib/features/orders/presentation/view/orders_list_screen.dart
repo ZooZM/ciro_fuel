@@ -3,7 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/app_routes.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/search_filter_bar.dart';
 import '../../../home/presentation/widgets/home_top_bar.dart';
 import '../widgets/order_detail/mock_order_state.dart';
 import 'order_detail_screen.dart';
@@ -121,51 +121,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        // Filter button (RTL start = right)
-                        Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: AppColors.light.greenTint,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppColors.forestGreen),
-                          ),
-                          child: Center(
-                            child: SvgPicture.asset(
-                              'assets/invoices/filter.svg',
-                              width: 24,
-                              height: 24,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        // Search field (RTL end = left, takes most space)
-                        Expanded(
-                          child: Container(
-                            height: 44,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: AppColors.light.borderHairline),
-                            ),
-                            child: Row(
-                              children: [
-                                const SizedBox(width: 12),
-                                SvgPicture.asset(
-                                  'assets/invoices/search.svg',
-                                  width: 20,
-                                  height: 20,
-                                ),
-                                const SizedBox(width: 8),
-                                const Text('ابحث بكود الفاتورة', style: TextStyle(color: Color(0xFFA0AEC0), fontSize: 13)),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                    const SearchFilterBar(hintText: 'ابحث بكود الطلب'),
                     const SizedBox(height: 16),
                     Container(
                       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
