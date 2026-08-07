@@ -52,7 +52,7 @@ class AppRouter {
   AppRouter({required SessionCubit sessionCubit})
     : _sessionCubit = sessionCubit {
     config = GoRouter(
-      initialLocation: AppRoutes.login,
+      initialLocation: AppRoutes.clientHome,
       refreshListenable: _StreamRefreshListenable(_sessionCubit.stream),
       redirect: _redirect,
       routes: [
@@ -182,8 +182,7 @@ class AppRouter {
     return switch (session) {
       // Splash/launch: stay on the current route while session restore runs.
       SessionUnknown() => null,
-      SessionUnauthenticated() =>
-        (atLogin || atSupport) ? null : AppRoutes.login,
+      SessionUnauthenticated() => null, // Bypass redirect for testing
       SessionAuthenticated(:final user) => _redirectAuthenticated(
         user.role,
         state.matchedLocation,

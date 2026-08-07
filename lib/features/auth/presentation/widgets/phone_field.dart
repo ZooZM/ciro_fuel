@@ -145,63 +145,168 @@ class _CountrySelector extends StatelessWidget {
   final CountryDialCode country;
   final ValueChanged<CountryDialCode> onChanged;
 
+  void _showCountryPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: context.colors.canvas,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        final colors = context.colors;
+        final textStyles = context.textStyles;
+
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              // Grabber
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: colors.borderHairline,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'اختر الدولة',
+                style: textStyles.welcomeTitle.copyWith(fontSize: 18),
+              ),
+              const SizedBox(height: 16),
+              Flexible(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: CountryDialCode.values.length,
+                  separatorBuilder: (_, __) => Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: colors.borderHairline,
+                    indent: 20,
+                    endIndent: 20,
+                  ),
+                  itemBuilder: (context, index) {
+                    final option = CountryDialCode.values[index];
+                    final isSelected = option == country;
+
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 4,
+                      ),
+                      leading: Text(
+                        option.flag,
+                        style: const TextStyle(fontSize: 24),
+                      ),
+                      title: Text(
+                        option.nameAr,
+                        style: textStyles.fieldInput.copyWith(
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.normal,
+                          color:
+                              isSelected
+                                  ? colors.brandBlue
+                                  : colors.textPrimary,
+                        ),
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Directionality(
+                            textDirection: TextDirection.ltr,
+                            child: Text(
+                              option.dialCode,
+                              style: textStyles.countryCode.copyWith(
+                                color:
+                                    isSelected
+                                        ? colors.brandBlue
+                                        : colors.textPrimary,
+                              ),
+                            ),
+                          ),
+                          if (isSelected) ...[
+                            const SizedBox(width: 12),
+                            Icon(
+                              Icons.check_circle,
+                              color: colors.brandBlue,
+                              size: 20,
+                            ),
+                          ] else ...[
+                            const SizedBox(width: 32),
+                          ],
+                        ],
+                      ),
+                      onTap: () {
+                        onChanged(option);
+                        Navigator.pop(context);
+                      },
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    return PopupMenuButton<CountryDialCode>(
-      initialValue: country,
-      onSelected: onChanged,
-      tooltip: LoginKeys.phoneLabel.tr(),
-      position: PopupMenuPosition.under,
-      itemBuilder: (context) => [
-        for (final option in CountryDialCode.values)
-          PopupMenuItem(
-            value: option,
-            child: Directionality(
-              textDirection: TextDirection.ltr,
-              child: Text(
-                '${option.isoCode}  ${option.dialCode}',
-                style: context.textStyles.fieldInput,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _showCountryPicker(context),
+        borderRadius: const BorderRadius.horizontal(
+          left: Radius.circular(AppRadii.field),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.only(left: AppSpacing.md),
+          child: Row(
+            textDirection: TextDirection.ltr,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppSvgIcon(
+                AppAssets.phoneIcon,
+                size: AppSizes.iconMd,
+                color: colors.brandBlue,
               ),
-            ),
+              const SizedBox(width: AppSpacing.md),
+              Container(
+                width: AppSizes.dividerThickness,
+                height: AppSizes.countryDividerHeight,
+                color: colors.borderHairline,
+              ),
+              const SizedBox(width: AppSpacing.md),
+              // A Row's textDirection orders its children but does not reach
+              // the text inside them. Without this the leading `+` — a bidi
+              // neutral — takes the ambient RTL direction and "+966" renders
+              // as "966+".
+              Directionality(
+                textDirection: TextDirection.ltr,
+                child: Text(
+                  country.flag + ' ' + country.dialCode,
+                  style: context.textStyles.countryCode,
+                ),
+              ),
+              Icon(
+                Icons.keyboard_arrow_down,
+                size: AppSizes.iconSm,
+                color: colors.brandBlue,
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Container(
+                width: AppSizes.dividerThickness,
+                height: AppSizes.countryDividerHeight,
+                color: colors.borderHairline,
+              ),
+            ],
           ),
-      ],
-      child: Padding(
-        padding: const EdgeInsets.only(left: AppSpacing.md),
-        child: Row(
-          textDirection: TextDirection.ltr,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppSvgIcon(
-              AppAssets.phoneIcon,
-              size: AppSizes.iconMd,
-              color: colors.brandBlue,
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            // A Row's textDirection orders its children but does not reach
-            // the text inside them. Without this the leading `+` — a bidi
-            // neutral — takes the ambient RTL direction and "+966" renders
-            // as "966+".
-            Directionality(
-              textDirection: TextDirection.ltr,
-              child: Text(
-                country.dialCode,
-                style: context.textStyles.countryCode,
-              ),
-            ),
-            Icon(
-              Icons.keyboard_arrow_down,
-              size: AppSizes.iconSm,
-              color: colors.brandBlue,
-            ),
-            const SizedBox(width: AppSpacing.md),
-            Container(
-              width: AppSizes.dividerThickness,
-              height: AppSizes.countryDividerHeight,
-              color: colors.borderHairline,
-            ),
-          ],
         ),
       ),
     );

@@ -30,6 +30,7 @@ import '../../features/orders/domain/usecases/get_current_otp.dart';
 import '../../features/orders/domain/usecases/get_order.dart';
 import '../../features/orders/domain/usecases/get_orders.dart';
 import '../../features/orders/domain/usecases/redispatch.dart';
+import '../../features/orders/presentation/cubit/orders_cubit.dart';
 import '../../features/notifications/data/datasources/notifications_remote_data_source.dart';
 import '../../features/notifications/data/repositories/notifications_repository_impl.dart';
 import '../../features/notifications/domain/repositories/notifications_repository.dart';
@@ -117,6 +118,8 @@ void _registerOrdersFeature() {
   getIt.registerLazySingleton(() => GetCurrentOtp(getIt()));
   getIt.registerLazySingleton(() => CancelOrder(getIt()));
   getIt.registerLazySingleton(() => Redispatch(getIt()));
+  
+  getIt.registerFactory(() => OrdersCubit(getOrders: getIt()));
 }
 
 void _registerDeliveryFeature() {

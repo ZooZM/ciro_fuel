@@ -11,4 +11,6 @@ enum MockOrderState {
   paid,
   inTransit,
   delivered,
+  failedPayment,
+  canceled,
 }
