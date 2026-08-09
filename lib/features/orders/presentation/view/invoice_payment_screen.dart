@@ -1,46 +1,104 @@
+// `easy_localization` re-exports intl, whose own `TextDirection` would
+// otherwise shadow the `dart:ui` one this screen sets RTL with.
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
+import '../../../../core/constants/app_assets.dart';
+import '../../../../core/localization/translation_keys.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/order_card.dart';
+import '../constants/order_formatting.dart';
+import '../constants/order_mock_data.dart';
+import '../widgets/order_detail/receipt_breakdown.dart';
+import '../widgets/order_top_bar.dart';
 import 'order_detail_screen.dart';
 
-class InvoicePaymentScreen extends StatelessWidget {
+/// The SADAD hand-off: the biller and invoice numbers to type into a
+/// banking app, over the same collapsible breakdown the receipt shows.
+class InvoicePaymentScreen extends StatefulWidget {
   const InvoicePaymentScreen({super.key});
+
+  @override
+  State<InvoicePaymentScreen> createState() => _InvoicePaymentScreenState();
+}
+
+class _InvoicePaymentScreenState extends State<InvoicePaymentScreen> {
+  /// The breakdown opens with the screen — the customer is here to check
+  /// what they are about to pay — and folds to the total on demand.
+  bool _detailsExpanded = true;
+
+  void _toggleDetails() => setState(() => _detailsExpanded = !_detailsExpanded);
+
+  void _confirm() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const OrderDetailScreen(
+          orderId: 'mock',
+          mockState: MockOrderState.paid,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF5F6F8),
+        backgroundColor: AppColors.screenBackground,
         body: SafeArea(
           child: Stack(
             children: [
               ListView(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.gutter,
+                  AppSpacing.lg,
+                  AppSpacing.gutter,
+                  AppSpacing.orderScreenBottomPadding,
+                ),
                 children: [
-                  _buildTopBar(context),
-                  const SizedBox(height: 24),
-                  _buildSadadCard(),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'ادفع من تطبيق البنك عبر خدمة سداد بإدخال رقم المؤسسة ورقم الفاتورة، أو من أقرب صراف آلي.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Color(0xFF8A93A6), fontSize: 10),
+                  OrderTopBar(
+                    notificationCount: OrderMockData.notificationCount,
+                    onBack: () => Navigator.of(context).pop(),
                   ),
-                  const SizedBox(height: 16),
-                  _buildInvoiceDetailsCard(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppSpacing.xl),
+                  const _SadadCard(),
+                  const SizedBox(height: AppSpacing.md),
+                  Text(
+                    InvoicePaymentKeys.sadadNote.tr(),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: AppColors.grey,
+                      fontSize: AppFontSizes.micro,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  OrderCard(
+                    child: ReceiptBreakdown(
+                      invoices: _invoices(),
+                      total: OrderFormatting.money(OrderMockData.receiptTotal),
+                      expanded: _detailsExpanded,
+                      onToggleExpanded: _toggleDetails,
+                      bordered: false,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
                   Center(
                     child: TextButton.icon(
                       onPressed: () {},
                       icon: const Icon(
                         Icons.file_download_outlined,
-                        color: Color(0xFF1E5FFF),
+                        color: AppColors.blue,
                       ),
-                      label: const Text(
-                        'تنزيل الإيصال',
-                        style: TextStyle(
-                          color: Color(0xFF1E5FFF),
-                          fontSize: 14,
+                      label: Text(
+                        OrderDetailKeys.downloadReceipt.tr(),
+                        style: const TextStyle(
+                          color: AppColors.blue,
+                          fontSize: AppFontSizes.bodyLarge,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -49,34 +107,25 @@ class InvoicePaymentScreen extends StatelessWidget {
                 ],
               ),
               Positioned(
-                left: 20,
-                right: 20,
-                bottom: 24,
+                left: AppSpacing.gutter,
+                right: AppSpacing.gutter,
+                bottom: AppSpacing.xl,
                 child: SizedBox(
-                  height: 56,
+                  height: AppSizes.orderConfirmButtonHeight,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1E5FFF),
+                      backgroundColor: AppColors.blue,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(OrderCard.radius),
                       ),
                       elevation: 0,
                     ),
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => const OrderDetailScreen(
-                            orderId: 'mock',
-                            mockState: MockOrderState.paid,
-                          ),
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      'تأكيد و إتمام الطلب',
-                      style: TextStyle(
+                    onPressed: _confirm,
+                    child: Text(
+                      InvoicePaymentKeys.confirmAndComplete.tr(),
+                      style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 16,
+                        fontSize: AppFontSizes.title,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -89,92 +138,36 @@ class InvoicePaymentScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildTopBar(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(14),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x0F000000),
-                    blurRadius: 10,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: const Icon(
-                Icons.notifications_none,
-                color: Color(0xFF0F1B2E),
-              ),
-            ),
-            Positioned(
-              right: -4,
-              top: -6,
-              child: Container(
-                width: 20,
-                height: 20,
-                alignment: Alignment.center,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFEF3F3F),
-                  shape: BoxShape.circle,
-                ),
-                child: const Text(
-                  '3',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        SvgPicture.asset('assets/HomePage/appBar Logo.svg', height: 20),
-        GestureDetector(
-          onTap: () => Navigator.of(context).pop(),
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x0F000000),
-                  blurRadius: 10,
-                  offset: Offset(0, 2),
-                ),
-              ],
-            ),
-            child: const Directionality(
-              textDirection: TextDirection.ltr,
-              child: Icon(
-                Icons.arrow_back_ios,
-                size: 20,
-                color: Color(0xFF0F1B2E),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+/// The current order plus the deferred invoice standing behind it.
+List<ReceiptInvoice> _invoices() {
+  ReceiptInvoice block({required bool deferred}) => (
+    lineItem: OrderFormatting.lineItem(
+      OrderMockData.fuelGrade,
+      OrderMockData.quantityLitres,
+    ),
+    lineTotal: OrderFormatting.money(OrderMockData.fuelLineTotal),
+    deliveryFee: OrderFormatting.money(OrderMockData.deliveryFee),
+    serviceFee: OrderFormatting.money(OrderMockData.serviceFee),
+    deferred: deferred,
+  );
 
-  Widget _buildSadadCard() {
+  return [block(deferred: false), block(deferred: true)];
+}
+
+/// Invoice identity, boxed in the SADAD colourway.
+class _SadadCard extends StatelessWidget {
+  const _SadadCard();
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(AppSpacing.gutter),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF97316)),
+        borderRadius: BorderRadius.circular(OrderCard.radius),
+        border: Border.all(color: AppColors.warningOrange),
       ),
       child: Column(
         children: [
@@ -182,261 +175,78 @@ class InvoicePaymentScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'بيانات الفاتورة',
-                    style: TextStyle(
-                      color: Color(0xFF0F1B2E),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    '# 889241035',
-                    style: TextStyle(color: Color(0xFF8A93A6), fontSize: 12),
-                  ),
-                ],
-              ),
-              SvgPicture.asset('assets/Order/Sadaad.svg', height: 32),
-            ],
-          ),
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'رقم الفاتورة',
-                    style: TextStyle(
-                      color: Color(0xFF8A93A6),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFEEF2FF),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Text(
-                          '40521',
-                          style: TextStyle(
-                            color: Color(0xFF0F1B2E),
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      SvgPicture.asset(
-                        'assets/icons/copy.svg',
-                        width: 18,
-                        height: 18,
-                        colorFilter: const ColorFilter.mode(
-                          Color(0xFF17A34A),
-                          BlendMode.srcIn,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'رقم المؤسسة',
-                    style: TextStyle(
-                      color: Color(0xFF8A93A6),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Text(
-                        '889241035',
-                        style: TextStyle(
-                          color: Color(0xFF0F1B2E),
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      SvgPicture.asset(
-                        'assets/icons/copy.svg',
-                        width: 18,
-                        height: 18,
-                        colorFilter: const ColorFilter.mode(
-                          Color(0xFF17A34A),
-                          BlendMode.srcIn,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'صالحة حتى',
-                style: TextStyle(
-                  color: Color(0xFF8A93A6),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const Text(
-                'اليوم 06:30 صباحاً',
-                style: TextStyle(
-                  color: Color(0xFF17A34A),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInvoiceDetailsCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          _buildBreakdownRow(
-            'بنزين 95 • 20,000 لتر',
-            '450,000.00 ر.س',
-            isMain: true,
-          ),
-          const SizedBox(height: 8),
-          _buildBreakdownRow('رسوم التوصيل', '30.00 ر.س'),
-          const SizedBox(height: 8),
-          _buildBreakdownRow('رسوم خدمة', '30.00 ر.س'),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEEF2FF),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: SvgPicture.asset(
-                  'assets/icons/copy.svg',
-                  width: 16,
-                  height: 16,
-                  colorFilter: const ColorFilter.mode(
-                    Color(0xFF1E5FFF),
-                    BlendMode.srcIn,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'فاتورة مؤجلة',
-                    style: TextStyle(
-                      color: Color(0xFFF97316),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const Text(
-                    'يجب دفع الفاتورة المؤجلة لاستكمال العملية الحالية',
-                    style: TextStyle(color: Color(0xFF17A34A), fontSize: 10),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          _buildBreakdownRow('بنزين 95 • 20,000 لتر', '450,000.00 ر.س'),
-          const SizedBox(height: 8),
-          _buildBreakdownRow('رسوم التوصيل', '30.00 ر.س'),
-          const SizedBox(height: 8),
-          _buildBreakdownRow('رسوم خدمة', '30.00 ر.س'),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              const Expanded(child: Divider(color: Color(0xFFE6E9F0))),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Row(
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'إخفاء التفاصيل',
-                      style: TextStyle(
-                        color: Color(0xFF17A34A),
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    const Icon(
-                      Icons.visibility_off_outlined,
-                      color: Color(0xFF17A34A),
-                      size: 14,
-                    ),
-                  ],
-                ),
-              ),
-              const Expanded(child: Divider(color: Color(0xFFE6E9F0))),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'الإجمالي',
-                style: TextStyle(
-                  color: Color(0xFF0F1B2E),
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              RichText(
-                text: const TextSpan(
-                  children: [
-                    TextSpan(
-                      text: '600,120.00 ',
-                      style: TextStyle(
-                        color: Color(0xFF17A34A),
-                        fontSize: 18,
+                    Text(
+                      InvoicePaymentKeys.invoiceDetails.tr(),
+                      style: const TextStyle(
+                        color: AppColors.navy,
+                        fontSize: AppFontSizes.title,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    TextSpan(
-                      text: 'ر.س',
-                      style: TextStyle(color: Color(0xFF17A34A), fontSize: 14),
+                    const SizedBox(height: AppSpacing.xs),
+                    const Text(
+                      OrderMockData.receiptReference,
+                      style: TextStyle(
+                        color: AppColors.grey,
+                        fontSize: AppFontSizes.footnote,
+                      ),
                     ),
                   ],
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              SvgPicture.asset(
+                AppAssets.sadaadLogo,
+                height: AppSizes.orderInvoiceLogoHeight,
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _CopyableNumber(
+                  label: InvoicePaymentKeys.invoiceNumber.tr(),
+                  value: OrderMockData.invoiceNumber,
+                  highlighted: true,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: _CopyableNumber(
+                  label: InvoicePaymentKeys.billerNumber.tr(),
+                  value: OrderMockData.billerNumber,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                InvoicePaymentKeys.validUntil.tr(),
+                style: const TextStyle(
+                  color: AppColors.grey,
+                  fontSize: AppFontSizes.footnote,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              const Flexible(
+                child: Text(
+                  OrderMockData.invoiceValidUntil,
+                  textAlign: TextAlign.end,
+                  style: TextStyle(
+                    color: AppColors.green,
+                    fontSize: AppFontSizes.footnote,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],
@@ -445,26 +255,83 @@ class InvoicePaymentScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildBreakdownRow(String title, String value, {bool isMain = false}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+/// A labelled reference the customer has to retype into their banking app,
+/// with the copy affordance that saves them from doing so.
+class _CopyableNumber extends StatelessWidget {
+  const _CopyableNumber({
+    required this.label,
+    required this.value,
+    this.highlighted = false,
+  });
+
+  final String label;
+  final String value;
+
+  /// The invoice number is chipped in the design; the biller number is not.
+  final bool highlighted;
+
+  @override
+  Widget build(BuildContext context) {
+    final number = Text(
+      value,
+      maxLines: 1,
+      style: const TextStyle(
+        color: AppColors.navy,
+        fontSize: AppFontSizes.titleLarge,
+        fontWeight: FontWeight.w800,
+      ),
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          title,
-          style: TextStyle(
-            color: const Color(0xFF8A93A6),
-            fontSize: isMain ? 11 : 10,
-            fontWeight: isMain ? FontWeight.w700 : FontWeight.normal,
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            color: AppColors.grey,
+            fontSize: AppFontSizes.footnote,
+            fontWeight: FontWeight.w700,
           ),
         ),
-        Text(
-          value,
-          style: TextStyle(
-            color: const Color(0xFF0F1B2E),
-            fontSize: isMain ? 13 : 12,
-            fontWeight: isMain ? FontWeight.w700 : FontWeight.normal,
-          ),
+        const SizedBox(height: AppSpacing.sm),
+        Row(
+          children: [
+            Flexible(
+              child: highlighted
+                  ? Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.md,
+                        vertical: AppSizes.orderChipPaddingV,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.blueTintAlt,
+                        borderRadius: BorderRadius.circular(
+                          AppSizes.orderChipRadius,
+                        ),
+                      ),
+                      child: number,
+                    )
+                  : number,
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            GestureDetector(
+              onTap: () => Clipboard.setData(ClipboardData(text: value)),
+              behavior: HitTestBehavior.opaque,
+              child: SvgPicture.asset(
+                AppAssets.copyIcon,
+                width: AppSizes.orderInvoiceCopyIconSize,
+                height: AppSizes.orderInvoiceCopyIconSize,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.green,
+                  BlendMode.srcIn,
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
+import '../../../../../core/theme/app_text_styles.dart';
 
 /// The muted pill the design uses for an order's headline state — قيد
 /// التوصيل, تم التأكيد, الفاتورة معلقة.
@@ -26,9 +27,11 @@ class StatusChip extends StatelessWidget {
       ),
       child: Text(
         label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(
           color: color,
-          fontSize: 13,
+          fontSize: AppFontSizes.body,
           fontWeight: FontWeight.w700,
         ),
       ),

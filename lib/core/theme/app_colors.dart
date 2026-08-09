@@ -161,6 +161,20 @@ class AppColors {
   /// Tint behind the credit-card icon on the credit-limit card. Distinct
   /// from [AppPalette.orangeTint] — a separate one-off from the same design.
   static const Color creditIconBackground = Color(0xFFFFF7ED);
+
+  /// The completed-step green on the order stepper. A shade cooler than
+  /// [green] — it matches `light.brandGreen`, but is declared flat here for
+  /// the same reason [blue] and [red] are.
+  static const Color successGreen = Color(0xFF12A150);
+
+  /// Ink for labels that sit *outside* a card — the order stepper's four
+  /// step names. Lighter than [navy], darker than [grey]; matches
+  /// `light.textSecondary`.
+  static const Color mutedLabel = Color(0xFF6B7280);
+
+  /// The unfilled part of a progress track — the order stepper's bars and
+  /// the in-transit ETA gauge. Matches `light.borderHairline`.
+  static const Color track = Color(0xFFE7E9EF);
 }
 
 /// One resolved set of semantic colours. Both [AppColors.light] and

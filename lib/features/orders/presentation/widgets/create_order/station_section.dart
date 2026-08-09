@@ -1,11 +1,16 @@
+// `easy_localization` re-exports intl, whose own `TextDirection` would
+// otherwise shadow the `dart:ui` one this file lays the chevron out with.
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../../core/constants/app_assets.dart';
+import '../../../../../core/localization/translation_keys.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
+import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/widgets/order_card.dart';
-import '../../constants/create_order_strings.dart';
+import '../../constants/order_mock_data.dart';
 import 'create_order_data.dart';
 
 /// "1. نوع الوقود" — the current-station summary plus favourite-station
@@ -14,8 +19,8 @@ import 'create_order_data.dart';
 /// shows.)
 class StationSection extends StatelessWidget {
   const StationSection({
-    this.stationName = 'محطة الرحاب',
-    this.stationAddress = 'جدة - طريق مكة القديم - حي البوادي',
+    this.stationName = OrderMockData.stationName,
+    this.stationAddress = OrderMockData.stationAddress,
     this.favouriteStations = kFavouriteStations,
     this.onChangeStation,
     super.key,
@@ -29,17 +34,21 @@ class StationSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OrderCard(
-      title: CreateOrderStrings.sectionStation,
+      title: CreateOrderKeys.sectionStation.tr(),
       child: Column(
         children: [
           Row(
             children: [
+              const Icon(
+                Icons.arrow_back_ios,
+                color: AppColors.navy,
+                size: AppSizes.icon16,
+              ),
+              const SizedBox(width: AppSpacing.sm),
               // `station.png` is a 1024x1024 bitmap embedded as base64 and
               // painted through an SVG <pattern>; flutter_svg does not
               // rasterise <image> elements, so it draws nothing — this is
               // that same bitmap, extracted so it can be shown directly.
-              const Icon(Icons.arrow_back_ios, color: AppColors.navy, size: AppSizes.icon16),
-              const SizedBox(width: AppSpacing.sm),
               Image.asset(
                 AppAssets.orderStationArt,
                 width: AppSizes.orderStationArtSize,
@@ -53,15 +62,19 @@ class StationSection extends StatelessWidget {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text(
-                          CreateOrderStrings.currentStation,
-                          style: TextStyle(
-                            color: AppColors.green,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
+                        Flexible(
+                          child: Text(
+                            CreateOrderKeys.currentStation.tr(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: AppColors.green,
+                              fontSize: AppFontSizes.body,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: AppSpacing.xs),
                         SvgPicture.asset(
                           AppAssets.orderPinIcon,
                           width: AppSizes.iconMd,
@@ -76,16 +89,24 @@ class StationSection extends StatelessWidget {
                     const SizedBox(height: AppSpacing.sm),
                     Text(
                       stationName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.end,
                       style: const TextStyle(
                         color: AppColors.navy,
-                        fontSize: 18,
+                        fontSize: AppFontSizes.titleLarge,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
                       stationAddress,
-                      style: const TextStyle(color: AppColors.grey, fontSize: 12),
+                      maxLines: 2,
+                      textAlign: TextAlign.end,
+                      style: const TextStyle(
+                        color: AppColors.grey,
+                        fontSize: AppFontSizes.footnote,
+                      ),
                     ),
                   ],
                 ),
@@ -93,45 +114,59 @@ class StationSection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          const Divider(height: AppSizes.dividerThickness, color: AppColors.itemBorder),
+          const Divider(
+            height: AppSizes.dividerThickness,
+            color: AppColors.itemBorder,
+          ),
           const SizedBox(height: AppSpacing.md),
-          const Row(
+          Row(
             children: [
-              Icon(Icons.star_border_rounded, size: AppSizes.iconMd, color: AppColors.grey),
-              SizedBox(width: 6),
+              const Icon(
+                Icons.star_border_rounded,
+                size: AppSizes.iconMd,
+                color: AppColors.grey,
+              ),
+              const SizedBox(width: AppSpacing.xs),
               Text(
-                CreateOrderStrings.favouriteStations,
-                style: TextStyle(color: AppColors.grey, fontSize: 13),
+                CreateOrderKeys.favouriteStations.tr(),
+                style: const TextStyle(
+                  color: AppColors.grey,
+                  fontSize: AppFontSizes.body,
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: AppSpacing.sm),
           // Sharing the width rather than scrolling, so the third station
           // is never clipped off the edge.
-          Row(
-            children: [
-              for (final (index, station) in favouriteStations.indexed) ...[
-                if (index > 0) const SizedBox(width: AppSpacing.sm),
-                Expanded(child: _FavouriteStationChip(station: station)),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final (index, station) in favouriteStations.indexed) ...[
+                  if (index > 0) const SizedBox(width: AppSpacing.sm),
+                  Expanded(child: _FavouriteStationChip(station: station)),
+                ],
               ],
-            ],
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
           GestureDetector(
             onTap: onChangeStation,
-            child: const Row(
+            behavior: HitTestBehavior.opaque,
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
-                  CreateOrderStrings.changeStation,
-                  style: TextStyle(
+                  CreateOrderKeys.changeStation.tr(),
+                  style: const TextStyle(
                     color: AppColors.green,
-                    fontSize: 14,
+                    fontSize: AppFontSizes.bodyLarge,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                SizedBox(width: AppSpacing.xs),
-                Directionality(
+                const SizedBox(width: AppSpacing.xs),
+                const Directionality(
                   textDirection: TextDirection.ltr,
                   child: Icon(
                     Icons.arrow_back_ios,
@@ -156,14 +191,16 @@ class _FavouriteStationChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.sm,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(AppSizes.orderFavouriteChipRadius),
         border: Border.all(color: AppColors.itemBorder),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
           Expanded(
             child: Column(
@@ -176,7 +213,7 @@ class _FavouriteStationChip extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: AppColors.navy,
-                    fontSize: 11,
+                    fontSize: AppFontSizes.caption,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -184,13 +221,20 @@ class _FavouriteStationChip extends StatelessWidget {
                   station.area,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: AppColors.grey, fontSize: 9),
+                  style: const TextStyle(
+                    color: AppColors.grey,
+                    fontSize: AppFontSizes.micro,
+                  ),
                 ),
               ],
             ),
           ),
           const SizedBox(width: AppSpacing.xs),
-          SvgPicture.asset(AppAssets.orderBarePinIcon, width: AppSizes.iconSm, height: AppSizes.iconSm),
+          SvgPicture.asset(
+            AppAssets.orderBarePinIcon,
+            width: AppSizes.iconSm,
+            height: AppSizes.iconSm,
+          ),
         ],
       ),
     );

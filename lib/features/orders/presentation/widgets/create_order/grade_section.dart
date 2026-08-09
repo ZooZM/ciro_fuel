@@ -1,11 +1,13 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../../core/localization/translation_keys.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
+import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/widgets/fuel_pump_icon.dart';
 import '../../../../../core/widgets/order_card.dart';
 import '../../../../../shared/enums/fuel_grade.dart';
-import '../../constants/create_order_strings.dart';
 
 /// "2. نوع الوقود" — the row of selectable fuel-grade tiles. Any number of
 /// grades may be selected at once, each ordered independently.
@@ -24,7 +26,7 @@ class GradeSection extends StatelessWidget {
     const grades = FuelGrade.values;
 
     return OrderCard(
-      title: CreateOrderStrings.sectionGrade,
+      title: CreateOrderKeys.sectionGrade.tr(),
       child: Row(
         children: [
           for (final (index, grade) in grades.indexed) ...[
@@ -54,7 +56,7 @@ class _GradeTile extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
-  static const _pumpIconSize = 38.0;
+  static const _checkOffset = -4.0;
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +64,7 @@ class _GradeTile extends StatelessWidget {
       onTap: onTap,
       child: Container(
         height: AppSizes.orderGradeTileHeight,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
         decoration: BoxDecoration(
           color: selected ? AppColors.light.greenTint : Colors.white,
           borderRadius: BorderRadius.circular(AppRadii.tile),
@@ -72,53 +75,53 @@ class _GradeTile extends StatelessWidget {
                 : AppSizes.orderTileBorderWidth,
           ),
         ),
-        child: Stack(
-          children: [
-            Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Stack(
+                clipBehavior: Clip.none,
                 children: [
-                  Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      FuelPumpIcon(
-                        grade: grade.badge,
-                        color: grade.color,
-                        size: _pumpIconSize,
-                      ),
-                      if (selected)
-                        const Positioned(
-                          top: -4,
-                          right: -4,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white,
-                            ),
-                            child: Icon(
-                              Icons.check_circle,
-                              size: AppSizes.iconMd,
-                              color: AppColors.green,
-                            ),
-                          ),
+                  FuelPumpIcon(
+                    grade: grade.badge,
+                    color: grade.color,
+                    size: AppSizes.orderGradePumpIconSize,
+                  ),
+                  if (selected)
+                    const Positioned(
+                      top: _checkOffset,
+                      right: _checkOffset,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white,
                         ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    grade.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: AppColors.navy,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
+                        child: Icon(
+                          Icons.check_circle,
+                          size: AppSizes.iconMd,
+                          color: AppColors.green,
+                        ),
+                      ),
                     ),
-                  ),
                 ],
               ),
-            ),
-          ],
+              const SizedBox(height: AppSpacing.sm),
+              // Five grades across a phone leave ~60pt each; scaling the
+              // label keeps "بنزين 95" whole instead of ellipsising it.
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  grade.title,
+                  maxLines: 1,
+                  style: const TextStyle(
+                    color: AppColors.navy,
+                    fontSize: AppFontSizes.caption,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

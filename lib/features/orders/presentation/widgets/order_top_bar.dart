@@ -6,19 +6,21 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/icon_card.dart';
 
-/// Notification bell, brand logo and back button across the top of the
-/// create-order and track-order screens.
+/// Notification bell, brand logo and back button across the top of every
+/// order screen — the form, the detail, the invoice and the tracker.
 class OrderTopBar extends StatelessWidget {
   const OrderTopBar({
     required this.notificationCount,
-    required this.onNotificationTap,
     required this.onBack,
+    this.onNotificationTap,
     super.key,
   });
 
   final int notificationCount;
-  final VoidCallback onNotificationTap;
   final VoidCallback onBack;
+
+  /// Omitted on the screens the design leaves the bell inert on.
+  final VoidCallback? onNotificationTap;
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +67,10 @@ class OrderTopBar extends StatelessWidget {
             ),
           ],
         ),
-        SvgPicture.asset(AppAssets.appBarLogo, height: AppSizes.appBarLogoHeight),
+        SvgPicture.asset(
+          AppAssets.appBarLogo,
+          height: AppSizes.appBarLogoHeight,
+        ),
         IconCard(
           onTap: onBack,
           child: const Directionality(

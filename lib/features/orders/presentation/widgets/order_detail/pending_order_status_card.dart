@@ -1,15 +1,18 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../../core/localization/translation_keys.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
+import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/widgets/order_card.dart';
-import '../../constants/order_detail_strings.dart';
+import '../../constants/order_mock_data.dart';
 
 /// The order-status card while the order is still awaiting review — just
 /// a headline and a cancel action.
 class PendingOrderStatusCard extends StatelessWidget {
   const PendingOrderStatusCard({
-    this.orderReference = 'ORD-2024-256 · 9 صفر 1448',
+    this.orderReference = OrderMockData.orderReference,
     this.onCancel,
     super.key,
   });
@@ -20,13 +23,13 @@ class PendingOrderStatusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OrderCard(
-      title: OrderDetailStrings.orderStatus,
+      title: OrderDetailKeys.orderStatus.tr(),
       subtitle: orderReference,
-      trailing: const Text(
-        OrderDetailStrings.pendingReview,
-        style: TextStyle(
+      trailing: Text(
+        OrderDetailKeys.pendingReview.tr(),
+        style: const TextStyle(
           color: AppColors.blue,
-          fontSize: 15,
+          fontSize: AppFontSizes.subtitle,
           fontWeight: FontWeight.w800,
         ),
       ),
@@ -45,11 +48,11 @@ class PendingOrderStatusCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(AppRadii.tile),
                 ),
               ),
-              child: const Text(
-                OrderDetailStrings.cancel,
-                style: TextStyle(
+              child: Text(
+                OrderDetailKeys.cancel.tr(),
+                style: const TextStyle(
                   color: AppColors.blue,
-                  fontSize: 14,
+                  fontSize: AppFontSizes.bodyLarge,
                   fontWeight: FontWeight.w700,
                 ),
               ),

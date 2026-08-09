@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_colors.dart';
+import '../theme/app_spacing.dart';
+import '../theme/app_text_styles.dart';
+
 /// The white card every step of the order flow sits in.
 ///
 /// The order form set the house style — 16pt padding, a 16pt radius, and 14pt
@@ -41,12 +45,19 @@ class OrderCard extends StatelessWidget {
   /// Hairline around the card, for the few that carry one.
   final Color? border;
 
-  static const double padding = 16;
-  static const double radius = 16;
+  static const double padding = AppSpacing.lg;
+  static const double radius = AppRadii.dashboardCard;
   static const double titleGapDefault = 14;
 
-  static const _titleStyle = TextStyle(color: Color(0xFF0F1B2E), fontSize: 15, fontWeight: FontWeight.w700);
-  static const _subtitleStyle = TextStyle(color: Color(0xFF8A93A6), fontSize: 12);
+  static const _titleStyle = TextStyle(
+    color: AppColors.navy,
+    fontSize: AppFontSizes.subtitle,
+    fontWeight: FontWeight.w700,
+  );
+  static const _subtitleStyle = TextStyle(
+    color: AppColors.grey,
+    fontSize: AppFontSizes.footnote,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +80,7 @@ class OrderCard extends StatelessWidget {
                     children: [
                       Text(title!, style: _titleStyle),
                       if (subtitle != null) ...[
-                        const SizedBox(height: 4),
+                        const SizedBox(height: AppSpacing.xs),
                         Text(subtitle!, style: _subtitleStyle),
                       ],
                     ],
@@ -96,11 +107,15 @@ class OrderCard extends StatelessWidget {
 class DashedCardBorderPainter extends CustomPainter {
   const DashedCardBorderPainter();
 
+  static const _strokeWidth = 1.2;
+  static const _dash = 6.0;
+  static const _dashPitch = 10.0;
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFF1E5FFF)
-      ..strokeWidth = 1.2
+      ..color = AppColors.blue
+      ..strokeWidth = _strokeWidth
       ..style = PaintingStyle.stroke;
 
     final path = Path()
@@ -114,8 +129,8 @@ class DashedCardBorderPainter extends CustomPainter {
     for (final metric in path.computeMetrics()) {
       var distance = 0.0;
       while (distance < metric.length) {
-        canvas.drawPath(metric.extractPath(distance, distance + 6), paint);
-        distance += 10;
+        canvas.drawPath(metric.extractPath(distance, distance + _dash), paint);
+        distance += _dashPitch;
       }
     }
   }

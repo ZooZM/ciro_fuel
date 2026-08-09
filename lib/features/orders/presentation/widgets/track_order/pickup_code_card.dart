@@ -1,21 +1,24 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../core/constants/app_assets.dart';
+import '../../../../../core/localization/translation_keys.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
+import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/widgets/order_card.dart';
-import '../../constants/order_detail_strings.dart';
-import '../../constants/track_order_strings.dart';
+import '../../constants/order_mock_data.dart';
+import '../order_detail/receipt_code_card.dart';
 
 /// The QR / numeric pickup-code card, tracking-screen flavour. Close to
-/// [order_detail]'s equivalent card but not merged with it: this one
-/// centres the handover note, wraps the two boxes in [IntrinsicHeight] so
-/// they match height, and centres the "أو" divider — small layout
-/// differences present in the original design.
+/// [ReceiptCodeCard] but not merged with it: this one centres the handover
+/// note and lets the card surface show through both boxes — small layout
+/// differences present in the original design. The code box itself and the
+/// warning banner are shared.
 class PickupCodeCard extends StatelessWidget {
   const PickupCodeCard({
-    this.code = '8 6 3 5 6 4',
-    this.timeRemaining = 'د 05:00',
+    this.code = OrderMockData.pickupCode,
+    this.timeRemaining = OrderMockData.pickupCodeTimeRemaining,
     super.key,
   });
 
@@ -28,162 +31,96 @@ class PickupCodeCard extends StatelessWidget {
     return OrderCard(
       child: Column(
         children: [
-          const Text(
-            OrderDetailStrings.handoverMethodTitle,
-            style: TextStyle(
+          Text(
+            OrderDetailKeys.handoverMethodTitle.tr(),
+            textAlign: TextAlign.center,
+            style: const TextStyle(
               color: AppColors.navy,
-              fontSize: 14,
+              fontSize: AppFontSizes.bodyLarge,
               fontWeight: FontWeight.w800,
             ),
           ),
           const SizedBox(height: AppSpacing.xs),
-          const Text(
-            TrackOrderStrings.handoverNote,
+          Text(
+            TrackOrderKeys.handoverNote.tr(),
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.grey, fontSize: 10),
+            style: const TextStyle(
+              color: AppColors.grey,
+              fontSize: AppFontSizes.micro,
+            ),
           ),
           const SizedBox(height: AppSpacing.lg),
           IntrinsicHeight(
             child: Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(AppRadii.tile),
-                    border: Border.all(color: AppColors.itemBorder),
+                const _QrBox(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        OrderDetailStrings.qrLabel,
-                        style: TextStyle(
-                          color: AppColors.navy,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      Image.asset(
-                        AppAssets.qrCodeImage,
-                        width: AppSizes.orderQrImageSize,
-                        height: AppSizes.orderQrImageSize,
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      const Text(
-                        OrderDetailStrings.showThisToDriver,
-                        style: TextStyle(color: AppColors.grey, fontSize: 8),
-                      ),
-                    ],
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
                   child: Center(
                     child: Text(
-                      OrderDetailStrings.or,
-                      style: TextStyle(
+                      OrderDetailKeys.or.tr(),
+                      style: const TextStyle(
                         color: AppColors.navy,
-                        fontSize: 12,
+                        fontSize: AppFontSizes.footnote,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
                 ),
                 Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(AppRadii.tile),
-                      border: Border.all(color: AppColors.itemBorder),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          OrderDetailStrings.pickupCode,
-                          style: TextStyle(
-                            color: AppColors.navy,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.sm),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: code
-                              .split(' ')
-                              .map(
-                                (e) => Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: AppSpacing.xs,
-                                  ),
-                                  child: Text(
-                                    e,
-                                    style: const TextStyle(
-                                      color: AppColors.green,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                ),
-                              )
-                              .toList(),
-                        ),
-                        const SizedBox(height: AppSpacing.sm),
-                        const Text(
-                          OrderDetailStrings.validFor,
-                          style: TextStyle(color: AppColors.grey, fontSize: 10),
-                        ),
-                        const SizedBox(height: AppSpacing.xs),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              timeRemaining,
-                              style: const TextStyle(
-                                color: AppColors.green,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            const SizedBox(width: AppSpacing.xs),
-                            const Icon(
-                              Icons.timer_outlined,
-                              color: AppColors.green,
-                              size: AppSizes.iconSm,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                  child: PickupCodeBox(
+                    code: code,
+                    timeRemaining: timeRemaining,
+                    filled: false,
                   ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-            decoration: BoxDecoration(
-              color: AppColors.light.greenTint,
-              borderRadius: BorderRadius.circular(AppSizes.orderChipRadius),
+          const CodeShareWarningBanner(),
+        ],
+      ),
+    );
+  }
+}
+
+class _QrBox extends StatelessWidget {
+  const _QrBox();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppRadii.tile),
+        border: Border.all(color: AppColors.itemBorder),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            OrderDetailKeys.qrLabel.tr(),
+            style: const TextStyle(
+              color: AppColors.navy,
+              fontSize: AppFontSizes.micro,
+              fontWeight: FontWeight.w800,
             ),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  OrderDetailStrings.codeShareWarning,
-                  style: TextStyle(color: AppColors.green, fontSize: 10),
-                ),
-                SizedBox(width: AppSizes.orderCodeBannerIconGap),
-                Icon(
-                  Icons.verified_user_outlined,
-                  color: AppColors.green,
-                  size: AppSizes.iconSm,
-                ),
-              ],
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Image.asset(
+            AppAssets.qrCodeImage,
+            width: AppSizes.orderQrImageSize,
+            height: AppSizes.orderQrImageSize,
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            OrderDetailKeys.showThisToDriver.tr(),
+            style: const TextStyle(
+              color: AppColors.grey,
+              fontSize: AppFontSizes.nano,
             ),
           ),
         ],

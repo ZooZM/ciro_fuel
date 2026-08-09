@@ -1,15 +1,19 @@
 import 'dart:ui';
 
+// `easy_localization` re-exports intl, whose own `TextDirection` would
+// otherwise shadow the `dart:ui` one this screen sets RTL with.
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/localization/translation_keys.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/utils/number_formatting.dart';
 import '../../../../shared/enums/fuel_grade.dart';
 import '../../../../shared/enums/fuel_type.dart';
-import '../constants/create_order_strings.dart';
+import '../constants/order_formatting.dart';
+import '../constants/order_mock_data.dart';
 import '../widgets/create_order/confirm_button.dart';
 import '../widgets/create_order/create_order_data.dart';
 import '../widgets/create_order/delivery_section.dart';
@@ -91,7 +95,9 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   Future<void> _submit() async {
     if (_quantities.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text(CreateOrderStrings.selectAtLeastOneFuelType)),
+        SnackBar(
+          content: Text(CreateOrderKeys.selectAtLeastOneFuelType.tr()),
+        ),
       );
       return;
     }
@@ -105,7 +111,11 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
       if (quantity == null || quantity <= 0) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(CreateOrderStrings.enterValidQuantityFor(grade.title)),
+            content: Text(
+              CreateOrderKeys.enterValidQuantityFor.tr(
+                namedArgs: {'grade': grade.title},
+              ),
+            ),
           ),
         );
         return;
@@ -157,8 +167,9 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                 ),
                 children: [
                   OrderTopBar(
-                    notificationCount: 3,
-                    onNotificationTap: () => context.push(AppRoutes.notifications),
+                    notificationCount: OrderMockData.notificationCount,
+                    onNotificationTap: () =>
+                        context.push(AppRoutes.notifications),
                     onBack: () => context.canPop()
                         ? context.pop()
                         : context.go(AppRoutes.clientHome),
@@ -198,7 +209,10 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                 bottom: 0,
                 child: ClipRect(
                   child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                    filter: ImageFilter.blur(
+                      sigmaX: AppSizes.orderActionBarBlur,
+                      sigmaY: AppSizes.orderActionBarBlur,
+                    ),
                     child: Container(
                       padding: const EdgeInsets.fromLTRB(
                         AppSpacing.gutter,
@@ -207,7 +221,9 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                         AppSpacing.lg,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.8),
+                        color: Colors.white.withValues(
+                          alpha: AppSizes.orderActionBarOpacity,
+                        ),
                       ),
                       child: ConfirmButton(
                         submitting: _submitting,
@@ -233,20 +249,16 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     final quantity =
         firstEntry.value ?? int.tryParse(controller.text.trim()) ?? 0;
 
-    const pricePerLiter = 2.33;
-    final fuelTotal = quantity * pricePerLiter;
-    const transportFees = 1200.00;
-    const vatMock = 6000.00;
-    const finalTotal = 46600.00;
-
     return OrderSummaryCard(
       fuelType: grade.title,
-      quantity: '${NumberFormatting.thousands(quantity)} ${CreateOrderStrings.litre}',
-      pricePerLiter: '${pricePerLiter.toStringAsFixed(2)} ريال',
-      totalWithTax: '${NumberFormatting.currency(fuelTotal)} ريال',
-      transportFees: '${NumberFormatting.currency(transportFees)} ريال',
-      vat: '${NumberFormatting.currency(vatMock)} ريال',
-      finalTotal: '${NumberFormatting.currency(finalTotal)} ريال',
+      quantity: OrderFormatting.litres(quantity),
+      pricePerLiter: OrderFormatting.moneyLong(OrderMockData.pricePerLitre),
+      totalWithTax: OrderFormatting.moneyLong(
+        quantity * OrderMockData.pricePerLitre,
+      ),
+      transportFees: OrderFormatting.moneyLong(OrderMockData.transportFees),
+      vat: OrderFormatting.moneyLong(OrderMockData.vat),
+      finalTotal: OrderFormatting.moneyLong(OrderMockData.summaryTotal),
     );
   }
 }

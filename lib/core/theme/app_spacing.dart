@@ -197,4 +197,54 @@ abstract final class AppSizes {
   static const double orderConfirmButtonHeight = 56;
 
   static const double orderCodeBannerIconGap = 6;
+
+  /// Narrowest a quantity tile may get before the row rewraps. Four tiles
+  /// across only reads on a normal phone; below this the section folds to
+  /// two-per-row so "33,000 لتر" is never squeezed to an ellipsis.
+  static const double orderQuantityTileMinWidth = 74;
+
+  /// Tallest a delivery tile has to be to hold an icon over a two-line
+  /// title and a two-line subtitle without clipping either.
+  static const double orderDeliveryTileMinHeight = 116;
+
+  /// The driver-notes well: a multi-line field, not the single squeezed
+  /// line the first cut of the screen shipped with.
+  static const double orderNotesFieldMinHeight = 96;
+  static const int orderNotesMinLines = 3;
+  static const int orderNotesMaxLines = 6;
+
+  /// How long the receipt breakdown takes to fold away behind
+  /// "إخفاء التفاصيل".
+  static const Duration orderDetailsCollapseDuration = Duration(
+    milliseconds: 220,
+  );
+
+  static const double orderInvoiceLogoHeight = 32;
+  static const double orderPaymentLogoHeight = 34;
+  static const double orderReceiptLogoHeight = 26;
+  static const double orderCopyIconSize = 16;
+  static const double orderInvoiceCopyIconSize = 18;
+  static const double orderSealSize = 64;
+  static const double orderSealIconSize = 30;
+  static const double orderGaugeSize = 76;
+  static const double orderGaugeStroke = 8;
+  static const double orderGradePumpIconSize = 38;
+  static const double orderConfirmPumpIconSize = 22;
+  static const double orderStatIconSize = 36;
+  static const double orderDriverPhotoSize = 54;
+  static const double orderTruckImageWidth = 60;
+  static const double orderTruckImageHeight = 36;
+  static const double orderMapHeight = 300;
+  static const double orderMapButtonSize = 48;
+  static const double orderMapButtonGap = 10;
+  static const double orderStepDotSize = 3;
+  static const double orderStepTrackHeight = 8;
+  static const double orderStepTrackRadius = 4;
+  static const double orderStatusDotSize = 5;
+  static const double orderDividerWidth = 14;
+
+  /// The create-order form's sticky action bar frosts the content scrolling
+  /// under it rather than hiding it behind an opaque panel.
+  static const double orderActionBarBlur = 10;
+  static const double orderActionBarOpacity = 0.8;
 }

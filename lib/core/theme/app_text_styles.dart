@@ -2,6 +2,31 @@ import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
 
+/// The type ramp the mockup-style screens (home dashboard, order flow) are
+/// drawn against.
+///
+/// Those screens predate [AppTextStyles] and pair their sizes with the
+/// mode-independent colours in [AppColors], so they cannot use its
+/// palette-resolved styles. This gives them named sizes instead of the
+/// literals that were scattered across the widget tree (Constitution
+/// Principle I).
+abstract final class AppFontSizes {
+  /// Dense supporting labels inside the tracking cards and the delivery
+  /// timeline, where the design stacks three lines into ~36pt of height.
+  /// Nothing a customer must actually read goes here — use [micro] upward.
+  static const double nano = 8;
+
+  static const double micro = 10;
+  static const double caption = 11;
+  static const double footnote = 12;
+  static const double body = 13;
+  static const double bodyLarge = 14;
+  static const double subtitle = 15;
+  static const double title = 16;
+  static const double titleLarge = 18;
+  static const double display = 20;
+}
+
 /// Named, fully-formed text styles — including colour — resolved against the
 /// palette for the current brightness.
 ///

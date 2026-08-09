@@ -37,6 +37,154 @@
     "title": "استعادة كلمة المرور",
     "body": "سنرسل لك رمز تحقق على رقم جوالك لإعادة تعيين كلمة المرور."
   },
+  "orders": {
+    "list_title": "الطلبات",
+    "load_failed": "تعذر تحميل الطلبات. اضغط لإعادة المحاولة.",
+    "empty": "لا توجد طلبات بعد",
+    "litre_unit": "لتر",
+    "currency": "ر.س",
+    "currency_long": "ريال",
+    "quantity_in_litres": "{quantity} لتر",
+    "amount_with_currency": "{amount} ر.س",
+    "amount_with_currency_long": "{amount} ريال"
+  },
+  "order_create": {
+    "title": "طلب وقود جديد",
+    "subtitle": "اطلب الوقود خلال أقل من دقيقة",
+
+    "section_station": "1. نوع الوقود",
+    "section_grade": "2. نوع الوقود",
+    "section_quantity": "3. الكمية",
+    "section_delivery": "4. موعد التوصيل",
+    "section_payment": "5. طريقة الدفع",
+
+    "current_station": "المحطة الحالية",
+    "favourite_stations": "محطاتك المفضلة",
+    "change_station": "تغيير المحطة",
+
+    "choose_fuel_type_first": "الرجاء اختيار نوع الوقود أولاً",
+    "custom_quantity": "كمية أخرى",
+
+    "schedule_title": "جدول موعد",
+    "schedule_subtitle": "اختر التاريخ و الوقت",
+    "today_title": "اليوم",
+    "today_subtitle": "توصيل خلال نفس اليوم",
+    "fastest_title": "بأسرع وقت",
+    "fastest_subtitle": "أقرب وقت متاح",
+
+    "notes_label": "ملاحظات للسائق (اختياري)",
+    "notes_hint": "اكتب أي ملاحظات خاصة بالتوصيل ...",
+
+    "confirm_order": "تأكيد الطلب",
+    "select_at_least_one_fuel_type": "الرجاء اختيار نوع وقود واحد على الأقل",
+    "enter_valid_quantity_for": "أدخل كمية صحيحة لـ {grade}"
+  },
+  "order_detail": {
+    "order_status": "حالة الطلب",
+    "order_summary": "ملخص الطلب",
+
+    "step_confirm_order": "تأكيد الطلب",
+    "step_payment": "الدفع",
+    "step_delivery": "التوصيل",
+    "step_handover": "التسليم",
+
+    "fuel_type": "نوع الوقود",
+    "quantity": "الكمية",
+    "price_per_liter": "سعر اللتر",
+    "total_with_tax": "الإجمالي\n(شامل الضريبة)",
+    "transport_fees": "رسوم النقل",
+    "vat": "ضريبة القيمة المضافة\n(%15)",
+    "final_total": "الإجمالي النهائي",
+
+    "headline_deferred": "مؤجلة للمرة القادمة",
+    "headline_paid": "تم السداد",
+    "headline_delivered": "تم التسليم",
+    "order_another": "طلب أخر",
+
+    "paid_successfully": "تم الدفع بنجاح",
+    "reference_number": "الرقم المرجعي",
+    "day": "اليوم",
+    "hour": "الساعة",
+    "download_receipt": "تنزيل الإيصال",
+    "share_receipt": "مشاركة الإيصال",
+    "deferred_invoice_title": "فاتورة مؤجلة",
+    "deferred_invoice_note": "يجب دفع الفاتورة المؤجلة لاستكمال العملية الحالية",
+    "delivery_fee": "رسوم التوصيل",
+    "service_fee": "رسوم خدمة",
+    "total": "الإجمالي",
+    "show_details": "إظهار التفاصيل",
+    "hide_details": "إخفاء التفاصيل",
+
+    "in_delivery": "قيد التوصيل",
+    "driver": "السائق",
+    "truck": "الشاحنة",
+    "arrival_in": "الوصول خلال",
+    "minutes": "دقيقة",
+    "track_on_map": "تتبع الطلب علي الخريطة",
+    "contact_driver": "تواصل مع السائق",
+
+    "handover_method_title": "طريقة الاستلام عند وصول الطلب",
+    "handover_method_note": "لضمان إستلام أمن و سريع، أعرض علي السائق التالي لاستكمال عملية الاستلام.",
+    "qr_label": "QR",
+    "show_this_to_driver": "اعرض هذا للسائق",
+    "or": "أو",
+    "pickup_code": "كود الإستلام",
+    "valid_for": "صالح لمدة",
+    "code_share_warning": "لا تقم بمشاركة الكود مع أي شخص غير السائق الخاص بالطلب",
+
+    "invoice_pending": "الفاتورة معلقة",
+    "confirmed": "تم التأكيد",
+    "complete_payment": "إكمال الدفع",
+    "pay": "إدفع",
+    "cancel": "إلغاء",
+    "pay_next_time": "إدفع المرة القادمة",
+    "request_credit_limit": "أطلب حد إئتماني",
+    "pending_review": "قيد المراجعة",
+
+    "credit_limit": "الحد الإئتماني",
+    "credit_valid_until": "صالح حتى {date}",
+    "credit_total_limit": "من {amount} ر.س",
+    "credit_used": "مستخدم {amount} ر.س ({percent})",
+    "active": "نشط",
+    "available_now": "المتاح للدفع الآن",
+    "credit_limit_in_budget": "هذا الطلب ضمن حدك الإئتماني",
+    "pay_from_credit_limit": "أدفع من الحد الإئتماني",
+
+    "support": "الدعم",
+    "change_mock_state": "تغيير الحالة (Mock)"
+  },
+  "order_track": {
+    "title": "تتبع الطلب",
+    "order_number": "رقم الطلب : {reference}",
+    "on_the_way": "علي الطريق إليك",
+    "remaining_distance": "المسافة المتبقية",
+    "expected_arrival": "وقت الوصول المتوقع",
+    "vehicle": "المركبة",
+    "fuel_tanker_truck": "شاحنة نقل وقود",
+    "handover_note": "لضمان إستلام أمن و سريع، أعرض علي السائق التالي لإستكمال عملية الاستلام.",
+    "order_stages": "مراحل الطلب",
+    "received": "تم الاستلام",
+    "contact_support": "تواصل مع الدعم"
+  },
+  "order_invoice": {
+    "sadad_note": "ادفع من تطبيق البنك عبر خدمة سداد بإدخال رقم المؤسسة ورقم الفاتورة، أو من أقرب صراف آلي.",
+    "invoice_details": "بيانات الفاتورة",
+    "invoice_number": "رقم الفاتورة",
+    "biller_number": "رقم المؤسسة",
+    "valid_until": "صالحة حتى",
+    "confirm_and_complete": "تأكيد و إتمام الطلب"
+  },
+  "delivery_time": {
+    "title": "موعد التسليم",
+    "station_prefix": "محطة "
+  },
+  "order_flow": {
+    "accepted": "تم قبول الطلب",
+    "loading": "جاري التحميل",
+    "dispatched": "خرجت الشاحنة",
+    "on_the_way": "في الطريق",
+    "delivered": "تم التسليم"
+  },
   "errors": {
     "invalid_credentials": "رقم الجوال أو كلمة المرور غير صحيحة.",
     "throttled": "محاولات كثيرة. يرجى الانتظار ثم المحاولة مرة أخرى.",

@@ -11,13 +11,10 @@ import '../../../../../core/theme/app_spacing.dart';
 class TrackingMap extends StatelessWidget {
   const TrackingMap({super.key});
 
-  static const _height = 300.0;
-  static const _buttonGap = 10.0;
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: _height,
+      height: AppSizes.orderMapHeight,
       width: double.infinity,
       child: Stack(
         children: [
@@ -31,11 +28,11 @@ class TrackingMap extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 _MapButton(AppAssets.orderMapReloadIcon),
-                SizedBox(height: _buttonGap),
+                SizedBox(height: AppSizes.orderMapButtonGap),
                 _MapButton(AppAssets.orderMapZoomInIcon),
-                SizedBox(height: _buttonGap),
+                SizedBox(height: AppSizes.orderMapButtonGap),
                 _MapButton(AppAssets.orderMapZoomOutIcon),
-                SizedBox(height: _buttonGap),
+                SizedBox(height: AppSizes.orderMapButtonGap),
                 _MapButton(AppAssets.orderMapShareIcon),
               ],
             ),
@@ -51,13 +48,15 @@ class _MapButton extends StatelessWidget {
 
   final String asset;
 
-  static const _size = 48.0;
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {},
-      child: SvgPicture.asset(asset, width: _size, height: _size),
+      child: SvgPicture.asset(
+        asset,
+        width: AppSizes.orderMapButtonSize,
+        height: AppSizes.orderMapButtonSize,
+      ),
     );
   }
 }

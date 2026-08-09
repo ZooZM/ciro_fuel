@@ -1,9 +1,12 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../../core/localization/translation_keys.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
+import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/widgets/order_card.dart';
-import '../../constants/order_detail_strings.dart';
+import '../../constants/order_mock_data.dart';
 import 'mock_order_state.dart';
 
 /// The plain status card carried by every state that already has a
@@ -12,31 +15,33 @@ import 'mock_order_state.dart';
 class SettledOrderStatusCard extends StatelessWidget {
   const SettledOrderStatusCard({
     required this.state,
-    this.orderReference = 'ORD-2024-256 · 9 صفر 1448',
+    this.orderReference = OrderMockData.orderReference,
+    this.onOrderAnother,
     super.key,
   });
 
   final MockOrderState state;
   final String orderReference;
+  final VoidCallback? onOrderAnother;
 
-  static const _headlines = {
-    MockOrderState.deferred: OrderDetailStrings.headlineDeferred,
-    MockOrderState.paid: OrderDetailStrings.headlinePaid,
-    MockOrderState.delivered: OrderDetailStrings.headlineDelivered,
+  static const _headlineKeys = {
+    MockOrderState.deferred: OrderDetailKeys.headlineDeferred,
+    MockOrderState.paid: OrderDetailKeys.headlinePaid,
+    MockOrderState.delivered: OrderDetailKeys.headlineDelivered,
   };
 
   @override
   Widget build(BuildContext context) {
     return OrderCard(
-      title: OrderDetailStrings.orderStatus,
+      title: OrderDetailKeys.orderStatus.tr(),
       subtitle: orderReference,
       trailing: Text(
-        _headlines[state]!,
+        _headlineKeys[state]!.tr(),
         style: TextStyle(
           color: state == MockOrderState.deferred
               ? AppColors.warningOrange
               : AppColors.blue,
-          fontSize: 14,
+          fontSize: AppFontSizes.bodyLarge,
           fontWeight: FontWeight.w800,
         ),
       ),
@@ -49,7 +54,7 @@ class SettledOrderStatusCard extends StatelessWidget {
               width: double.infinity,
               height: AppSizes.secondaryButtonHeight,
               child: OutlinedButton.icon(
-                onPressed: () {},
+                onPressed: onOrderAnother ?? () {},
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: AppColors.itemBorder),
                   shape: RoundedRectangleBorder(
@@ -61,11 +66,11 @@ class SettledOrderStatusCard extends StatelessWidget {
                   color: AppColors.green,
                   size: AppSizes.iconMd,
                 ),
-                label: const Text(
-                  OrderDetailStrings.orderAnother,
-                  style: TextStyle(
+                label: Text(
+                  OrderDetailKeys.orderAnother.tr(),
+                  style: const TextStyle(
                     color: AppColors.green,
-                    fontSize: 14,
+                    fontSize: AppFontSizes.bodyLarge,
                     fontWeight: FontWeight.w700,
                   ),
                 ),

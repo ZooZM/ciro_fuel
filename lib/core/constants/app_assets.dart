@@ -60,6 +60,12 @@ abstract final class AppAssets {
   static const String dashboardDriverIcon = '$_homePage/profile.svg';
   static const String dashboardLorryIcon = '$_homePage/السائق.svg';
   static const String dashboardDateIcon = '$_homePage/date.svg';
+
+  // Delivery-timeline bubbles. These two carry their own filled circle, so
+  // they stand in for the whole bubble once their step is behind us.
+  static const String orderFlowDropIcon = '$_homeFlow/drop.svg';
+  static const String orderFlowTruckIcon = '$_homeFlow/truck.svg';
+
   static const String dashboardHourIcon = '$_homeFlow/hour.svg';
 
   /// Grey (#9CA3AF) artwork, so it is tinted to the counter's colour at use.
@@ -83,6 +89,11 @@ abstract final class AppAssets {
   static const String orderPinIcon = '$_order/pin.svg';
   static const String orderBarePinIcon = '$_order/bare pin.svg';
   static const String orderScheduleIcon = '$_icons/schedule.svg';
+
+  /// The forecourt that bleeds off the leading edge of the موعد التسليم
+  /// card. Distinct from [dashboardStationIcon], which is the dashboard's
+  /// green pump badge.
+  static const String orderStationIcon = '$_order/station_icon.svg';
   static const String orderDateIcon = '$_order/date.svg';
   static const String orderFlashIcon = '$_order/flash.svg';
 

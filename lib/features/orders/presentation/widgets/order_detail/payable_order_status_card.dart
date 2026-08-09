@@ -1,9 +1,12 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../../core/localization/translation_keys.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
+import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/widgets/order_card.dart';
-import '../../constants/order_detail_strings.dart';
+import '../../constants/order_mock_data.dart';
 import '../../view/invoice_payment_screen.dart';
 import 'status_chip.dart';
 
@@ -14,7 +17,7 @@ class PayableOrderStatusCard extends StatelessWidget {
   const PayableOrderStatusCard({
     required this.invoicePending,
     required this.onDeferPayment,
-    this.orderReference = 'ORD-2024-256 · 9 صفر 1448',
+    this.orderReference = OrderMockData.orderReference,
     this.onCancel,
     this.onRequestCreditLimit,
     super.key,
@@ -32,12 +35,12 @@ class PayableOrderStatusCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return OrderCard(
       dashed: true,
-      title: OrderDetailStrings.orderStatus,
+      title: OrderDetailKeys.orderStatus.tr(),
       subtitle: orderReference,
       trailing: StatusChip(
         invoicePending
-            ? OrderDetailStrings.invoicePending
-            : OrderDetailStrings.confirmed,
+            ? OrderDetailKeys.invoicePending.tr()
+            : OrderDetailKeys.confirmed.tr(),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,10 +72,12 @@ class PayableOrderStatusCard extends StatelessWidget {
                     ),
                     label: Text(
                       invoicePending
-                          ? OrderDetailStrings.completePayment
-                          : OrderDetailStrings.pay,
+                          ? OrderDetailKeys.completePayment.tr()
+                          : OrderDetailKeys.pay.tr(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontSize: 14,
+                        fontSize: AppFontSizes.bodyLarge,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
                       ),
@@ -92,11 +97,11 @@ class PayableOrderStatusCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(AppRadii.tile),
                       ),
                     ),
-                    child: const Text(
-                      OrderDetailStrings.cancel,
-                      style: TextStyle(
+                    child: Text(
+                      OrderDetailKeys.cancel.tr(),
+                      style: const TextStyle(
                         color: AppColors.blue,
-                        fontSize: 14,
+                        fontSize: AppFontSizes.bodyLarge,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -122,10 +127,10 @@ class PayableOrderStatusCard extends StatelessWidget {
                 size: AppSizes.iconMd,
                 color: Colors.white,
               ),
-              label: const Text(
-                OrderDetailStrings.payNextTime,
-                style: TextStyle(
-                  fontSize: 14,
+              label: Text(
+                OrderDetailKeys.payNextTime.tr(),
+                style: const TextStyle(
+                  fontSize: AppFontSizes.bodyLarge,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
                 ),
@@ -141,11 +146,11 @@ class PayableOrderStatusCard extends StatelessWidget {
                 color: AppColors.navy,
                 size: AppSizes.iconMd,
               ),
-              label: const Text(
-                OrderDetailStrings.requestCreditLimit,
-                style: TextStyle(
+              label: Text(
+                OrderDetailKeys.requestCreditLimit.tr(),
+                style: const TextStyle(
                   color: AppColors.navy,
-                  fontSize: 13,
+                  fontSize: AppFontSizes.body,
                   fontWeight: FontWeight.w700,
                 ),
               ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../constants/order_mock_data.dart';
 import '../widgets/order_top_bar.dart';
 import '../widgets/track_order/driver_card.dart';
 import '../widgets/track_order/pickup_code_card.dart';
@@ -29,8 +30,7 @@ class TrackOrderScreen extends StatelessWidget {
                   children: [
                     _inset(
                       OrderTopBar(
-                        notificationCount: 3,
-                        onNotificationTap: () {},
+                        notificationCount: OrderMockData.notificationCount,
                         onBack: () => Navigator.of(context).pop(),
                       ),
                     ),

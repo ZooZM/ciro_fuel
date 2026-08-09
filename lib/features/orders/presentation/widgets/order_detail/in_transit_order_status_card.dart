@@ -1,12 +1,16 @@
 import 'dart:math' as math;
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../../core/localization/translation_keys.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
+import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/widgets/order_card.dart';
 import '../../../../../core/widgets/order_flow.dart';
-import '../../constants/order_detail_strings.dart';
+import '../../constants/order_formatting.dart';
+import '../../constants/order_mock_data.dart';
 import '../../view/track_order_screen.dart';
 import 'status_chip.dart';
 
@@ -15,20 +19,20 @@ import 'status_chip.dart';
 /// track/contact actions.
 class InTransitOrderStatusCard extends StatelessWidget {
   const InTransitOrderStatusCard({
-    this.orderReference = 'ORD-2024-256 · 9 صفر 1448',
-    this.fuelType = 'بنزين 95',
-    this.quantity = '20,000 لتر',
-    this.driverName = 'أحمد السبيعي',
-    this.truckPlate = 'ABC-1234',
-    this.etaMinutes = 35,
-    this.progress = 0.75,
+    this.orderReference = OrderMockData.orderReference,
+    this.fuelType = OrderMockData.fuelGrade,
+    this.quantityLitres = OrderMockData.quantityLitres,
+    this.driverName = OrderMockData.driverName,
+    this.truckPlate = OrderMockData.truckPlate,
+    this.etaMinutes = OrderMockData.etaMinutes,
+    this.progress = OrderMockData.journeyProgress,
     this.onContactDriver,
     super.key,
   });
 
   final String orderReference;
   final String fuelType;
-  final String quantity;
+  final int quantityLitres;
   final String driverName;
   final String truckPlate;
   final int etaMinutes;
@@ -39,10 +43,10 @@ class InTransitOrderStatusCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return OrderCard(
       dashed: true,
-      title: OrderDetailStrings.orderStatus,
+      title: OrderDetailKeys.orderStatus.tr(),
       subtitle: orderReference,
-      trailing: const StatusChip(
-        OrderDetailStrings.inDelivery,
+      trailing: StatusChip(
+        OrderDetailKeys.inDelivery.tr(),
         color: AppColors.blue,
       ),
       child: Column(
@@ -62,16 +66,19 @@ class InTransitOrderStatusCard extends StatelessWidget {
                     Expanded(
                       child: Column(
                         children: [
-                          _TransitDetailRow(label: fuelType, value: quantity),
+                          _TransitDetailRow(
+                            label: fuelType,
+                            value: OrderFormatting.litres(quantityLitres),
+                          ),
                           const SizedBox(height: AppSpacing.md),
                           _TransitDetailRow(
-                            label: OrderDetailStrings.driverLabel,
+                            label: OrderDetailKeys.driver.tr(),
                             value: driverName,
                             icon: Icons.person_outline,
                           ),
                           const SizedBox(height: AppSpacing.md),
                           _TransitDetailRow(
-                            label: OrderDetailStrings.truckLabel,
+                            label: OrderDetailKeys.truck.tr(),
                             value: truckPlate,
                             icon: Icons.local_shipping_outlined,
                           ),
@@ -116,11 +123,12 @@ class InTransitOrderStatusCard extends StatelessWidget {
                       size: AppSizes.icon16,
                       color: Colors.white,
                     ),
-                    label: const Text(
-                      OrderDetailStrings.trackOnMap,
+                    label: Text(
+                      OrderDetailKeys.trackOnMap.tr(),
                       maxLines: 1,
-                      style: TextStyle(
-                        fontSize: 11,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: AppFontSizes.caption,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
                       ),
@@ -149,12 +157,13 @@ class InTransitOrderStatusCard extends StatelessWidget {
                       color: AppColors.navy,
                       size: AppSizes.icon16,
                     ),
-                    label: const Text(
-                      OrderDetailStrings.contactDriver,
+                    label: Text(
+                      OrderDetailKeys.contactDriver.tr(),
                       maxLines: 1,
-                      style: TextStyle(
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
                         color: AppColors.navy,
-                        fontSize: 10.5,
+                        fontSize: AppFontSizes.micro,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -172,7 +181,11 @@ class InTransitOrderStatusCard extends StatelessWidget {
 /// A label/value pair with its glyph on the trailing side, as the
 /// in-transit card stacks the fuel, driver and truck.
 class _TransitDetailRow extends StatelessWidget {
-  const _TransitDetailRow({required this.label, required this.value, this.icon});
+  const _TransitDetailRow({
+    required this.label,
+    required this.value,
+    this.icon,
+  });
 
   final String label;
   final String value;
@@ -197,7 +210,10 @@ class _TransitDetailRow extends StatelessWidget {
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: AppColors.grey, fontSize: 10),
+                style: const TextStyle(
+                  color: AppColors.grey,
+                  fontSize: AppFontSizes.micro,
+                ),
               ),
               Text(
                 value,
@@ -205,7 +221,7 @@ class _TransitDetailRow extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   color: AppColors.navy,
-                  fontSize: 13,
+                  fontSize: AppFontSizes.body,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -229,37 +245,49 @@ class _EtaGauge extends StatelessWidget {
   /// left.
   final double progress;
 
-  static const _size = 76.0;
-  static const _stroke = 8.0;
+  static const _countdownLineHeight = 1.1;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: _size,
-      height: _size,
+      width: AppSizes.orderGaugeSize,
+      height: AppSizes.orderGaugeSize,
       child: CustomPaint(
-        painter: _GaugePainter(progress: progress, stroke: _stroke),
+        painter: _GaugePainter(
+          progress: progress,
+          stroke: AppSizes.orderGaugeStroke,
+        ),
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.local_shipping, color: AppColors.navy, size: 16),
-              const Text(
-                OrderDetailStrings.arrivalIn,
-                style: TextStyle(color: AppColors.navy, fontSize: 8),
+              const Icon(
+                Icons.local_shipping,
+                color: AppColors.navy,
+                size: AppSizes.icon16,
+              ),
+              Text(
+                OrderDetailKeys.arrivalIn.tr(),
+                style: const TextStyle(
+                  color: AppColors.navy,
+                  fontSize: AppFontSizes.nano,
+                ),
               ),
               Text(
                 '$minutes',
                 style: const TextStyle(
                   color: AppColors.green,
-                  fontSize: 19,
-                  height: 1.1,
+                  fontSize: AppFontSizes.titleLarge,
+                  height: _countdownLineHeight,
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              const Text(
-                OrderDetailStrings.minutes,
-                style: TextStyle(color: AppColors.green, fontSize: 8),
+              Text(
+                OrderDetailKeys.minutes.tr(),
+                style: const TextStyle(
+                  color: AppColors.green,
+                  fontSize: AppFontSizes.nano,
+                ),
               ),
             ],
           ),
@@ -275,8 +303,6 @@ class _GaugePainter extends CustomPainter {
   final double progress;
   final double stroke;
 
-  static const _trackColor = Color(0xFFE7E9EF);
-
   @override
   void paint(Canvas canvas, Size size) {
     final rect =
@@ -289,7 +315,7 @@ class _GaugePainter extends CustomPainter {
       math.pi * 2,
       false,
       Paint()
-        ..color = _trackColor
+        ..color = AppColors.track
         ..style = PaintingStyle.stroke
         ..strokeWidth = stroke,
     );

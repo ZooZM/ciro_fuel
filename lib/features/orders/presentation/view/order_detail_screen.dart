@@ -1,14 +1,17 @@
+// `easy_localization` re-exports intl, whose own `TextDirection` would
+// otherwise shadow the `dart:ui` one this screen sets RTL with.
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/localization/translation_keys.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/delivery_time_card.dart';
-import '../constants/order_detail_strings.dart';
+import '../constants/order_mock_data.dart';
 import '../widgets/order_detail/credit_limit_card.dart';
 import '../widgets/order_detail/in_transit_order_status_card.dart';
 import '../widgets/order_detail/mock_order_state.dart';
-import '../widgets/order_detail/order_detail_top_bar.dart';
 import '../widgets/order_detail/order_stepper.dart';
 import '../widgets/order_detail/payable_order_status_card.dart';
 import '../widgets/order_detail/pending_order_status_card.dart';
@@ -17,6 +20,7 @@ import '../widgets/order_detail/receipt_code_card.dart';
 import '../widgets/order_detail/settled_order_status_card.dart';
 import '../widgets/order_detail/support_fab.dart';
 import '../widgets/order_summary_card.dart';
+import '../widgets/order_top_bar.dart';
 
 export '../widgets/order_detail/mock_order_state.dart' show MockOrderState;
 
@@ -100,8 +104,8 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
                   AppSpacing.orderScreenBottomPadding,
                 ),
                 children: [
-                  OrderDetailTopBar(
-                    notificationCount: 3,
+                  OrderTopBar(
+                    notificationCount: OrderMockData.notificationCount,
                     onBack: () => context.pop(),
                   ),
                   const SizedBox(height: AppSpacing.xxl),
@@ -119,7 +123,7 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
                       ),
                       onPressed: _cycleMockState,
                       icon: const Icon(Icons.swap_horiz),
-                      label: const Text(OrderDetailStrings.changeMockState),
+                      label: Text(OrderDetailKeys.changeMockState.tr()),
                     ),
                   ),
                 ],
@@ -144,7 +148,11 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
         return [
           SettledOrderStatusCard(state: _currentState),
           const SizedBox(height: AppSpacing.lg),
-          const DeliveryTimeCard(),
+          const DeliveryTimeCard(
+            date: OrderMockData.deliveryDate,
+            time: OrderMockData.deliveryHour,
+            station: OrderMockData.deliveryStationAddress,
+          ),
           const SizedBox(height: AppSpacing.lg),
           ReceiptCard(
             deferred: _deferred,
@@ -158,13 +166,17 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
           const SizedBox(height: AppSpacing.lg),
           const ReceiptCodeCard(),
           const SizedBox(height: AppSpacing.lg),
-          const DeliveryTimeCard(),
+          const DeliveryTimeCard(
+            date: OrderMockData.deliveryDate,
+            time: OrderMockData.deliveryHour,
+            station: OrderMockData.deliveryStationAddress,
+          ),
         ];
       case MockOrderState.pendingReview:
       case MockOrderState.confirmed:
       case MockOrderState.waitingPayment:
         return [
-          const OrderSummaryCard(),
+          OrderSummaryCard(),
           const SizedBox(height: AppSpacing.lg),
           if (_currentState == MockOrderState.pendingReview)
             const PendingOrderStatusCard()
@@ -178,7 +190,11 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
             const CreditLimitCard(),
             const SizedBox(height: AppSpacing.lg),
           ],
-          const DeliveryTimeCard(),
+          const DeliveryTimeCard(
+            date: OrderMockData.deliveryDate,
+            time: OrderMockData.deliveryHour,
+            station: OrderMockData.deliveryStationAddress,
+          ),
         ];
     }
   }

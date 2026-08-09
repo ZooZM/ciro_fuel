@@ -1,39 +1,38 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../core/constants/app_assets.dart';
+import '../../../../../core/localization/translation_keys.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
+import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/widgets/fuel_pump_icon.dart';
 import '../../../../../core/widgets/order_card.dart';
 import '../../../../../shared/enums/fuel_grade.dart';
-import '../../constants/order_detail_strings.dart';
-import '../../constants/track_order_strings.dart';
+import '../../constants/order_formatting.dart';
+import '../../constants/order_mock_data.dart';
 
 /// Consignment, truck and driver details, plus a call button and the
 /// driver's photo. Right to left: the consignment, the truck, the driver,
 /// and their photo on the far edge — flexes measured off the design.
 class DriverCard extends StatelessWidget {
   const DriverCard({
-    this.fuelType = 'بنزين 95',
-    this.quantity = '20,000 لتر',
-    this.truckPlate = 'ABC-1234',
-    this.driverName = 'أحمد السبيعي',
+    this.fuelType = OrderMockData.fuelGrade,
+    this.quantityLitres = OrderMockData.quantityLitres,
+    this.truckPlate = OrderMockData.truckPlate,
+    this.driverName = OrderMockData.driverName,
     this.onCallDriver,
     super.key,
   });
 
   final String fuelType;
-  final String quantity;
+  final int quantityLitres;
   final String truckPlate;
   final String driverName;
   final VoidCallback? onCallDriver;
 
   static const _fuelIconBoxSize = 36.0;
-  static const _fuelIconTint = Color(0xFFF3E8FF);
   static const _pumpIconSize = 24.0;
-  static const _truckImageWidth = 60.0;
-  static const _truckImageHeight = 36.0;
-  static const _driverPhotoSize = 54.0;
 
   @override
   Widget build(BuildContext context) {
@@ -50,19 +49,25 @@ class DriverCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _Field(label: OrderDetailStrings.fuelType, value: fuelType),
-                        const SizedBox(height: 6),
-                        _Field(label: OrderDetailStrings.quantity, value: quantity),
+                        _Field(
+                          label: OrderDetailKeys.fuelType.tr(),
+                          value: fuelType,
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        _Field(
+                          label: OrderDetailKeys.quantity.tr(),
+                          value: OrderFormatting.litres(quantityLitres),
+                        ),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: AppSpacing.xs),
                   Container(
                     width: _fuelIconBoxSize,
                     height: _fuelIconBoxSize,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: _fuelIconTint,
+                      color: AppColors.light.purpleTint,
                       borderRadius: BorderRadius.circular(
                         AppSizes.orderCreditIconRadius,
                       ),
@@ -76,55 +81,56 @@ class DriverCard extends StatelessWidget {
                 ],
               ),
             ),
-            const VerticalDivider(
-              width: 14,
-              thickness: AppSizes.dividerThickness,
-              color: AppColors.itemBorder,
-            ),
+            const _Divider(),
             Expanded(
               flex: 6,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   _Field(
-                    label: TrackOrderStrings.vehicle,
+                    label: TrackOrderKeys.vehicle.tr(),
                     value: truckPlate,
                     center: true,
                   ),
-                  const Text(
-                    TrackOrderStrings.fuelTankerTruck,
+                  Text(
+                    TrackOrderKeys.fuelTankerTruck.tr(),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: AppColors.grey, fontSize: 7),
+                    style: const TextStyle(
+                      color: AppColors.grey,
+                      fontSize: AppFontSizes.nano,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   Image.asset(
                     AppAssets.orderTankTruckImage,
-                    width: _truckImageWidth,
-                    height: _truckImageHeight,
+                    width: AppSizes.orderTruckImageWidth,
+                    height: AppSizes.orderTruckImageHeight,
                     fit: BoxFit.contain,
                   ),
                 ],
               ),
             ),
-            const VerticalDivider(
-              width: 14,
-              thickness: AppSizes.dividerThickness,
-              color: AppColors.itemBorder,
-            ),
+            const _Divider(),
             Expanded(
               flex: 6,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _Field(label: OrderDetailStrings.driverLabel, value: driverName),
+                  _Field(
+                    label: OrderDetailKeys.driver.tr(),
+                    value: driverName,
+                  ),
                   const SizedBox(height: AppSpacing.sm),
                   GestureDetector(
                     onTap: onCallDriver,
+                    behavior: HitTestBehavior.opaque,
                     child: Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpacing.sm,
+                      ),
                       decoration: BoxDecoration(
                         border: Border.all(color: AppColors.itemBorder),
                         borderRadius: BorderRadius.circular(
@@ -145,14 +151,28 @@ class DriverCard extends StatelessWidget {
             ClipOval(
               child: Image.asset(
                 AppAssets.orderDriverPhoto,
-                width: _driverPhotoSize,
-                height: _driverPhotoSize,
+                width: AppSizes.orderDriverPhotoSize,
+                height: AppSizes.orderDriverPhotoSize,
                 fit: BoxFit.cover,
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+/// The hairline between the card's three groups.
+class _Divider extends StatelessWidget {
+  const _Divider();
+
+  @override
+  Widget build(BuildContext context) {
+    return const VerticalDivider(
+      width: AppSizes.orderDividerWidth,
+      thickness: AppSizes.dividerThickness,
+      color: AppColors.itemBorder,
     );
   }
 }
@@ -168,13 +188,18 @@ class _Field extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: center ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+      crossAxisAlignment: center
+          ? CrossAxisAlignment.center
+          : CrossAxisAlignment.start,
       children: [
         Text(
           label,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(color: AppColors.grey, fontSize: 8),
+          style: const TextStyle(
+            color: AppColors.grey,
+            fontSize: AppFontSizes.nano,
+          ),
         ),
         Text(
           value,
@@ -182,7 +207,7 @@ class _Field extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
             color: AppColors.navy,
-            fontSize: 11,
+            fontSize: AppFontSizes.caption,
             fontWeight: FontWeight.w700,
           ),
         ),
