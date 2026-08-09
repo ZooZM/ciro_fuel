@@ -175,6 +175,7 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
       case MockOrderState.pendingReview:
       case MockOrderState.confirmed:
       case MockOrderState.waitingPayment:
+      case MockOrderState.failedPayment:
         return [
           OrderSummaryCard(),
           const SizedBox(height: AppSpacing.lg),
@@ -182,7 +183,8 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
             const PendingOrderStatusCard()
           else
             PayableOrderStatusCard(
-              invoicePending: _currentState == MockOrderState.waitingPayment,
+              invoicePending: _currentState == MockOrderState.waitingPayment ||
+                  _currentState == MockOrderState.failedPayment,
               onDeferPayment: _deferPayment,
             ),
           const SizedBox(height: AppSpacing.lg),
@@ -196,6 +198,8 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
             station: OrderMockData.deliveryStationAddress,
           ),
         ];
+      case MockOrderState.canceled:
+        return const [];
     }
   }
 }

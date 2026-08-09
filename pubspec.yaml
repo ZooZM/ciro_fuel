@@ -119,10 +119,14 @@ flutter:
     - assets/Help Screen/
     - assets/NavBar/
     - assets/HomePage/
+    - assets/more/
+    - assets/invoices/
     # Asset directories are not recursive, so nested folders need their own entry.
     - assets/HomePage/flow/
     - assets/Notification Page/
     - assets/Order/
+    - assets/OrdersPage/
+    - assets/OrdersPage/status/
     - assets/Order/zoom_in.svg
     - assets/Order/zoom_out.svg
     - assets/Order/reload.svg

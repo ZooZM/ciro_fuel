@@ -9,6 +9,12 @@ abstract final class AppRoutes {
   static const String clientHome = '/client';
   static const String clientInvoices = '/client/invoices';
   static const String clientMore = '/client/more';
+  static const String clientStations = '/client/stations';
+  static const String clientCreditLimit = '/client/credit-limit';
+  static const String clientTerms = '/client/terms';
+  static const String clientProfile = '/client/profile';
+  static const String clientChangePhone = '/client/profile/change-phone';
+  static const String clientVerifyPhone = '/client/profile/verify-phone';
 
   static const String clientCreateOrder = '/client/orders/new';
   static const String clientOrderDetailPattern = '/client/orders/:id';

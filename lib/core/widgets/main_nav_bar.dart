@@ -10,6 +10,7 @@ const _kMore = 'assets/NavBar/more.svg';
 const _kGreen = Color(0xFF17A34A);
 const _kGrey = Color(0xFF9CA3AF);
 const _kDark = Color(0xFF1A1A2E);
+const _kBlue = Color(0xFF1E5FFF);
 
 class MainNavBar extends StatelessWidget {
   const MainNavBar({super.key, required this.currentIndex, required this.onTap, this.notificationCount = 0});
@@ -151,7 +152,7 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isSelected ? _kGreen : _kGrey;
+    final color = isSelected ? _kBlue : _kGrey;
 
     return Expanded(
       child: GestureDetector(

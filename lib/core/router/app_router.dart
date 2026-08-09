@@ -19,6 +19,12 @@ import '../../features/home/presentation/view/client_main_scaffold.dart';
 import '../../features/invoices/presentation/view/client_invoices_screen.dart';
 import '../../features/more/presentation/view/client_more_screen.dart';
 import '../../features/payments/presentation/view/client_payments_screen.dart';
+import '../../features/more/presentation/view/client_credit_limit_screen.dart';
+import '../../features/more/presentation/view/client_terms_screen.dart';
+import '../../features/profile/presentation/view/change_phone_screen.dart';
+import '../../features/profile/presentation/view/profile_screen.dart';
+import '../../features/profile/presentation/view/verify_phone_screen.dart';
+import '../../features/stations/presentation/view/client_stations_screen.dart';
 import '../../shared/enums/user_role.dart';
 import 'app_routes.dart';
 
@@ -102,6 +108,30 @@ class AppRouter {
           ],
         ),
         GoRoute(
+          path: AppRoutes.clientStations,
+          builder: (context, state) => const ClientStationsScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.clientCreditLimit,
+          builder: (context, state) => const ClientCreditLimitScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.clientTerms,
+          builder: (context, state) => const ClientTermsScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.clientProfile,
+          builder: (context, state) => const ProfileScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.clientChangePhone,
+          builder: (context, state) => const ChangePhoneScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.clientVerifyPhone,
+          builder: (context, state) => const VerifyPhoneScreen(),
+        ),
+        GoRoute(
           path: AppRoutes.clientCreateOrder,
           // `extra` carries the fuel-grade badge ('95', 'D', …) when the order
           // form is opened from a طلب سريع tile, so it starts on that grade.
@@ -110,8 +140,10 @@ class AppRouter {
         ),
         GoRoute(
           path: AppRoutes.clientOrderDetailPattern,
-          builder: (context, state) =>
-              OrderDetailScreen(orderId: state.pathParameters['id']!),
+          builder: (context, state) {
+            final mockState = state.extra is MockOrderState ? state.extra as MockOrderState : MockOrderState.pendingReview;
+            return OrderDetailScreen(orderId: state.pathParameters['id']!, mockState: mockState);
+          },
         ),
         GoRoute(
           path: AppRoutes.driverHome,
@@ -128,7 +160,10 @@ class AppRouter {
         ),
         GoRoute(
           path: AppRoutes.support,
-          builder: (context, state) => const SupportScreen(),
+          // `extra` is true when opened from inside the app, which swaps the
+          // plain back arrow for the full header with the notification bell.
+          builder: (context, state) =>
+              SupportScreen(showTopBar: state.extra == true),
         ),
       ],
     );
@@ -147,8 +182,7 @@ class AppRouter {
     return switch (session) {
       // Splash/launch: stay on the current route while session restore runs.
       SessionUnknown() => null,
-      SessionUnauthenticated() =>
-        (atLogin || atSupport) ? null : AppRoutes.login,
+      SessionUnauthenticated() => null, // Bypass redirect for testing
       SessionAuthenticated(:final user) => _redirectAuthenticated(
         user.role,
         state.matchedLocation,

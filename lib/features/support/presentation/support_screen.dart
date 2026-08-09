@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/widgets/app_top_bar.dart';
+
 const _kLogo = 'assets/Logo/Logo.svg';
 const _kPhoneIcon = 'assets/icons/phone.svg';
 
@@ -22,7 +24,13 @@ const _kBackground = Color(0xFFF5F6F8);
 const _kItemBorder = Color(0xFFE6E9F0);
 
 class SupportScreen extends StatelessWidget {
-  const SupportScreen({super.key});
+  const SupportScreen({super.key, this.showTopBar = false});
+
+  /// Reached from inside the app rather than from the login screen, so the
+  /// full header — back, logo and the notification bell — belongs here. Signed
+  /// out there is no notifications screen to reach, so the plain back arrow and
+  /// the standalone logo stay.
+  final bool showTopBar;
 
   @override
   Widget build(BuildContext context) {
@@ -30,14 +38,16 @@ class SupportScreen extends StatelessWidget {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         backgroundColor: _kBackground,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-            onPressed: () => context.pop(),
-          ),
-        ),
+        appBar: showTopBar
+            ? null
+            : AppBar(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+                  onPressed: () => context.pop(),
+                ),
+              ),
         body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -45,29 +55,34 @@ class SupportScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  textDirection: TextDirection.ltr,
-                  children: [
-                    SvgPicture.asset(_kLogo, height: 24),
-                    const SizedBox(width: 8),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 15.0),
-                      child: const Text(
-                        'FUEL',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: _kGreen,
-                          letterSpacing: 1.2,
-                          height: 1.0,
+                // The bar carries its own logo, so the standalone one below it
+                // would be a second copy.
+                if (showTopBar)
+                  const AppTopBar()
+                else
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    textDirection: TextDirection.ltr,
+                    children: [
+                      SvgPicture.asset(_kLogo, height: 24),
+                      const SizedBox(width: 8),
+                      const Padding(
+                        padding: EdgeInsets.only(top: 15.0),
+                        child: Text(
+                          'FUEL',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: _kGreen,
+                            letterSpacing: 1.2,
+                            height: 1.0,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 48),
+                    ],
+                  ),
+                SizedBox(height: showTopBar ? 32 : 48),
                 const Text(
                   'تواصل معنا فوراً',
                   style: TextStyle(

@@ -69,12 +69,16 @@ class OrderStepper extends StatelessWidget {
       case MockOrderState.waitingPayment:
       case MockOrderState.deferred:
         return const [done, _StepStatus.warning, todo, todo];
+      case MockOrderState.failedPayment:
+        return const [done, _StepStatus.failed, todo, todo];
       case MockOrderState.paid:
         return const [done, done, todo, todo];
       case MockOrderState.inTransit:
         return const [done, done, _StepStatus.onProgress, todo];
       case MockOrderState.delivered:
         return const [done, done, done, done];
+      case MockOrderState.canceled:
+        return const [_StepStatus.failed, todo, todo, todo];
     }
   }
 

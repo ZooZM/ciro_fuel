@@ -5,15 +5,21 @@
 /// operates in the Gulf, and an exhaustive list would be dead weight plus a
 /// localisation burden (country names in two languages) for no gain.
 enum CountryDialCode {
-  saudiArabia('SA', '+966', 9),
-  unitedArabEmirates('AE', '+971', 9),
-  kuwait('KW', '+965', 8),
-  bahrain('BH', '+973', 8),
-  qatar('QA', '+974', 8),
-  oman('OM', '+968', 8),
-  egypt('EG', '+20', 10);
+  saudiArabia('SA', '+966', 9, 'السعودية', '🇸🇦'),
+  unitedArabEmirates('AE', '+971', 9, 'الإمارات', '🇦🇪'),
+  kuwait('KW', '+965', 8, 'الكويت', '🇰🇼'),
+  bahrain('BH', '+973', 8, 'البحرين', '🇧🇭'),
+  qatar('QA', '+974', 8, 'قطر', '🇶🇦'),
+  oman('OM', '+968', 8, 'عُمان', '🇴🇲'),
+  egypt('EG', '+20', 10, 'مصر', '🇪🇬');
 
-  const CountryDialCode(this.isoCode, this.dialCode, this.nationalNumberLength);
+  const CountryDialCode(
+    this.isoCode,
+    this.dialCode,
+    this.nationalNumberLength,
+    this.nameAr,
+    this.flag,
+  );
 
   /// ISO 3166-1 alpha-2, used as the stable key when persisting a choice.
   final String isoCode;
@@ -23,6 +29,12 @@ enum CountryDialCode {
 
   /// Digits expected after the dialling code, trunk prefix excluded.
   final int nationalNumberLength;
+
+  /// Arabic name of the country.
+  final String nameAr;
+
+  /// Emoji flag of the country.
+  final String flag;
 
   static const CountryDialCode fallback = CountryDialCode.saudiArabia;
 
