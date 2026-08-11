@@ -1,10 +1,11 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../core/constants/app_assets.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../constants/client_home_strings.dart';
+import '../../../../core/localization/translation_keys.dart';
+import '../../../../core/theme/theme_context.dart';
 
 /// The prominent "طلب وقود جديد" call-to-action.
 class NewRequestButton extends StatelessWidget {
@@ -17,11 +18,11 @@ class NewRequestButton extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.blue,
+        color: context.colors.brandBlue,
         borderRadius: BorderRadius.circular(AppRadii.tile),
         boxShadow: [
           BoxShadow(
-            color: AppColors.blue.withValues(alpha: 0.3),
+            color: context.colors.brandBlue.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -49,9 +50,9 @@ class NewRequestButton extends StatelessWidget {
                   width: AppSizes.dashboardNewRequestIconSize,
                   height: AppSizes.dashboardNewRequestIconSize,
                 ),
-                const Text(
-                  ClientHomeStrings.newFuelRequest,
-                  style: TextStyle(
+                Text(
+                  HomeKeys.newFuelRequest.tr(),
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w700,

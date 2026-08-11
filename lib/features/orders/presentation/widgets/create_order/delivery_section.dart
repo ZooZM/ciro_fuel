@@ -1,64 +1,87 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../../core/constants/app_assets.dart';
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/order_card.dart';
-import '../../constants/create_order_strings.dart';
 import 'create_order_data.dart';
+import '../../../../../core/theme/theme_context.dart';
 
 /// "4. موعد التوصيل" — the three delivery-timing tiles.
 class DeliverySection extends StatelessWidget {
   const DeliverySection({
     required this.selected,
     required this.onChanged,
+    required this.onScheduleTap,
+    this.scheduledDate,
     super.key,
   });
 
   final DeliveryOption selected;
   final ValueChanged<DeliveryOption> onChanged;
 
+  /// جدول موعد does not select itself: the screen opens the calendar and only
+  /// then reports the choice, so a dismissed dialog changes nothing.
+  final VoidCallback onScheduleTap;
+
+  /// The day picked for جدول موعد, shown in place of the tile's subtitle.
+  final DateTime? scheduledDate;
+
   @override
   Widget build(BuildContext context) {
     return OrderCard(
-      title: CreateOrderStrings.sectionDelivery,
+      title: CreateOrderKeys.sectionDelivery.tr(),
+      // The row scrolls instead of splitting the card three ways — at a third
+      // of the width each label collapsed to an ellipsis.
+      //
       // IntrinsicHeight so the three tiles share the tallest one's height;
       // `stretch` alone would demand infinite height inside the ListView.
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: _DeliveryTile(
-                asset: AppAssets.orderScheduleIcon,
-                title: CreateOrderStrings.scheduleTitle,
-                subtitle: CreateOrderStrings.scheduleSubtitle,
-                selected: selected == DeliveryOption.schedule,
-                onTap: () => onChanged(DeliveryOption.schedule),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(
+                width: AppSizes.orderDeliveryTileWidth,
+                child: _DeliveryTile(
+                  asset: AppAssets.orderScheduleIcon,
+                  title: CreateOrderKeys.scheduleTitle.tr(),
+                  subtitle: scheduledDate == null
+                      ? CreateOrderKeys.scheduleSubtitle.tr()
+                      : DateFormat.yMMMd(
+                          context.locale.toLanguageTag(),
+                        ).format(scheduledDate!),
+                  selected: selected == DeliveryOption.schedule,
+                  onTap: onScheduleTap,
+                ),
               ),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: _DeliveryTile(
-                asset: AppAssets.orderDateIcon,
-                title: CreateOrderStrings.todayTitle,
-                subtitle: CreateOrderStrings.todaySubtitle,
-                selected: selected == DeliveryOption.today,
-                onTap: () => onChanged(DeliveryOption.today),
+              const SizedBox(width: AppSpacing.sm),
+              SizedBox(
+                width: AppSizes.orderDeliveryTileWidth,
+                child: _DeliveryTile(
+                  asset: AppAssets.orderDateIcon,
+                  title: CreateOrderKeys.todayTitle.tr(),
+                  subtitle: CreateOrderKeys.todaySubtitle.tr(),
+                  selected: selected == DeliveryOption.today,
+                  onTap: () => onChanged(DeliveryOption.today),
+                ),
               ),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: _DeliveryTile(
-                asset: AppAssets.orderFlashIcon,
-                title: CreateOrderStrings.fastestTitle,
-                subtitle: CreateOrderStrings.fastestSubtitle,
-                selected: selected == DeliveryOption.fastest,
-                onTap: () => onChanged(DeliveryOption.fastest),
+              const SizedBox(width: AppSpacing.sm),
+              SizedBox(
+                width: AppSizes.orderDeliveryTileWidth,
+                child: _DeliveryTile(
+                  asset: AppAssets.orderFlashIcon,
+                  title: CreateOrderKeys.fastestTitle.tr(),
+                  subtitle: CreateOrderKeys.fastestSubtitle.tr(),
+                  selected: selected == DeliveryOption.fastest,
+                  onTap: () => onChanged(DeliveryOption.fastest),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -87,18 +110,18 @@ class _DeliveryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final glyphColor = selected ? AppColors.green : AppColors.grey;
-    final titleColor = selected ? AppColors.green : AppColors.navy;
-    final subtitleColor = selected ? AppColors.green : AppColors.grey;
+    final glyphColor = selected ? context.colors.brandGreen : context.colors.textSecondary;
+    final titleColor = selected ? context.colors.brandGreen : context.colors.textPrimary;
+    final subtitleColor = selected ? context.colors.brandGreen : context.colors.textSecondary;
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: selected ? AppColors.light.greenTint : Colors.white,
+          color: selected ? context.colors.greenTint : context.colors.surface,
           borderRadius: BorderRadius.circular(AppRadii.tile),
           border: Border.all(
-            color: selected ? AppColors.green : AppColors.itemBorder,
+            color: selected ? context.colors.brandGreen : context.colors.borderHairline,
             width: selected
                 ? AppSizes.orderTileSelectedBorderWidth
                 : AppSizes.orderTileBorderWidth,
@@ -118,10 +141,13 @@ class _DeliveryTile extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
+                        // Wraps rather than ellipsizing: a button has to spell
+                        // its label out, and 'Pick a date and time' was being
+                        // cut to '…e date and time' at this width. The row is
+                        // `IntrinsicHeight`, so a taller tile takes the other
+                        // two with it and the three stay level.
                         Text(
                           title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.end,
                           style: TextStyle(
                             color: titleColor,
@@ -132,8 +158,6 @@ class _DeliveryTile extends StatelessWidget {
                         const SizedBox(height: AppSpacing.xs),
                         Text(
                           subtitle,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.end,
                           style: TextStyle(color: subtitleColor, fontSize: 8),
                         ),
@@ -164,8 +188,8 @@ class _DeliveryTile extends StatelessWidget {
                             child: Container(
                               decoration: BoxDecoration(
                                 color: selected
-                                    ? Colors.white
-                                    : AppColors.screenBackground,
+                                    ? context.colors.surface
+                                    : context.colors.canvas,
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
@@ -182,10 +206,14 @@ class _DeliveryTile extends StatelessWidget {
               ),
             ),
             if (selected)
-              const Positioned(
+              Positioned(
                 top: 6,
                 right: 6,
-                child: Icon(Icons.check_circle, size: AppSizes.iconSm, color: AppColors.green),
+                child: Icon(
+                  Icons.check_circle,
+                  size: AppSizes.iconSm,
+                  color: context.colors.brandGreen,
+                ),
               ),
           ],
         ),

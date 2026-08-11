@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
+import '../theme/theme_context.dart';
 
-/// A small white, shadowed, rounded icon tile — the notification bell and
+/// A small shadowed, rounded icon tile — the notification bell and
 /// back button on the order screens' top bars.
 ///
 /// [onTap] is optional: the order-detail screen's notification icon is
@@ -19,7 +20,7 @@ class IconCard extends StatelessWidget {
     final card = Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(AppRadii.field),
         boxShadow: AppColors.shadowCard,
       ),

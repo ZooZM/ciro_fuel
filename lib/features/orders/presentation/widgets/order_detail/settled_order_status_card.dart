@@ -1,10 +1,11 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/order_card.dart';
-import '../../constants/order_detail_strings.dart';
 import 'mock_order_state.dart';
+import '../../../../../core/theme/theme_context.dart';
 
 /// The plain status card carried by every state that already has a
 /// receipt (deferred, paid, delivered). Only delivery adds a follow-up
@@ -12,30 +13,36 @@ import 'mock_order_state.dart';
 class SettledOrderStatusCard extends StatelessWidget {
   const SettledOrderStatusCard({
     required this.state,
-    this.orderReference = 'ORD-2024-256 · 9 صفر 1448',
+    this.orderReference,
     super.key,
   });
 
   final MockOrderState state;
-  final String orderReference;
+  final String? orderReference;
 
-  static const _headlines = {
-    MockOrderState.deferred: OrderDetailStrings.headlineDeferred,
-    MockOrderState.paid: OrderDetailStrings.headlinePaid,
-    MockOrderState.delivered: OrderDetailStrings.headlineDelivered,
+  // Keys, not copy — translated where the headline is drawn so it follows a
+  // locale switch.
+  static const _headlineKeys = {
+    MockOrderState.deferred: OrderDetailKeys.headlineDeferred,
+    MockOrderState.paid: OrderDetailKeys.headlinePaid,
+    MockOrderState.delivered: OrderDetailKeys.headlineDelivered,
   };
 
   @override
   Widget build(BuildContext context) {
+    final isAr = context.locale.languageCode == 'ar';
+    final resolvedReference = orderReference ?? 
+        (isAr ? 'ORD-2024-256 · 9 صفر 1446' : 'ORD-2024-256 · 9 Safar 1446');
+
     return OrderCard(
-      title: OrderDetailStrings.orderStatus,
-      subtitle: orderReference,
+      title: OrderDetailKeys.orderStatus.tr(),
+      subtitle: resolvedReference,
       trailing: Text(
-        _headlines[state]!,
+        _headlineKeys[state]!.tr(),
         style: TextStyle(
           color: state == MockOrderState.deferred
-              ? AppColors.warningOrange
-              : AppColors.blue,
+              ? context.colors.brandOrange
+              : context.colors.brandBlue,
           fontSize: 14,
           fontWeight: FontWeight.w800,
         ),
@@ -51,20 +58,20 @@ class SettledOrderStatusCard extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: () {},
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: AppColors.itemBorder),
+                  side: BorderSide(color: context.colors.borderHairline),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(AppRadii.tile),
                   ),
                 ),
-                icon: const Icon(
+                icon: Icon(
                   Icons.refresh,
-                  color: AppColors.green,
+                  color: context.colors.brandGreen,
                   size: AppSizes.iconMd,
                 ),
-                label: const Text(
-                  OrderDetailStrings.orderAnother,
+                label: Text(
+                  OrderDetailKeys.orderAnother.tr(),
                   style: TextStyle(
-                    color: AppColors.green,
+                    color: context.colors.brandGreen,
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                   ),

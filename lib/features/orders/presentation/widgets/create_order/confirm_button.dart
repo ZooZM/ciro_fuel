@@ -1,16 +1,21 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../../core/constants/app_assets.dart';
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/order_card.dart';
-import '../../constants/create_order_strings.dart';
+import '../../../../../core/theme/theme_context.dart';
 
 /// The sticky "تأكيد الطلب" call-to-action, swapping to a spinner while
 /// the (mock) order submission is in flight.
 class ConfirmButton extends StatelessWidget {
-  const ConfirmButton({required this.submitting, required this.onPressed, super.key});
+  const ConfirmButton({
+    required this.submitting,
+    required this.onPressed,
+    super.key,
+  });
 
   final bool submitting;
   final VoidCallback? onPressed;
@@ -24,7 +29,7 @@ class ConfirmButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: submitting ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.blue,
+          backgroundColor: context.colors.brandBlue,
           foregroundColor: Colors.white,
           elevation: 0,
           padding: EdgeInsets.zero,
@@ -44,11 +49,14 @@ class ConfirmButton extends StatelessWidget {
             : Stack(
                 fit: StackFit.expand,
                 children: [
-                  const Align(
+                  Align(
                     alignment: Alignment.center,
                     child: Text(
-                      CreateOrderStrings.confirmOrder,
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                      CreateOrderKeys.confirmOrder.tr(),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                   Positioned(

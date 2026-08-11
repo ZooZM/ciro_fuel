@@ -1,18 +1,16 @@
+// `hide TextDirection`: easy_localization re-exports intl, whose
+// `TextDirection` would otherwise shadow the Flutter one used below.
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
+import '../../../../core/localization/translation_keys.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../core/widgets/app_top_bar.dart';
 import '../../../../core/widgets/step_tracker.dart';
 import '../widgets/profile_identity.dart';
+import '../../../../core/theme/theme_context.dart';
 
-const _kNavy = Color(0xFF162155);
-const _kGrey = Color(0xFF6B7280);
-const _kBlue = Color(0xFF1E5FFF);
 const _kOrange = Color(0xFFFF5810);
-const _kCanvas = Color(0xFFF4F6FA);
-const _kSurface = Color(0xFFFFFFFF);
-const _kSurface2 = Color(0xFFF0F2F7);
-const _kDotIdle = Color(0xFFD5D9E2);
 
 /// How many digits the code has.
 const int _kCodeLength = 4;
@@ -85,83 +83,89 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: _kCanvas,
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const AppTopBar(),
-                const SizedBox(height: 32),
-                const ProfileIdentity(),
-                const SizedBox(height: 32),
-                const StepTracker(
-                  steps: [
-                    StepItem('تغيير الرقم', TrackerStepState.done),
-                    StepItem('رمز التحقق', TrackerStepState.current),
-                    StepItem('إعادة التوثيق', TrackerStepState.pending),
-                  ],
-                ),
-                const SizedBox(height: 36),
-                const Text(
-                  'أدخل رمز التحقق',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    color: _kNavy,
+    return Scaffold(
+      backgroundColor: context.colors.canvas,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const AppTopBar(),
+              const SizedBox(height: 32),
+              const ProfileIdentity(),
+              const SizedBox(height: 32),
+              StepTracker(
+                steps: [
+                  StepItem(
+                    ChangePhoneKeys.stepChangeNumber.tr(),
+                    TrackerStepState.done,
                   ),
+                  StepItem(
+                    ChangePhoneKeys.stepVerifyCode.tr(),
+                    TrackerStepState.current,
+                  ),
+                  StepItem(
+                    ChangePhoneKeys.stepReverify.tr(),
+                    TrackerStepState.pending,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 36),
+              Text(
+                VerifyPhoneKeys.title.tr(),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: context.colors.textPrimary,
                 ),
-                const SizedBox(height: 10),
-                const Text(
-                  'تم إرسال رمز مكوّن من 4 أرقام إلى',
-                  style: TextStyle(fontSize: 14, color: _kGrey),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    const Text(
-                      '5X XXX XXXX',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: _kNavy,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    GestureDetector(
-                      onTap: () => Navigator.of(context).maybePop(),
-                      child: const Text(
-                        'تغيير الرقم',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: _kOrange,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                _buildCodeBoxes(),
-                const SizedBox(height: 16),
-                const Center(
-                  child: Text(
-                    'إعادة الإرسال خلال 00:45',
+              ),
+              const SizedBox(height: 10),
+              Text(
+                VerifyPhoneKeys.sentTo.tr(),
+                style: TextStyle(fontSize: 14, color: context.colors.textSecondary),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Text(
+                    '5X XXX XXXX',
                     style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: _kBlue,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: context.colors.textPrimary,
                     ),
                   ),
+                  const SizedBox(width: 12),
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).maybePop(),
+                    child: Text(
+                      VerifyPhoneKeys.changeNumber.tr(),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: _kOrange,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              _buildCodeBoxes(),
+              const SizedBox(height: 16),
+              Center(
+                child: Text(
+                  VerifyPhoneKeys.resendIn.tr(namedArgs: {'timer': '00:45'}),
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: context.colors.brandBlue,
+                  ),
                 ),
-                const SizedBox(height: 32),
-                _buildConfirmButton(),
-              ],
-            ),
+              ),
+              const SizedBox(height: 32),
+              _buildConfirmButton(),
+            ],
           ),
         ),
       ),
@@ -193,7 +197,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
   Widget _buildConfirmButton() {
     return Container(
       decoration: BoxDecoration(
-        color: _kBlue,
+        color: context.colors.brandBlue,
         borderRadius: BorderRadius.circular(16),
         boxShadow: const [
           BoxShadow(
@@ -208,12 +212,12 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () {},
-          child: const Padding(
-            padding: EdgeInsets.symmetric(vertical: 18),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 18),
             child: Center(
               child: Text(
-                'تأكيد',
-                style: TextStyle(
+                CommonKeys.confirm.tr(),
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
@@ -255,9 +259,9 @@ class _CodeBox extends StatelessWidget {
       child: Container(
         height: 62,
         decoration: BoxDecoration(
-          color: focused ? _kSurface : _kSurface2,
+          color: focused ? context.colors.surface : context.colors.surface2,
           borderRadius: BorderRadius.circular(14),
-          border: focused ? Border.all(color: _kBlue, width: 1.5) : null,
+          border: focused ? Border.all(color: context.colors.brandBlue, width: 1.5) : null,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -281,13 +285,13 @@ class _CodeBox extends StatelessWidget {
                     FilteringTextInputFormatter.digitsOnly,
                     LengthLimitingTextInputFormatter(1),
                   ],
-                  cursorColor: _kNavy,
+                  cursorColor: context.colors.textPrimary,
                   cursorWidth: 2,
                   cursorHeight: 22,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w800,
-                    color: _kNavy,
+                    color: context.colors.textPrimary,
                     height: 1.0,
                   ),
                   decoration: const InputDecoration(
@@ -311,7 +315,7 @@ class _CodeBox extends StatelessWidget {
               width: 6,
               height: 6,
               decoration: BoxDecoration(
-                color: filled && !focused ? _kBlue : _kDotIdle,
+                color: filled && !focused ? context.colors.brandBlue : context.colors.borderHairline,
                 shape: BoxShape.circle,
               ),
             ),

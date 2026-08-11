@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/di/injector.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_cubit.dart';
 import 'features/auth/presentation/cubit/session_cubit.dart';
 import 'features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'features/notifications/presentation/widgets/notification_banner_presenter.dart';
@@ -20,24 +21,29 @@ class App extends StatelessWidget {
         BlocProvider<NotificationsCubit>.value(
           value: getIt<NotificationsCubit>(),
         ),
-      ],
-      child: MaterialApp.router(
-        title: 'Ciro Fuel',
-        debugShowCheckedModeBanner: false,
-        // Text direction follows the locale automatically once these three
-        // are wired — no screen needs its own `Directionality` for RTL.
-        locale: context.locale,
-        supportedLocales: context.supportedLocales,
-        localizationsDelegates: context.localizationDelegates,
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        // Default to light regardless of the OS/browser theme; there's no
-        // in-app toggle yet.
-        themeMode: ThemeMode.light,
-        routerConfig: getIt<AppRouter>().config,
-        builder: (context, child) => NotificationBannerPresenter(
-          child: child ?? const SizedBox.shrink(),
+        BlocProvider<ThemeCubit>.value(
+          value: getIt<ThemeCubit>(),
         ),
+      ],
+      child: BlocBuilder<ThemeCubit, ThemeMode>(
+        builder: (context, themeMode) {
+          return MaterialApp.router(
+            title: 'Ciro Fuel',
+            debugShowCheckedModeBanner: false,
+            // Text direction follows the locale automatically once these three
+            // are wired — no screen needs its own `Directionality` for RTL.
+            locale: context.locale,
+            supportedLocales: context.supportedLocales,
+            localizationsDelegates: context.localizationDelegates,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeMode,
+            routerConfig: getIt<AppRouter>().config,
+            builder: (context, child) => NotificationBannerPresenter(
+              child: child ?? const SizedBox.shrink(),
+            ),
+          );
+        },
       ),
     );
   }

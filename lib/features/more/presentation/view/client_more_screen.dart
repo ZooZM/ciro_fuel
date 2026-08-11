@@ -1,8 +1,18 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/localization/app_locales.dart';
+import '../../../../core/localization/translation_keys.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/theme_context.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/di/injector.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/theme/theme_cubit.dart';
+import '../../../auth/domain/usecases/sign_out.dart';
+import '../../../auth/presentation/cubit/session_cubit.dart';
+import '../widgets/app_lock_dialog.dart';
 
 class ClientMoreScreen extends StatefulWidget {
   const ClientMoreScreen({super.key});
@@ -14,133 +24,195 @@ class ClientMoreScreen extends StatefulWidget {
 class _ClientMoreScreenState extends State<ClientMoreScreen> {
   bool _isNotificationsEnabled = true;
   bool _isLanguageExpanded = false;
-  String _selectedLanguage = 'ar';
+
+  /// How the app is unlocked. Mock state for now, like the rest of this
+  /// screen's switches — nothing is persisted yet.
+  AppLockMethod _appLock = AppLockMethod.fingerprint;
+
+  String get _appLockLabel => switch (_appLock) {
+    AppLockMethod.none => MoreKeys.appLockOff,
+    AppLockMethod.fingerprint => LoginKeys.fingerprint,
+    AppLockMethod.face => LoginKeys.faceId,
+    AppLockMethod.password => MoreKeys.appLockPassword,
+  };
+
+  Future<void> _pickAppLock() async {
+    final picked = await AppLockDialog.show(context, selected: _appLock);
+    if (picked != null) setState(() => _appLock = picked);
+  }
+
+  /// Drops the stored token, then the session, then lands on the login screen.
+  /// The navigation is explicit because the router's redirect currently lets
+  /// `SessionUnauthenticated` stay put — leaving it to the redirect would keep
+  /// the user on this screen with no session behind it.
+  Future<void> _signOut() async {
+    await getIt<SignOut>()();
+    if (!mounted) return;
+    context.read<SessionCubit>().signOut();
+    context.go(AppRoutes.login);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Scaffold(
-      backgroundColor: AppColors.light.canvas,
+      backgroundColor: colors.canvas,
       body: SafeArea(
-        child: Directionality(
-          textDirection: TextDirection.rtl,
-          child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
-            children: [
-              InkWell(
-                onTap: () => context.push(AppRoutes.clientProfile),
-                borderRadius: BorderRadius.circular(16),
-                child: _buildProfileCard(),
+        child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+          children: [
+            InkWell(
+              onTap: () => context.push(AppRoutes.clientProfile),
+              borderRadius: BorderRadius.circular(16),
+              child: _buildProfileCard(),
+            ),
+            const SizedBox(height: 32),
+            _buildSectionTitle(MoreKeys.sectionAccount.tr()),
+            const SizedBox(height: 12),
+            _buildCard([
+              _buildListItem(
+                title: MoreKeys.yourStations.tr(),
+                iconPath: 'assets/more/station.svg',
+                iconColor: AppColors.forestGreen,
+                onTap: () {
+                  context.push(AppRoutes.clientStations);
+                },
               ),
-              const SizedBox(height: 32),
-              _buildSectionTitle('الحساب'),
-              const SizedBox(height: 12),
-              _buildCard([
-                _buildListItem(
-                  title: 'محطاتك',
-                  iconPath: 'assets/more/station.svg',
-                  onTap: () {
-                    context.push(AppRoutes.clientStations);
-                  },
-                ),
-                _buildDivider(),
-                _buildListItem(
-                  title: 'الفواتير و الدفع',
-                  iconPath: 'assets/more/invoice.svg',
-                  onTap: () {},
-                ),
-                _buildDivider(),
-                _buildListItem(
-                  title: 'الحد الإئتماني',
-                  iconPath: 'assets/more/payment.svg',
-                  onTap: () {
-                    context.push(AppRoutes.clientCreditLimit);
-                  },
-                ),
-              ]),
-              const SizedBox(height: 24),
-              _buildSectionTitle('التطبيق'),
-              const SizedBox(height: 12),
-              _buildCard([
-                _buildListItem(
-                  title: 'قفل التطبيق',
-                  icon: Icons.lock_outline,
-                  trailingText: 'بصمة إصبع',
-                  onTap: () {},
-                ),
-                _buildDivider(),
-                _buildListItem(
-                  title: 'الإشعارات',
-                  icon: Icons.notifications_none,
-                  trailingWidget: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _isNotificationsEnabled = !_isNotificationsEnabled;
-                      });
-                    },
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 250),
-                      transitionBuilder: (child, animation) => FadeTransition(
-                        opacity: animation,
-                        child: child,
-                      ),
-                      child: SvgPicture.asset(
-                        _isNotificationsEnabled
-                            ? 'assets/more/Toggole Button.svg'
-                            : 'assets/more/Toggole Button Pressed.svg',
-                        key: ValueKey<bool>(_isNotificationsEnabled),
-                        width: 44,
-                      ),
-                    ),
-                  ),
+              _buildDivider(),
+              _buildListItem(
+                title: MoreKeys.creditLimit.tr(),
+                iconPath: 'assets/more/payment.svg',
+                iconColor: colors.brandOrange,
+                onTap: () {
+                  context.push(AppRoutes.clientCreditLimit);
+                },
+              ),
+            ]),
+            const SizedBox(height: 24),
+            _buildSectionTitle(MoreKeys.sectionApp.tr()),
+            const SizedBox(height: 12),
+            _buildCard([
+              _buildListItem(
+                title: MoreKeys.appLock.tr(),
+                iconPath: 'assets/more/icon1.svg',
+                iconColor: context.colors.textSecondary,
+                trailingText: _appLockLabel.tr(),
+                onTap: _pickAppLock,
+              ),
+              _buildDivider(),
+              _buildListItem(
+                title: MoreKeys.notifications.tr(),
+                iconPath: _isNotificationsEnabled
+                    ? 'assets/more/icon4.svg'
+                    : 'assets/more/icon3.svg',
+                iconColor: context.colors.textSecondary,
+                trailingWidget: GestureDetector(
                   onTap: () {
                     setState(() {
                       _isNotificationsEnabled = !_isNotificationsEnabled;
                     });
                   },
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    transitionBuilder: (child, animation) =>
+                        FadeTransition(opacity: animation, child: child),
+                    child: SvgPicture.asset(
+                      _isNotificationsEnabled
+                          ? 'assets/more/Toggole Button.svg'
+                          : 'assets/more/Toggole Button Pressed.svg',
+                      key: ValueKey<bool>(_isNotificationsEnabled),
+                      width: 44,
+                    ),
+                  ),
                 ),
-                _buildDivider(),
-                _buildLanguageItem(),
-                _buildDivider(),
-                _buildListItem(
-                  title: 'الدعم و المساعدة',
-                  iconPath: 'assets/more/customer service.svg',
-                  onTap: () => context.push(AppRoutes.support, extra: true),
+                onTap: () {
+                  setState(() {
+                    _isNotificationsEnabled = !_isNotificationsEnabled;
+                  });
+                },
+              ),
+              _buildDivider(),
+              _buildLanguageItem(),
+              _buildDivider(),
+              _buildListItem(
+                title: context.locale.languageCode == 'ar'
+                    ? 'سمة الألوان'
+                    : 'Color Theme',
+                iconPath: 'assets/more/theme_icon.svg',
+                iconColor: context.colors.textSecondary,
+                trailingWidget: BlocBuilder<ThemeCubit, ThemeMode>(
+                  builder: (context, themeMode) {
+                    final isDark = themeMode == ThemeMode.dark;
+                    return GestureDetector(
+                      onTap: () {
+                        context.read<ThemeCubit>().toggleTheme();
+                      },
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 250),
+                        transitionBuilder: (child, animation) =>
+                            FadeTransition(opacity: animation, child: child),
+                        child: SvgPicture.asset(
+                          isDark
+                              ? 'assets/more/theme_toggle_dark.svg'
+                              : 'assets/more/theme_toggle_light.svg',
+                          key: ValueKey<bool>(isDark),
+                          width: 44,
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              ]),
-              const SizedBox(height: 24),
-              _buildSectionTitle('عن التطبيق'),
-              const SizedBox(height: 12),
-              _buildCard([
-                _buildListItem(
-                  title: 'الشروط و الأحكام',
-                  iconPath: 'assets/more/order.svg',
-                  onTap: () => context.push(AppRoutes.clientTerms),
-                ),
-                _buildDivider(),
-                _buildListItem(
-                  title: 'من نحن',
-                  icon: Icons.info_outline,
-                  trailingText: 'v1.0.0',
-                  onTap: () {},
-                ),
-              ]),
-              const SizedBox(height: 24),
-              _buildLogoutButton(),
-              const SizedBox(height: 100),
-            ],
-          ),
+                onTap: () {
+                  context.read<ThemeCubit>().toggleTheme();
+                },
+              ),
+              _buildDivider(),
+              _buildListItem(
+                title: MoreKeys.supportHelp.tr(),
+                iconPath: 'assets/more/customer service.svg',
+                iconColor: context.colors.textSecondary,
+                // No `extra`, so this lands on the same support page the
+                // floating support button opens — the plain back arrow and
+                // standalone logo, not the full top bar.
+                onTap: () => context.push(AppRoutes.support),
+              ),
+            ]),
+            const SizedBox(height: 24),
+            _buildSectionTitle(MoreKeys.sectionAbout.tr()),
+            const SizedBox(height: 12),
+            _buildCard([
+              _buildListItem(
+                title: MoreKeys.terms.tr(),
+                iconPath: 'assets/more/icon5.svg',
+                iconColor: context.colors.textSecondary,
+                onTap: () => context.push(AppRoutes.clientTerms),
+              ),
+              _buildDivider(),
+              _buildListItem(
+                title: MoreKeys.aboutUs.tr(),
+                iconPath: 'assets/more/info-circle.svg',
+                iconColor: context.colors.textSecondary,
+                trailingText: 'v1.0.0',
+                onTap: () {},
+              ),
+            ]),
+            const SizedBox(height: 24),
+            _buildLogoutButton(),
+            const SizedBox(height: 100),
+          ],
         ),
       ),
     );
   }
 
   Widget _buildProfileCard() {
+    final colors = context.colors;
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: AppColors.light.greenTint,
+        color: colors.greenTint,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.light.brandGreen.withOpacity(0.3)),
+        border: Border.all(color: colors.brandGreen.withOpacity(0.3)),
       ),
       child: Row(
         children: [
@@ -162,18 +234,18 @@ class _ClientMoreScreenState extends State<ClientMoreScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'محمد أحمد',
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.slateCharcoal,
+                    color: context.colors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'عدد المحطات :  2',
-                  style: TextStyle(
+                Text(
+                  MoreKeys.stationsCount.tr(namedArgs: {'count': '2'}),
+                  style: const TextStyle(
                     fontSize: 14,
                     color: AppColors.forestGreen,
                     fontWeight: FontWeight.w600,
@@ -181,11 +253,16 @@ class _ClientMoreScreenState extends State<ClientMoreScreen> {
                 ),
                 const SizedBox(height: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: colors.surface,
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.light.brandGreen.withOpacity(0.3)),
+                    border: Border.all(
+                      color: colors.brandGreen.withOpacity(0.3),
+                    ),
                   ),
                   child: const Text(
                     'GS-MA-526',
@@ -222,40 +299,48 @@ class _ClientMoreScreenState extends State<ClientMoreScreen> {
           },
           borderRadius: BorderRadius.circular(12),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 16.0,
+            ),
             child: Row(
               children: [
                 SvgPicture.asset(
-                  'assets/more/language.svg',
+                  'assets/more/icon2.svg',
                   width: 24,
                   height: 24,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.textSecondary,
+                    BlendMode.srcIn,
+                  ),
                 ),
                 const SizedBox(width: 16),
-                const Expanded(
+                Expanded(
                   child: Text(
-                    'اللغة',
+                    MoreKeys.language.tr(),
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.slateCharcoal,
+                      color: context.colors.textPrimary,
                     ),
                   ),
                 ),
+                // The active language, written in its own language.
                 Text(
-                  'عربي',
-                  style: const TextStyle(
+                  CommonKeys.languageName.tr(),
+                  style: TextStyle(
                     fontSize: 14,
-                    color: AppColors.warmGray,
+                    color: context.colors.textSecondary,
                   ),
                 ),
                 const SizedBox(width: 8),
                 AnimatedRotation(
                   turns: _isLanguageExpanded ? 0.5 : 0.0,
                   duration: const Duration(milliseconds: 200),
-                  child: const Icon(
+                  child: Icon(
                     Icons.keyboard_arrow_down,
                     size: 20,
-                    color: AppColors.warmGray,
+                    color: context.colors.textSecondary,
                   ),
                 ),
               ],
@@ -270,15 +355,15 @@ class _ClientMoreScreenState extends State<ClientMoreScreen> {
               children: [
                 Expanded(
                   child: _buildLanguageChip(
-                    label: 'اللغة العربية',
-                    value: 'ar',
+                    label: CommonKeys.arabic.tr(),
+                    locale: AppLocales.arabic,
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: _buildLanguageChip(
-                    label: 'English',
-                    value: 'en',
+                    label: CommonKeys.english.tr(),
+                    locale: AppLocales.english,
                   ),
                 ),
               ],
@@ -293,22 +378,22 @@ class _ClientMoreScreenState extends State<ClientMoreScreen> {
     );
   }
 
-  Widget _buildLanguageChip({required String label, required String value}) {
-    final isSelected = _selectedLanguage == value;
+  /// Switching the chip switches the app's locale outright — `setLocale`
+  /// persists the choice and rebuilds every `.tr()` above this screen, so no
+  /// local selection state is kept here.
+  Widget _buildLanguageChip({required String label, required Locale locale}) {
+    final colors = context.colors;
+    final isSelected = context.locale.languageCode == locale.languageCode;
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedLanguage = value;
-        });
-      },
+      onTap: () => context.setLocale(locale),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.light.blueTint : Colors.white,
+          color: isSelected ? colors.blueTint : colors.surface,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected ? AppColors.light.brandBlue : AppColors.light.borderHairline,
+            color: isSelected ? colors.brandBlue : colors.borderHairline,
           ),
         ),
         child: Row(
@@ -320,7 +405,7 @@ class _ClientMoreScreenState extends State<ClientMoreScreen> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isSelected ? AppColors.light.brandBlue : AppColors.light.textTertiary,
+                  color: isSelected ? colors.brandBlue : colors.textTertiary,
                   width: 2,
                 ),
               ),
@@ -331,7 +416,7 @@ class _ClientMoreScreenState extends State<ClientMoreScreen> {
                         height: 8,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: AppColors.light.brandBlue,
+                          color: colors.brandBlue,
                         ),
                       ),
                     )
@@ -343,7 +428,7 @@ class _ClientMoreScreenState extends State<ClientMoreScreen> {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: isSelected ? AppColors.light.brandBlue : AppColors.light.textSecondary,
+                color: isSelected ? colors.brandBlue : colors.textSecondary,
               ),
             ),
           ],
@@ -355,24 +440,23 @@ class _ClientMoreScreenState extends State<ClientMoreScreen> {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.bold,
-        color: AppColors.warmGray,
+        color: context.colors.textSecondary,
       ),
     );
   }
 
   Widget _buildCard(List<Widget> children) {
+    final colors = context.colors;
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.light.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(12),
         boxShadow: AppColors.shadowCard,
       ),
-      child: Column(
-        children: children,
-      ),
+      child: Column(children: children),
     );
   }
 
@@ -380,6 +464,7 @@ class _ClientMoreScreenState extends State<ClientMoreScreen> {
     required String title,
     String? iconPath,
     IconData? icon,
+    Color? iconColor,
     String? trailingText,
     Widget? trailingWidget,
     required VoidCallback onTap,
@@ -396,30 +481,30 @@ class _ClientMoreScreenState extends State<ClientMoreScreen> {
                 iconPath,
                 width: 24,
                 height: 24,
+                colorFilter: ColorFilter.mode(
+                  iconColor ?? AppColors.forestGreen,
+                  BlendMode.srcIn,
+                ),
               )
             else if (icon != null)
-              Icon(
-                icon,
-                size: 24,
-                color: AppColors.light.textSecondary,
-              ),
+              Icon(icon, size: 24, color: iconColor ?? AppColors.forestGreen),
             const SizedBox(width: 16),
             Expanded(
               child: Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.slateCharcoal,
+                  color: context.colors.textPrimary,
                 ),
               ),
             ),
             if (trailingText != null) ...[
               Text(
                 trailingText,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.warmGray,
+                  color: context.colors.textSecondary,
                 ),
               ),
               const SizedBox(width: 8),
@@ -427,10 +512,10 @@ class _ClientMoreScreenState extends State<ClientMoreScreen> {
             if (trailingWidget != null)
               trailingWidget
             else
-              const Icon(
+              Icon(
                 Icons.arrow_forward_ios,
                 size: 16,
-                color: AppColors.warmGray,
+                color: context.colors.textSecondary,
               ),
           ],
         ),
@@ -439,10 +524,11 @@ class _ClientMoreScreenState extends State<ClientMoreScreen> {
   }
 
   Widget _buildDivider() {
+    final colors = context.colors;
     return Divider(
       height: 1,
       thickness: 1,
-      color: AppColors.light.borderHairline,
+      color: colors.borderHairline,
       indent: 16,
       endIndent: 16,
     );
@@ -450,27 +536,23 @@ class _ClientMoreScreenState extends State<ClientMoreScreen> {
 
   Widget _buildLogoutButton() {
     return InkWell(
-      onTap: () {},
+      onTap: _signOut,
       borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.light.borderHairline),
+          border: Border.all(color: context.colors.borderHairline),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.logout,
-              color: AppColors.errorRed,
-              size: 20,
-            ),
+            const Icon(Icons.logout, color: AppColors.errorRed, size: 20),
             const SizedBox(width: 8),
-            const Text(
-              'تسجيل الخروج',
-              style: TextStyle(
+            Text(
+              MoreKeys.signOut.tr(),
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: AppColors.errorRed,

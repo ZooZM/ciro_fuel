@@ -6,7 +6,7 @@ import 'app.dart';
 import 'core/constants/app_assets.dart';
 import 'core/di/injector.dart';
 import 'core/error/app_bloc_observer.dart';
-import 'core/error/error_boundary.dart';
+import 'core/error/error_boundary.dart';  
 import 'core/localization/app_locales.dart';
 
 void main() {

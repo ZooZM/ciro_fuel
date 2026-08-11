@@ -1,31 +1,28 @@
+// `hide TextDirection`: easy_localization re-exports intl, whose
+// `TextDirection` would otherwise shadow the Flutter one used below.
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
+import '../../../../core/localization/translation_keys.dart';
 
 import '../../../../core/widgets/app_top_bar.dart';
+import '../../../../core/widgets/scroll_top_button.dart';
+import '../../../../core/theme/theme_context.dart';
 
-const _kNavy = Color(0xFF162155);
-const _kGrey = Color(0xFF6B7280);
-const _kGreyLight = Color(0xFF9CA3AF);
-const _kBlue = Color(0xFF1E5FFF);
-const _kCanvas = Color(0xFFF4F6FA);
-const _kSurface = Color(0xFFFFFFFF);
-const _kBorder = Color(0xFFE7E9EF);
 // The clause cards: a pale green field inside a slightly stronger green rule.
-const _kClauseFill = Color(0xFFE9F8EF);
-const _kClauseBorder = Color(0xFFA8DFC0);
-const _kBadgeFill = Color(0xFFF5F8FF);
 
-/// One numbered clause of the terms.
+/// One numbered clause of the terms. Holds translation keys rather than copy
+/// so the clause list can stay `const`; both are resolved where they're drawn.
 class _Clause {
-  const _Clause(this.number, this.title, this.body);
+  const _Clause(this.number, this.titleKey, this.bodyKey);
 
   final String number;
-  final String title;
-  final String body;
+  final String titleKey;
+  final String bodyKey;
 }
 
 /// الشروط والأحكام — a contents list followed by the clauses themselves.
 ///
-/// Static UI: the copy is fixed and the contents rows scroll to nothing yet.
+/// The copy is fixed; the contents rows scroll to the clause they name.
 class ClientTermsScreen extends StatefulWidget {
   const ClientTermsScreen({super.key});
 
@@ -37,50 +34,21 @@ class _ClientTermsScreenState extends State<ClientTermsScreen> {
   final ScrollController _controller = ScrollController();
 
   static const List<_Clause> _clauses = [
-    _Clause(
-      '01',
-      'مقدمة الشروط والأحكام',
-      'يرجى قراءة هذه الشروط والأحكام بعناية قبل استخدام المنصة أو الاستمرار '
-          'في أي من خدماتها، حيث إن استخدامك للمنصة يُعد موافقة صريحة منك على '
-          'الالتزام بجميع البنود الواردة في هذه الصفحة، وكذلك أي تحديثات أو '
-          'تعديلات قد تطرأ عليها لاحقًا.',
-    ),
-    _Clause(
-      '02',
-      'تحديث الشروط',
-      'تحتفظ الجهة المالكة للمنصة بحق تعديل أو تحديث هذه الشروط في أي وقت تراه '
-          'مناسبًا، ويُعد استمرارك في استخدام الخدمة بعد نشر التعديلات قبولًا '
-          'ضمنيًا بها.',
-    ),
-    _Clause(
-      '03',
-      'مسؤولية صحة البيانات',
-      'يقر المستخدم بأنه مسؤول مسؤولية كاملة عن صحة ودقة البيانات التي يقوم '
-          'بإدخالها أثناء إنشاء الحساب أو أثناء استخدام أي من خدمات المنصة، وأن '
-          'أي بيانات غير صحيحة أو مضللة قد تؤدي إلى تعليق الحساب أو رفض الخدمة '
-          'أو اتخاذ الإجراءات اللازمة وفقًا لما تراه الجهة المشغلة مناسبًا.',
-    ),
-    _Clause(
-      '04',
-      'سرية بيانات الدخول',
-      'كما يلتزم المستخدم بالحفاظ على سرية بيانات الدخول الخاصة به، وعدم '
-          'مشاركتها مع أي طرف آخر، ويتحمل وحده المسؤولية عن أي استخدام يتم من '
-          'خلال حسابه.',
-    ),
-    _Clause(
-      '05',
-      'الاستخدام المشروع',
-      'ويُمنع استخدام المنصة لأي أغراض غير مشروعة أو مخالفة للأنظمة أو الآداب '
-          'العامة أو ما قد يسبب ضررًا مباشرًا أو غير مباشر للمنصة أو '
-          'للمستخدمين الآخرين أو لأي طرف ثالث.',
-    ),
+    _Clause('01', TermsKeys.introTitle, TermsKeys.introBody),
+    _Clause('02', TermsKeys.updatesTitle, TermsKeys.updatesBody),
+    _Clause('03', TermsKeys.dataAccuracyTitle, TermsKeys.dataAccuracyBody),
+    _Clause('04', TermsKeys.credentialsTitle, TermsKeys.credentialsBody),
+    _Clause('05', TermsKeys.lawfulUseTitle, TermsKeys.lawfulUseBody),
     _Clause(
       '06',
-      'حماية النظام',
-      'كما يلتزم المستخدم بعدم محاولة العبث بالنظام أو الوصول غير المصرح به '
-          'إلى أي جزء من المنصة أو تعطيل خدماتها أو التأثير على أدائها بأي '
-          'وسيلة كانت.',
+      TermsKeys.systemProtectionTitle,
+      TermsKeys.systemProtectionBody,
     ),
+  ];
+
+  /// One per clause card, so a contents row can find the card it names.
+  late final List<GlobalKey> _clauseKeys = [
+    for (final _ in _clauses) GlobalKey(),
   ];
 
   @override
@@ -89,57 +57,64 @@ class _ClientTermsScreenState extends State<ClientTermsScreen> {
     super.dispose();
   }
 
-  void _scrollToTop() {
-    _controller.animateTo(
-      0,
+  /// Brings a clause into view from its contents row.
+  ///
+  /// `ensureVisible` rather than an offset computed from the cards' heights:
+  /// they are as tall as their copy, which changes with the locale and the
+  /// text scale, so no arithmetic here would survive either.
+  void _scrollToClause(int index) {
+    final target = _clauseKeys[index].currentContext;
+    if (target == null) return;
+
+    Scrollable.ensureVisible(
+      target,
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeOut,
+      // Lands the card just below the top edge rather than flush against it.
+      alignment: 0.05,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: _kCanvas,
-        body: SafeArea(
-          child: Stack(
-            children: [
-              SingleChildScrollView(
-                controller: _controller,
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const AppTopBar(),
-                    const SizedBox(height: 28),
-                    const Text(
-                      'المحتويات',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: _kGreyLight,
-                      ),
+    return Scaffold(
+      backgroundColor: context.colors.canvas,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              controller: _controller,
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const AppTopBar(),
+                  const SizedBox(height: 28),
+                  Text(
+                    TermsKeys.contents.tr(),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: context.colors.textTertiary,
                     ),
-                    const SizedBox(height: 12),
-                    _buildContentsCard(),
-                    const SizedBox(height: 32),
-                    for (final clause in _clauses) ...[
-                      _ClauseCard(clause: clause),
-                      const SizedBox(height: 16),
-                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  _buildContentsCard(),
+                  const SizedBox(height: 32),
+                  for (final (index, clause) in _clauses.indexed) ...[
+                    _ClauseCard(key: _clauseKeys[index], clause: clause),
+                    const SizedBox(height: 16),
                   ],
-                ),
+                ],
               ),
-              // Sits over the content at the bottom-right, as drawn.
-              Positioned(
-                right: 16,
-                bottom: 16,
-                child: _buildScrollTopButton(),
-              ),
-            ],
-          ),
+            ),
+            // Sits over the content at the bottom-right, as drawn.
+            Positioned(
+              right: ScrollTopButton.inset,
+              bottom: ScrollTopButton.inset,
+              child: ScrollTopButton(controller: _controller),
+            ),
+          ],
         ),
       ),
     );
@@ -148,7 +123,7 @@ class _ClientTermsScreenState extends State<ClientTermsScreen> {
   Widget _buildContentsCard() {
     return Container(
       decoration: BoxDecoration(
-        color: _kSurface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(14),
         boxShadow: const [
           BoxShadow(
@@ -162,9 +137,9 @@ class _ClientTermsScreenState extends State<ClientTermsScreen> {
         children: [
           for (final (index, clause) in _clauses.indexed) ...[
             if (index > 0)
-              const Divider(height: 1, thickness: 1, color: _kBorder),
+              Divider(height: 1, thickness: 1, color: context.colors.borderHairline),
             InkWell(
-              onTap: () {},
+              onTap: () => _scrollToClause(index),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -175,24 +150,20 @@ class _ClientTermsScreenState extends State<ClientTermsScreen> {
                     Expanded(
                       child: Text(
                         // The list numbers plainly, unlike the clause badges.
-                        '${index + 1}.  ${clause.title}',
-                        style: const TextStyle(
+                        '${index + 1}.  ${clause.titleKey.tr()}',
+                        style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
-                          color: _kNavy,
+                          color: context.colors.textPrimary,
                         ),
                       ),
                     ),
                     const SizedBox(width: 12),
-                    // chevron_left is a matchTextDirection icon, so it would
-                    // mirror and point right on this RTL page.
-                    const Directionality(
-                      textDirection: TextDirection.ltr,
-                      child: Icon(
-                        Icons.chevron_left,
-                        size: 22,
-                        color: _kGreyLight,
-                      ),
+                    // chevron_right is a matchTextDirection icon, so it points right in LTR and flips to point left in RTL.
+                    Icon(
+                      Icons.chevron_right,
+                      size: 22,
+                      color: context.colors.textTertiary,
                     ),
                   ],
                 ),
@@ -204,28 +175,11 @@ class _ClientTermsScreenState extends State<ClientTermsScreen> {
     );
   }
 
-  Widget _buildScrollTopButton() {
-    return Material(
-      color: _kSurface,
-      borderRadius: BorderRadius.circular(12),
-      elevation: 2,
-      shadowColor: const Color(0x1F000000),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: _scrollToTop,
-        child: const SizedBox(
-          width: 44,
-          height: 44,
-          child: Icon(Icons.arrow_upward, size: 22, color: _kBlue),
-        ),
-      ),
-    );
-  }
 }
 
 /// A single clause: its number badge and title, then the text itself.
 class _ClauseCard extends StatelessWidget {
-  const _ClauseCard({required this.clause});
+  const _ClauseCard({required this.clause, super.key});
 
   final _Clause clause;
 
@@ -234,9 +188,9 @@ class _ClauseCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: _kClauseFill,
+        color: context.colors.greenTint,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _kClauseBorder),
+        border: Border.all(color: context.colors.brandGreen),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -250,27 +204,27 @@ class _ClauseCard extends StatelessWidget {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: _kBadgeFill,
+                  color: context.colors.blueTint,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: _kBlue.withValues(alpha: 0.4)),
+                  border: Border.all(color: context.colors.brandBlue.withValues(alpha: 0.4)),
                 ),
                 child: Text(
                   clause.number,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
-                    color: _kBlue,
+                    color: context.colors.brandBlue,
                   ),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  clause.title,
-                  style: const TextStyle(
+                  clause.titleKey.tr(),
+                  style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
-                    color: _kNavy,
+                    color: context.colors.textPrimary,
                   ),
                 ),
               ),
@@ -278,9 +232,9 @@ class _ClauseCard extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(
-            clause.body,
+            clause.bodyKey.tr(),
             textAlign: TextAlign.justify,
-            style: const TextStyle(fontSize: 13, height: 1.9, color: _kGrey),
+            style: TextStyle(fontSize: 13, height: 1.9, color: context.colors.textSecondary),
           ),
         ],
       ),

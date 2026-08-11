@@ -29,18 +29,13 @@ class SignInButton extends StatelessWidget {
                 color: context.colors.surface,
               ),
             )
-          // Forced LTR so the arrow trails the label in both locales, as in
-          // the Figma frame — it reads as "proceed", not "back".
-          : Directionality(
-              textDirection: TextDirection.ltr,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(LoginKeys.submit.tr()),
-                  const SizedBox(width: AppSpacing.sm),
-                  const Icon(Icons.arrow_forward, size: AppSizes.iconLg),
-                ],
-              ),
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(LoginKeys.submit.tr()),
+                const SizedBox(width: AppSpacing.sm),
+                const Icon(Icons.arrow_forward, size: AppSizes.iconLg),
+              ],
             ),
     );
   }

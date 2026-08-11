@@ -1,4 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/localization/translation_keys.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
@@ -9,15 +11,10 @@ import '../widgets/profile_identity.dart';
 
 import '../../../auth/domain/entities/country_dial_code.dart';
 import '../../../auth/presentation/widgets/phone_field.dart';
+import '../../../../core/theme/theme_context.dart';
 
 const _kSupportIcon = 'assets/more/customer service.svg';
 
-const _kNavy = Color(0xFF162155);
-const _kGrey = Color(0xFF6B7280);
-const _kBlue = Color(0xFF1E5FFF);
-const _kGreen = Color(0xFF12A150);
-const _kCanvas = Color(0xFFF4F6FA);
-const _kBorder = Color(0xFFE7E9EF);
 
 /// Step one of changing the account's mobile number: entering the new one.
 ///
@@ -42,53 +39,59 @@ class _ChangePhoneScreenState extends State<ChangePhoneScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: _kCanvas,
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const AppTopBar(),
-                const SizedBox(height: 32),
-                const ProfileIdentity(),
-                const SizedBox(height: 32),
-                const StepTracker(
-                  steps: [
-                    StepItem('تغيير الرقم', TrackerStepState.current),
-                    StepItem('رمز التحقق', TrackerStepState.pending),
-                    StepItem('إعادة التوثيق', TrackerStepState.pending),
-                  ],
-                ),
-                const SizedBox(height: 36),
-                const Text(
-                  'تغيير رقم الجوال',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                    color: _kNavy,
+    return Scaffold(
+      backgroundColor: context.colors.canvas,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const AppTopBar(),
+              const SizedBox(height: 32),
+              const ProfileIdentity(),
+              const SizedBox(height: 32),
+              StepTracker(
+                steps: [
+                  StepItem(
+                    ChangePhoneKeys.stepChangeNumber.tr(),
+                    TrackerStepState.current,
                   ),
+                  StepItem(
+                    ChangePhoneKeys.stepVerifyCode.tr(),
+                    TrackerStepState.pending,
+                  ),
+                  StepItem(
+                    ChangePhoneKeys.stepReverify.tr(),
+                    TrackerStepState.pending,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 36),
+              Text(
+                ChangePhoneKeys.title.tr(),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: context.colors.textPrimary,
                 ),
-                const SizedBox(height: 12),
-                _buildNotice(),
-                const SizedBox(height: 28),
-                PhoneField(
-                  controller: _phoneController,
-                  country: _country,
-                  onCountryChanged: (c) => setState(() => _country = c),
-                ),
-                const SizedBox(height: 24),
-                _buildSendCodeButton(context),
-                const SizedBox(height: 40),
-                _buildContactDivider(),
-                const SizedBox(height: 16),
-                _buildSupportButton(context),
-              ],
-            ),
+              ),
+              const SizedBox(height: 12),
+              _buildNotice(),
+              const SizedBox(height: 28),
+              PhoneField(
+                controller: _phoneController,
+                country: _country,
+                onCountryChanged: (c) => setState(() => _country = c),
+              ),
+              const SizedBox(height: 24),
+              _buildSendCodeButton(context),
+              const SizedBox(height: 40),
+              _buildContactDivider(),
+              const SizedBox(height: 16),
+              _buildSupportButton(context),
+            ],
           ),
         ),
       ),
@@ -100,12 +103,11 @@ class _ChangePhoneScreenState extends State<ChangePhoneScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const Expanded(
+        Expanded(
           child: Text(
-            'برجاء العلم أنه بعد تغيير رقم الهاتف، سيتم تسجيل خروجك من الحساب '
-            'و إنتظار إعادة توثيق الحساب مرة إخري.',
+            ChangePhoneKeys.warning.tr(),
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, height: 1.7, color: _kGrey),
+            style: TextStyle(fontSize: 13, height: 1.7, color: context.colors.textSecondary),
           ),
         ),
         const SizedBox(width: 12),
@@ -114,15 +116,15 @@ class _ChangePhoneScreenState extends State<ChangePhoneScreen> {
           height: 30,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: _kBlue, width: 1.5),
+            border: Border.all(color: context.colors.brandBlue, width: 1.5),
           ),
-          child: const Center(
+          child: Center(
             child: Text(
               'i',
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
-                color: _kBlue,
+                color: context.colors.brandBlue,
               ),
             ),
           ),
@@ -131,12 +133,10 @@ class _ChangePhoneScreenState extends State<ChangePhoneScreen> {
     );
   }
 
-
-
   Widget _buildSendCodeButton(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: _kBlue,
+        color: context.colors.brandBlue,
         borderRadius: BorderRadius.circular(16),
         boxShadow: const [
           BoxShadow(
@@ -151,12 +151,12 @@ class _ChangePhoneScreenState extends State<ChangePhoneScreen> {
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () => context.push(AppRoutes.clientVerifyPhone),
-          child: const Padding(
-            padding: EdgeInsets.symmetric(vertical: 18),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 18),
             child: Center(
               child: Text(
-                'إرسل رمز التحقق',
-                style: TextStyle(
+                ChangePhoneKeys.sendCode.tr(),
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
@@ -170,21 +170,25 @@ class _ChangePhoneScreenState extends State<ChangePhoneScreen> {
   }
 
   Widget _buildContactDivider() {
-    return const Row(
+    return Row(
       children: [
-        Expanded(child: Divider(height: 1, thickness: 1, color: _kBorder)),
+        Expanded(
+          child: Divider(height: 1, thickness: 1, color: context.colors.borderHairline),
+        ),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Text(
-            'تواصل معنا',
+            ChangePhoneKeys.contactUs.tr(),
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: _kBlue,
+              color: context.colors.brandBlue,
             ),
           ),
         ),
-        Expanded(child: Divider(height: 1, thickness: 1, color: _kBorder)),
+        Expanded(
+          child: Divider(height: 1, thickness: 1, color: context.colors.borderHairline),
+        ),
       ],
     );
   }
@@ -199,7 +203,7 @@ class _ChangePhoneScreenState extends State<ChangePhoneScreen> {
           height: 64,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: _kBorder),
+            border: Border.all(color: context.colors.borderHairline),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -209,15 +213,15 @@ class _ChangePhoneScreenState extends State<ChangePhoneScreen> {
                 _kSupportIcon,
                 width: 22,
                 height: 22,
-                colorFilter: const ColorFilter.mode(_kGreen, BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(context.colors.brandGreen, BlendMode.srcIn),
               ),
               const SizedBox(width: 10),
-              const Text(
-                'الدعم',
+              Text(
+                CommonKeys.support.tr(),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: _kGreen,
+                  color: context.colors.brandGreen,
                 ),
               ),
             ],
@@ -227,4 +231,3 @@ class _ChangePhoneScreenState extends State<ChangePhoneScreen> {
     );
   }
 }
-

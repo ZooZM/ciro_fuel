@@ -1,8 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
-import '../../constants/create_order_strings.dart';
+import '../../../../../core/theme/theme_context.dart';
 
 /// The form's heading: "طلب وقود جديد" and its subtitle.
 class OrderTitle extends StatelessWidget {
@@ -10,20 +11,20 @@ class OrderTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       children: [
         Text(
-          CreateOrderStrings.title,
+          CreateOrderKeys.title.tr(),
           style: TextStyle(
-            color: AppColors.navy,
+            color: context.colors.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.w700,
           ),
         ),
-        SizedBox(height: AppSpacing.xs),
+        const SizedBox(height: AppSpacing.xs),
         Text(
-          CreateOrderStrings.subtitle,
-          style: TextStyle(color: AppColors.grey, fontSize: 12),
+          CreateOrderKeys.subtitle.tr(),
+          style: TextStyle(color: context.colors.textSecondary, fontSize: 12),
         ),
       ],
     );

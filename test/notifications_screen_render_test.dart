@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_app/features/notifications/presentation/view/notifications_screen.dart';
 
+import 'helpers/localized_harness.dart';
+
 void main() {
   testWidgets('renders all groups on a phone-sized screen without overflow', (
     tester,
@@ -10,13 +12,7 @@ void main() {
     tester.view.devicePixelRatio = 2.75;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(
-      const MaterialApp(
-        theme: null,
-        home: NotificationsScreen(),
-      ),
-    );
-    await tester.pumpAndSettle();
+    await pumpLocalized(tester, const NotificationsScreen());
 
     expect(tester.takeException(), isNull);
 
@@ -35,8 +31,7 @@ void main() {
     tester.view.devicePixelRatio = 2.75;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(const MaterialApp(home: NotificationsScreen()));
-    await tester.pumpAndSettle();
+    await pumpLocalized(tester, const NotificationsScreen());
 
     expect(find.textContaining('تم قبول طلبك'), findsWidgets);
     // The chip row scrolls horizontally, and the test font is far wider than

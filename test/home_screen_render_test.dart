@@ -1,41 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_app/features/home/presentation/view/client_home_screen.dart';
 
-/// Without the real font, text falls back to a fixed-width test face that is
-/// far wider than Tajawal, which reports overflows the app would never hit.
-Future<void> _loadTajawal() async {
-  final loader = FontLoader('Tajawal');
-  for (final font in const [
-    'assets/fonts/Tajawal-Regular.ttf',
-    'assets/fonts/Tajawal-Medium.ttf',
-    'assets/fonts/Tajawal-Bold.ttf',
-    'assets/fonts/Tajawal-ExtraBold.ttf',
-  ]) {
-    loader.addFont(rootBundle.load(font));
-  }
-  await loader.load();
-}
+import 'helpers/localized_harness.dart';
 
 void main() {
   testWidgets('lays out on a phone screen without overflowing', (tester) async {
-    await _loadTajawal();
+    await loadTajawal();
     tester.view.physicalSize = const Size(1206, 2400);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(
-      MaterialApp(
-        theme: ThemeData(fontFamily: 'Tajawal', useMaterial3: true),
-        home: const ClientHomeScreen(),
-      ),
+    await pumpLocalized(
+      tester,
+      const ClientHomeScreen(),
+      theme: ThemeData(fontFamily: 'Tajawal', useMaterial3: true),
     );
-    await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
 
-    // Station card, the نظرة سريعة counters, and the order card.
+    // Station card, the at-a-glance counters, and the order card. The station
+    // name and driver are placeholder data, so they stay Arabic in both
+    // locales; the labels around them come from the catalogue.
     expect(find.text('محطة الرحاب'), findsOneWidget);
     expect(find.text('تغيير المحطة'), findsOneWidget);
     expect(find.text('نظرة سريعة'), findsOneWidget);
@@ -45,5 +31,30 @@ void main() {
       expect(find.text(label), findsWidgets, reason: label);
     }
     expect(find.text('أحمد السبيعي'), findsOneWidget);
+  });
+
+  testWidgets('renders English copy and flips to LTR under the en locale', (
+    tester,
+  ) async {
+    await loadTajawal();
+    tester.view.physicalSize = const Size(1206, 2400);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+
+    await pumpLocalized(
+      tester,
+      const ClientHomeScreen(),
+      locale: const Locale('en'),
+      theme: ThemeData(fontFamily: 'Tajawal', useMaterial3: true),
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Change station'), findsOneWidget);
+    expect(find.text('At a glance'), findsOneWidget);
+    // No screen forces its own direction any more, so the locale decides.
+    expect(
+      Directionality.of(tester.element(find.byType(ClientHomeScreen))),
+      TextDirection.ltr,
+    );
   });
 }

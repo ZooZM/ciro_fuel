@@ -1,19 +1,20 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/router/app_routes.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/enums/fuel_grade.dart';
+import '../../../../core/theme/theme_context.dart';
 
 /// The horizontally-shared row of fuel grade shortcuts. Sized to share the
 /// available width rather than a fixed-width scrolling list — a fixed
-/// width previously pushed the last grade (بنزين 91) off the edge.
+/// width previously pushed the last grade (gasoline 91) off the edge.
 ///
 /// Shown right-to-left in the opposite order from the create-order form's
-/// grade picker — كيروسين leads here, بنزين 91 trails — so
+/// grade picker — kerosene leads here, gasoline 91 trails — so
 /// [FuelGrade.values] is walked in reverse.
 class QuickRequestList extends StatelessWidget {
   const QuickRequestList({super.key});
@@ -46,12 +47,13 @@ class _FuelGradeTile extends StatelessWidget {
     return GestureDetector(
       // Opens the order form already on the grade that was tapped — the
       // badge ('95', 'D', …) is what the form matches on.
-      onTap: () => context.push(AppRoutes.clientCreateOrder, extra: grade.badge),
+      onTap: () =>
+          context.push(AppRoutes.clientCreateOrder, extra: grade.badge),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(AppRadii.tile),
-          border: Border.all(color: AppColors.itemBorder),
+          border: Border.all(color: context.colors.borderHairline),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -86,10 +88,18 @@ class _FuelGradeTile extends StatelessWidget {
                     // the grade is drawn in the tile colour to stay
                     // legible.
                     Positioned(
-                      left: AppSizes.dashboardFuelIconSize * AppSizes.dashboardPumpBodyLeft,
-                      width: AppSizes.dashboardFuelIconSize * AppSizes.dashboardPumpBodyWidth,
-                      top: AppSizes.dashboardFuelIconSize * AppSizes.dashboardPumpFaceTop,
-                      height: AppSizes.dashboardFuelIconSize * AppSizes.dashboardPumpFaceHeight,
+                      left:
+                          AppSizes.dashboardFuelIconSize *
+                          AppSizes.dashboardPumpBodyLeft,
+                      width:
+                          AppSizes.dashboardFuelIconSize *
+                          AppSizes.dashboardPumpBodyWidth,
+                      top:
+                          AppSizes.dashboardFuelIconSize *
+                          AppSizes.dashboardPumpFaceTop,
+                      height:
+                          AppSizes.dashboardFuelIconSize *
+                          AppSizes.dashboardPumpFaceHeight,
                       child: Center(
                         child: Text(
                           grade.badge,
@@ -108,12 +118,12 @@ class _FuelGradeTile extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              grade.title,
+              grade.titleKey.tr(),
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: AppColors.navy,
+              style: TextStyle(
+                color: context.colors.textPrimary,
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
               ),

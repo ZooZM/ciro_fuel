@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:geolocator/geolocator.dart';
 
+import '../../../../core/localization/translation_keys.dart';
 import '../../../../core/realtime/tracking_socket.dart';
 import 'location_emit_gate.dart';
 
@@ -79,9 +81,9 @@ class LocationStreamService {
         // Our own displacement/heartbeat gate above decides what to emit;
         // this only bounds how often the OS delivers raw fixes to us.
         distanceFilter: 0,
-        foregroundNotificationConfig: const ForegroundNotificationConfig(
-          notificationTitle: 'Delivery in progress',
-          notificationText: 'Sharing your location with the customer',
+        foregroundNotificationConfig: ForegroundNotificationConfig(
+          notificationTitle: DriverKeys.deliveryInProgress.tr(),
+          notificationText: DriverKeys.sharingLocation.tr(),
           enableWakeLock: true,
         ),
       );

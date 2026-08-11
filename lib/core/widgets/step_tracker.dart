@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 
-const _kBlue = Color(0xFF1E5FFF);
-const _kGreen = Color(0xFF12A150);
-const _kGrey = Color(0xFF6B7280);
-const _kTrack = Color(0xFFE7E9EF);
+import '../theme/theme_context.dart';
 
 /// Where a stop sits relative to the journey's progress.
 enum TrackerStepState { done, current, pending }
@@ -36,10 +33,14 @@ class StepTracker extends StatelessWidget {
       children: [
         for (final (index, step) in steps.indexed) ...[
           if (index > 0)
-            const Expanded(
+            Expanded(
               child: Padding(
-                padding: EdgeInsets.only(top: _dot / 2),
-                child: Divider(height: 1, thickness: 1, color: _kTrack),
+                padding: const EdgeInsets.only(top: _dot / 2),
+                child: Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: context.colors.borderHairline,
+                ),
               ),
             ),
           _Step(step),
@@ -56,10 +57,11 @@ class _Step extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final color = switch (step.state) {
-      TrackerStepState.done => _kGreen,
-      TrackerStepState.current => _kBlue,
-      TrackerStepState.pending => _kGrey,
+      TrackerStepState.done => colors.brandGreen,
+      TrackerStepState.current => colors.brandBlue,
+      TrackerStepState.pending => colors.textSecondary,
     };
 
     return Column(
@@ -72,30 +74,33 @@ class _Step extends StatelessWidget {
             TrackerStepState.done => Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: _kGreen, width: 1.5),
+                border: Border.all(color: colors.brandGreen, width: 1.5),
               ),
-              child: const Icon(Icons.check, size: 18, color: _kGreen),
+              child: Icon(Icons.check, size: 18, color: colors.brandGreen),
             ),
-            // Solid blue disc with a white core.
+            // Solid blue disc with a contrasting core.
             TrackerStepState.current => Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: _kBlue,
+                color: colors.brandBlue,
               ),
               child: Center(
                 child: Container(
                   width: 10,
                   height: 10,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white,
+                    color: colors.surface,
                   ),
                 ),
               ),
             ),
             // Nothing yet: a plain filled disc, no ring and no glyph.
-            TrackerStepState.pending => const DecoratedBox(
-              decoration: BoxDecoration(shape: BoxShape.circle, color: _kTrack),
+            TrackerStepState.pending => DecoratedBox(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: colors.borderHairline,
+              ),
             ),
           },
         ),

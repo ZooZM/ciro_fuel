@@ -1,7 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/localization/translation_keys.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../shared/enums/notification_type.dart';
 import '../../../../shared/enums/user_role.dart';
@@ -29,15 +31,14 @@ class _NotificationBannerPresenterState
   String? _lastSeenId;
 
   String _messageFor(NotificationType type) => switch (type) {
-    NotificationType.finalPriceReady =>
-      'Your order has been priced — payment is ready.',
-    NotificationType.paymentTimeout =>
-      'Payment window expired for one of your orders.',
+    NotificationType.finalPriceReady => NotificationKeys.bannerFinalPriceReady,
+    NotificationType.paymentTimeout => NotificationKeys.bannerPaymentTimeout,
     NotificationType.noEligibleDriver =>
-      'No driver is available for an order right now.',
-    NotificationType.deliveryCompleted => 'A delivery has been completed.',
-    NotificationType.unknown => 'You have a new notification.',
-  };
+      NotificationKeys.bannerNoEligibleDriver,
+    NotificationType.deliveryCompleted =>
+      NotificationKeys.bannerDeliveryCompleted,
+    NotificationType.unknown => NotificationKeys.bannerUnknown,
+  }.tr();
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +68,7 @@ class _NotificationBannerPresenterState
             content: Text(_messageFor(head.type)),
             action: (orderId != null && role != null)
                 ? SnackBarAction(
-                    label: 'View',
+                    label: NotificationKeys.bannerView.tr(),
                     onPressed: () => context.push(
                       role == UserRole.driver
                           ? AppRoutes.driverOrderDetail(orderId)

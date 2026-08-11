@@ -1,7 +1,14 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 
-import '../../constants/order_detail_strings.dart';
 import 'mock_order_state.dart';
+import '../../../../../core/theme/theme_context.dart';
+
+/// Which palette entry a step's bar and dot read from. An enum cannot hold a
+/// resolved [Color] any more — the value now depends on the active theme — so
+/// each status names its ink and [_StepStatus.colorOf] looks it up per build.
+enum _StepInk { green, blue, orange, red }
 
 /// One step of the order-progress bar, mirroring the five variants in
 /// `assets/Order/status/`. Those SVGs bake a placeholder label into their
@@ -9,47 +16,56 @@ import 'mock_order_state.dart';
 /// track at radius 4, a 3x3 dot 8 above it — with real text for the label.
 enum _StepStatus {
   /// Bar filled end to end.
-  finished(Color(0xFF12A150), filled: true),
+  finished(_StepInk.green, filled: true),
 
   /// Bar filled to the halfway point.
-  onProgress(Color(0xFF1E5FFF)),
+  onProgress(_StepInk.blue),
 
   /// Half-filled like [onProgress], in the alert colour.
-  warning(Color(0xFFFF5810)),
+  warning(_StepInk.orange),
 
   /// Filled end to end, in the error colour. No screen in the current
   /// designs reaches it, but it completes the artwork's set.
   // ignore: unused_field
-  failed(Color(0xFFEF3F3F), filled: true),
+  failed(_StepInk.red, filled: true),
 
   /// Track only; the dot still shows the journey ahead.
-  notFinished(Color(0xFF1E5FFF), fraction: 0);
+  notFinished(_StepInk.blue, fraction: 0);
 
-  const _StepStatus(this.color, {bool filled = false, double? fraction})
+  const _StepStatus(this.ink, {bool filled = false, double? fraction})
     : fraction = fraction ?? (filled ? 1 : 0.5);
 
-  final Color color;
+  final _StepInk ink;
+
+  Color colorOf(BuildContext context) => switch (ink) {
+    _StepInk.green => context.colors.brandGreen,
+    _StepInk.blue => context.colors.brandBlue,
+    _StepInk.orange => context.colors.brandOrange,
+    _StepInk.red => context.colors.brandRed,
+  };
 
   /// How much of the track the fill covers, measured from the leading edge.
   final double fraction;
 }
 
-/// The four-stop تأكيد الطلب ← الدفع ← التوصيل ← التسليم progress bar at
-/// the top of the order-detail screen.
+/// The four-stop confirm ← pay ← deliver ← hand over progress bar at the top
+/// of the order-detail screen.
 class OrderStepper extends StatelessWidget {
   const OrderStepper({required this.currentState, super.key});
 
   final MockOrderState currentState;
 
-  static const _titles = [
-    OrderDetailStrings.stepConfirmOrder,
-    OrderDetailStrings.stepPayment,
-    OrderDetailStrings.stepDelivery,
-    OrderDetailStrings.stepHandover,
+  // Keys, not copy: the list stays `const` and each caption is translated
+  // where it is drawn, so the stepper follows a locale switch.
+  static const _titleKeys = [
+    OrderDetailKeys.stepConfirmOrder,
+    OrderDetailKeys.stepPayment,
+    OrderDetailKeys.stepDelivery,
+    OrderDetailKeys.stepHandover,
   ];
 
-  // التوصيل runs about four times the length of the other three, which are
-  // all of a size — measured off the design.
+  // The delivery step runs about four times the length of the other three,
+  // which are all of a size — measured off the design.
   static const _flexes = [1, 1, 4, 1];
 
   /// Status of each of the four steps, right-to-left:
@@ -85,11 +101,11 @@ class OrderStepper extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        for (var i = 0; i < _titles.length; i++) ...[
+        for (var i = 0; i < _titleKeys.length; i++) ...[
           if (i > 0) const SizedBox(width: 8),
           Expanded(
             flex: _flexes[i],
-            child: _Step(title: _titles[i], status: statuses[i]),
+            child: _Step(title: _titleKeys[i].tr(), status: statuses[i]),
           ),
         ],
       ],
@@ -103,8 +119,6 @@ class _Step extends StatelessWidget {
   final String title;
   final _StepStatus status;
 
-  static const _labelColor = Color(0xFF6B7280);
-  static const _trackColor = Color(0xFFE7E9EF);
 
   @override
   Widget build(BuildContext context) {
@@ -115,13 +129,16 @@ class _Step extends StatelessWidget {
           maxLines: 1,
           softWrap: false,
           overflow: TextOverflow.visible,
-          style: const TextStyle(color: _labelColor, fontSize: 10),
+          style: TextStyle(color: context.colors.textSecondary, fontSize: 10),
         ),
         const SizedBox(height: 6),
         Container(
           width: 3,
           height: 3,
-          decoration: BoxDecoration(color: status.color, shape: BoxShape.circle),
+          decoration: BoxDecoration(
+            color: status.colorOf(context),
+            shape: BoxShape.circle,
+          ),
         ),
         const SizedBox(height: 8),
         // The Column hands out loose constraints, so without this the bar
@@ -133,13 +150,13 @@ class _Step extends StatelessWidget {
             borderRadius: BorderRadius.circular(4),
             child: Container(
               height: 8,
-              color: _trackColor,
+              color: context.colors.borderHairline,
               // Fills from the leading (right) edge under RTL, as the
               // artwork does.
               child: FractionallySizedBox(
                 alignment: AlignmentDirectional.centerStart,
                 widthFactor: status.fraction,
-                child: ColoredBox(color: status.color),
+                child: ColoredBox(color: status.colorOf(context)),
               ),
             ),
           ),

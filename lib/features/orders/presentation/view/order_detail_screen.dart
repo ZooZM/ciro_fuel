@@ -1,10 +1,10 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/localization/translation_keys.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/delivery_time_card.dart';
-import '../constants/order_detail_strings.dart';
 import '../widgets/order_detail/credit_limit_card.dart';
 import '../widgets/order_detail/in_transit_order_status_card.dart';
 import '../widgets/order_detail/mock_order_state.dart';
@@ -17,6 +17,7 @@ import '../widgets/order_detail/receipt_code_card.dart';
 import '../widgets/order_detail/settled_order_status_card.dart';
 import '../widgets/order_detail/support_fab.dart';
 import '../widgets/order_summary_card.dart';
+import '../../../../core/theme/theme_context.dart';
 
 export '../widgets/order_detail/mock_order_state.dart' show MockOrderState;
 
@@ -85,52 +86,49 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: AppColors.screenBackground,
-        body: SafeArea(
-          child: Stack(
-            children: [
-              ListView(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.gutter,
-                  AppSpacing.lg,
-                  AppSpacing.gutter,
-                  AppSpacing.orderScreenBottomPadding,
+    return Scaffold(
+      backgroundColor: context.colors.canvas,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            ListView(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.gutter,
+                AppSpacing.lg,
+                AppSpacing.gutter,
+                AppSpacing.orderScreenBottomPadding,
+              ),
+              children: [
+                OrderDetailTopBar(
+                  notificationCount: 3,
+                  onBack: () => context.pop(),
                 ),
-                children: [
-                  OrderDetailTopBar(
-                    notificationCount: 3,
-                    onBack: () => context.pop(),
-                  ),
-                  const SizedBox(height: AppSpacing.xxl),
-                  OrderStepper(currentState: _currentState),
-                  const SizedBox(height: AppSpacing.xl),
-                  ..._buildStateBody(),
-                  const SizedBox(height: AppSpacing.xl),
-                  SizedBox(
-                    width: double.infinity,
-                    height: AppSizes.orderPrimaryActionHeight,
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black87,
-                        foregroundColor: Colors.white,
-                      ),
-                      onPressed: _cycleMockState,
-                      icon: const Icon(Icons.swap_horiz),
-                      label: const Text(OrderDetailStrings.changeMockState),
+                const SizedBox(height: AppSpacing.xxl),
+                OrderStepper(currentState: _currentState),
+                const SizedBox(height: AppSpacing.xl),
+                ..._buildStateBody(),
+                const SizedBox(height: AppSpacing.xl),
+                SizedBox(
+                  width: double.infinity,
+                  height: AppSizes.orderPrimaryActionHeight,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black87,
+                      foregroundColor: Colors.white,
                     ),
+                    onPressed: _cycleMockState,
+                    icon: const Icon(Icons.swap_horiz),
+                    label: Text(OrderDetailKeys.changeMockState.tr()),
                   ),
-                ],
-              ),
-              const Positioned(
-                bottom: AppSpacing.xl,
-                right: AppSpacing.gutter,
-                child: SupportFab(),
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+            const Positioned(
+              bottom: AppSpacing.xl,
+              right: AppSpacing.gutter,
+              child: SupportFab(),
+            ),
+          ],
         ),
       ),
     );
@@ -171,7 +169,8 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
             const PendingOrderStatusCard()
           else
             PayableOrderStatusCard(
-              invoicePending: _currentState == MockOrderState.waitingPayment ||
+              invoicePending:
+                  _currentState == MockOrderState.waitingPayment ||
                   _currentState == MockOrderState.failedPayment,
               onDeferPayment: _deferPayment,
             ),

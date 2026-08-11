@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/theme_context.dart';
 
 /// An icon paired with a label/value pair — the driver and truck rows in
 /// the current-order card.
@@ -37,17 +37,14 @@ class OrderInfoRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(
-                  color: AppColors.grey,
-                  fontSize: 10,
-                ),
+                style: TextStyle(color: context.colors.textSecondary, fontSize: 10),
               ),
               Text(
                 value,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: AppColors.navy,
+                style: TextStyle(
+                  color: context.colors.textPrimary,
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                 ),

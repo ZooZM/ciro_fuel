@@ -172,7 +172,7 @@ class _CountrySelector extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                'اختر الدولة',
+                LoginKeys.chooseCountry.tr(),
                 style: textStyles.welcomeTitle.copyWith(fontSize: 18),
               ),
               const SizedBox(height: 16),
@@ -201,14 +201,14 @@ class _CountrySelector extends StatelessWidget {
                         style: const TextStyle(fontSize: 24),
                       ),
                       title: Text(
-                        option.nameAr,
+                        option.nameKey.tr(),
                         style: textStyles.fieldInput.copyWith(
-                          fontWeight:
-                              isSelected ? FontWeight.bold : FontWeight.normal,
-                          color:
-                              isSelected
-                                  ? colors.brandBlue
-                                  : colors.textPrimary,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          color: isSelected
+                              ? colors.brandBlue
+                              : colors.textPrimary,
                         ),
                       ),
                       trailing: Row(
@@ -219,10 +219,9 @@ class _CountrySelector extends StatelessWidget {
                             child: Text(
                               option.dialCode,
                               style: textStyles.countryCode.copyWith(
-                                color:
-                                    isSelected
-                                        ? colors.brandBlue
-                                        : colors.textPrimary,
+                                color: isSelected
+                                    ? colors.brandBlue
+                                    : colors.textPrimary,
                               ),
                             ),
                           ),

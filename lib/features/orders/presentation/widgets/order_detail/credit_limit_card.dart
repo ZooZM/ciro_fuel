@@ -1,49 +1,64 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/order_card.dart';
-import '../../constants/order_detail_strings.dart';
+import '../../../../../core/theme/theme_context.dart';
 
 /// The "الحد الإئتماني" card: limit summary, usage bar and the
 /// pay-from-credit action.
 class CreditLimitCard extends StatelessWidget {
   const CreditLimitCard({
     this.availableAmount = '120,000.00 ',
-    this.totalLimitText = 'من 200,000.00 ر.س',
-    this.usedText = 'مستخدم 200,000.00 ر.س (37.5%)',
+    this.totalLimitText,
+    this.usedText,
     this.onPayFromCredit,
     super.key,
   });
 
   final String availableAmount;
-  final String totalLimitText;
-  final String usedText;
+  // Nullable rather than defaulted: the placeholder copy is translated, and
+  // a default parameter value has to be a compile-time constant.
+  final String? totalLimitText;
+  final String? usedText;
   final VoidCallback? onPayFromCredit;
 
   @override
   Widget build(BuildContext context) {
+    final currency = CommonKeys.currencySymbol.tr();
+    final totalLimitText =
+        this.totalLimitText ??
+        OrderDetailKeys.creditOf.tr(
+          namedArgs: {'amount': '200,000.00 $currency'},
+        );
+    final usedText =
+        this.usedText ??
+        OrderDetailKeys.creditUsed.tr(
+          namedArgs: {'amount': '200,000.00 $currency', 'percent': '37.5%'},
+        );
+
     return OrderCard(
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    OrderDetailStrings.creditLimit,
+                    OrderDetailKeys.creditLimit.tr(),
                     style: TextStyle(
-                      color: AppColors.navy,
+                      color: context.colors.textPrimary,
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  SizedBox(height: AppSpacing.xxs),
+                  const SizedBox(height: AppSpacing.xxs),
                   Text(
-                    OrderDetailStrings.validUntil,
-                    style: TextStyle(color: AppColors.blue, fontSize: 10),
+                    OrderDetailKeys.validUntil.tr(),
+                    style: TextStyle(color: context.colors.brandBlue, fontSize: 10),
                   ),
                 ],
               ),
@@ -55,15 +70,15 @@ class CreditLimitCard extends StatelessWidget {
                       vertical: AppSpacing.xs,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.light.greenTint,
+                      color: context.colors.greenTint,
                       borderRadius: BorderRadius.circular(
                         AppSizes.orderCreditBadgeRadius,
                       ),
                     ),
-                    child: const Text(
-                      OrderDetailStrings.active,
+                    child: Text(
+                      OrderDetailKeys.active.tr(),
                       style: TextStyle(
-                        color: AppColors.green,
+                        color: context.colors.brandGreen,
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                       ),
@@ -71,16 +86,18 @@ class CreditLimitCard extends StatelessWidget {
                   ),
                   const SizedBox(width: AppSpacing.sm),
                   Container(
-                    padding: const EdgeInsets.all(AppSizes.orderCreditIconPadding),
+                    padding: const EdgeInsets.all(
+                      AppSizes.orderCreditIconPadding,
+                    ),
                     decoration: BoxDecoration(
-                      color: AppColors.creditIconBackground,
+                      color: context.colors.orangeTint,
                       borderRadius: BorderRadius.circular(
                         AppSizes.orderCreditIconRadius,
                       ),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.credit_card_outlined,
-                      color: AppColors.warningOrange,
+                      color: context.colors.brandOrange,
                       size: AppSizes.iconLg,
                     ),
                   ),
@@ -92,10 +109,10 @@ class CreditLimitCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                OrderDetailStrings.availableNow,
+              Text(
+                OrderDetailKeys.availableNow.tr(),
                 style: TextStyle(
-                  color: AppColors.navy,
+                  color: context.colors.textPrimary,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),
@@ -107,15 +124,18 @@ class CreditLimitCard extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: availableAmount,
-                        style: const TextStyle(
-                          color: AppColors.navy,
+                        style: TextStyle(
+                          color: context.colors.textPrimary,
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
-                      const TextSpan(
-                        text: 'ر.س',
-                        style: TextStyle(color: AppColors.grey, fontSize: 12),
+                      TextSpan(
+                        text: CommonKeys.currencySymbol.tr(),
+                        style: TextStyle(
+                          color: context.colors.textSecondary,
+                          fontSize: 12,
+                        ),
                       ),
                     ],
                   ),
@@ -135,14 +155,14 @@ class CreditLimitCard extends StatelessWidget {
                   flex: 63,
                   child: Container(
                     height: AppSizes.orderCreditProgressHeight,
-                    color: AppColors.warningOrange,
+                    color: context.colors.brandOrange,
                   ),
                 ),
                 Expanded(
                   flex: 37,
                   child: Container(
                     height: AppSizes.orderCreditProgressHeight,
-                    color: AppColors.itemBorder,
+                    color: context.colors.borderHairline,
                   ),
                 ),
               ],
@@ -155,8 +175,8 @@ class CreditLimitCard extends StatelessWidget {
               Flexible(
                 child: Text(
                   totalLimitText,
-                  style: const TextStyle(
-                    color: AppColors.navy,
+                  style: TextStyle(
+                    color: context.colors.textPrimary,
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                   ),
@@ -167,7 +187,7 @@ class CreditLimitCard extends StatelessWidget {
                 child: Text(
                   usedText,
                   textAlign: TextAlign.end,
-                  style: const TextStyle(color: AppColors.grey, fontSize: 10),
+                  style: TextStyle(color: context.colors.textSecondary, fontSize: 10),
                 ),
               ),
             ],
@@ -177,14 +197,14 @@ class CreditLimitCard extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
             decoration: BoxDecoration(
-              color: AppColors.light.greenTint,
+              color: context.colors.greenTint,
               borderRadius: BorderRadius.circular(AppSizes.orderChipRadius),
             ),
-            child: const Text(
-              OrderDetailStrings.creditLimitInBudget,
+            child: Text(
+              OrderDetailKeys.creditLimitInBudget.tr(),
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: AppColors.green,
+                color: context.colors.brandGreen,
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
               ),
@@ -196,15 +216,18 @@ class CreditLimitCard extends StatelessWidget {
             height: AppSizes.orderPrimaryActionHeight,
             child: FilledButton(
               style: FilledButton.styleFrom(
-                backgroundColor: AppColors.warningOrange,
+                backgroundColor: context.colors.brandOrange,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppRadii.tile),
                 ),
               ),
               onPressed: onPayFromCredit ?? () {},
-              child: const Text(
-                OrderDetailStrings.payFromCreditLimit,
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+              child: Text(
+                OrderDetailKeys.payFromCreditLimit.tr(),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),

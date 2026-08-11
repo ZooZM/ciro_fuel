@@ -1,10 +1,11 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../../core/constants/app_assets.dart';
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
-import '../../constants/track_order_strings.dart';
+import '../../../../../core/theme/theme_context.dart';
 
 /// The sticky "تم الاستلام" / "تواصل مع الدعم" action row.
 class TrackingBottomBar extends StatelessWidget {
@@ -24,7 +25,7 @@ class TrackingBottomBar extends StatelessWidget {
         AppSpacing.gutter,
         AppSpacing.lg,
       ),
-      color: Colors.white,
+      color: context.colors.surface,
       child: Row(
         children: [
           Expanded(
@@ -34,7 +35,7 @@ class TrackingBottomBar extends StatelessWidget {
               child: FilledButton.icon(
                 onPressed: onReceived ?? () {},
                 style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.blue,
+                  backgroundColor: context.colors.brandBlue,
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSizes.orderTransitButtonPaddingH,
                   ),
@@ -47,9 +48,9 @@ class TrackingBottomBar extends StatelessWidget {
                   size: AppSizes.iconMd,
                   color: Colors.white,
                 ),
-                label: const Text(
-                  TrackOrderStrings.received,
-                  style: TextStyle(
+                label: Text(
+                  TrackOrderKeys.received.tr(),
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
@@ -66,7 +67,7 @@ class TrackingBottomBar extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: onContactSupport ?? () {},
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: AppColors.itemBorder),
+                  side: BorderSide(color: context.colors.borderHairline),
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSizes.orderTransitButtonPaddingH,
                   ),
@@ -78,13 +79,16 @@ class TrackingBottomBar extends StatelessWidget {
                   AppAssets.supportIcon,
                   width: _supportIconSize,
                   height: _supportIconSize,
-                  colorFilter: const ColorFilter.mode(AppColors.blue, BlendMode.srcIn),
+                  colorFilter: ColorFilter.mode(
+                    context.colors.brandBlue,
+                    BlendMode.srcIn,
+                  ),
                 ),
-                label: const Text(
-                  TrackOrderStrings.contactSupport,
+                label: Text(
+                  CommonKeys.contactSupport.tr(),
                   maxLines: 1,
                   style: TextStyle(
-                    color: AppColors.blue,
+                    color: context.colors.brandBlue,
                     fontSize: 10.5,
                     fontWeight: FontWeight.w700,
                   ),

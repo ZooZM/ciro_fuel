@@ -1,11 +1,11 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 
 import '../../../../../core/constants/app_assets.dart';
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/order_card.dart';
-import '../../constants/order_detail_strings.dart';
-import '../../constants/track_order_strings.dart';
+import '../../../../../core/theme/theme_context.dart';
 
 /// The QR / numeric pickup-code card, tracking-screen flavour. Close to
 /// [order_detail]'s equivalent card but not merged with it: this one
@@ -28,19 +28,19 @@ class PickupCodeCard extends StatelessWidget {
     return OrderCard(
       child: Column(
         children: [
-          const Text(
-            OrderDetailStrings.handoverMethodTitle,
+          Text(
+            OrderDetailKeys.handoverMethodTitle.tr(),
             style: TextStyle(
-              color: AppColors.navy,
+              color: context.colors.textPrimary,
               fontSize: 14,
               fontWeight: FontWeight.w800,
             ),
           ),
           const SizedBox(height: AppSpacing.xs),
-          const Text(
-            TrackOrderStrings.handoverNote,
+          Text(
+            TrackOrderKeys.handoverNote.tr(),
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.grey, fontSize: 10),
+            style: TextStyle(color: context.colors.textSecondary, fontSize: 10),
           ),
           const SizedBox(height: AppSpacing.lg),
           IntrinsicHeight(
@@ -50,15 +50,15 @@ class PickupCodeCard extends StatelessWidget {
                   padding: const EdgeInsets.all(AppSpacing.md),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(AppRadii.tile),
-                    border: Border.all(color: AppColors.itemBorder),
+                    border: Border.all(color: context.colors.borderHairline),
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        OrderDetailStrings.qrLabel,
+                      Text(
+                        OrderDetailKeys.qrLabel.tr(),
                         style: TextStyle(
-                          color: AppColors.navy,
+                          color: context.colors.textPrimary,
                           fontSize: 10,
                           fontWeight: FontWeight.w800,
                         ),
@@ -70,20 +70,25 @@ class PickupCodeCard extends StatelessWidget {
                         height: AppSizes.orderQrImageSize,
                       ),
                       const SizedBox(height: AppSpacing.xs),
-                      const Text(
-                        OrderDetailStrings.showThisToDriver,
-                        style: TextStyle(color: AppColors.grey, fontSize: 8),
+                      Text(
+                        OrderDetailKeys.showThisToDriver.tr(),
+                        style: TextStyle(
+                          color: context.colors.textSecondary,
+                          fontSize: 8,
+                        ),
                       ),
                     ],
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                  ),
                   child: Center(
                     child: Text(
-                      OrderDetailStrings.or,
+                      CommonKeys.or.tr(),
                       style: TextStyle(
-                        color: AppColors.navy,
+                        color: context.colors.textPrimary,
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                       ),
@@ -92,18 +97,20 @@ class PickupCodeCard extends StatelessWidget {
                 ),
                 Expanded(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.lg,
+                    ),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(AppRadii.tile),
-                      border: Border.all(color: AppColors.itemBorder),
+                      border: Border.all(color: context.colors.borderHairline),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          OrderDetailStrings.pickupCode,
+                        Text(
+                          OrderDetailKeys.pickupCode.tr(),
                           style: TextStyle(
-                            color: AppColors.navy,
+                            color: context.colors.textPrimary,
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
                           ),
@@ -120,8 +127,8 @@ class PickupCodeCard extends StatelessWidget {
                                   ),
                                   child: Text(
                                     e,
-                                    style: const TextStyle(
-                                      color: AppColors.green,
+                                    style: TextStyle(
+                                      color: context.colors.brandGreen,
                                       fontSize: 18,
                                       fontWeight: FontWeight.w800,
                                     ),
@@ -131,9 +138,12 @@ class PickupCodeCard extends StatelessWidget {
                               .toList(),
                         ),
                         const SizedBox(height: AppSpacing.sm),
-                        const Text(
-                          OrderDetailStrings.validFor,
-                          style: TextStyle(color: AppColors.grey, fontSize: 10),
+                        Text(
+                          OrderDetailKeys.validFor.tr(),
+                          style: TextStyle(
+                            color: context.colors.textSecondary,
+                            fontSize: 10,
+                          ),
                         ),
                         const SizedBox(height: AppSpacing.xs),
                         Row(
@@ -141,16 +151,16 @@ class PickupCodeCard extends StatelessWidget {
                           children: [
                             Text(
                               timeRemaining,
-                              style: const TextStyle(
-                                color: AppColors.green,
+                              style: TextStyle(
+                                color: context.colors.brandGreen,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
                             const SizedBox(width: AppSpacing.xs),
-                            const Icon(
+                            Icon(
                               Icons.timer_outlined,
-                              color: AppColors.green,
+                              color: context.colors.brandGreen,
                               size: AppSizes.iconSm,
                             ),
                           ],
@@ -167,20 +177,28 @@ class PickupCodeCard extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
             decoration: BoxDecoration(
-              color: AppColors.light.greenTint,
+              color: context.colors.greenTint,
               borderRadius: BorderRadius.circular(AppSizes.orderChipRadius),
             ),
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  OrderDetailStrings.codeShareWarning,
-                  style: TextStyle(color: AppColors.green, fontSize: 10),
+                // Flexible so the banner wraps instead of overflowing: the
+                // English warning is materially longer than the Arabic the
+                // row was measured against.
+                Flexible(
+                  child: Text(
+                    OrderDetailKeys.codeShareWarning.tr(),
+                    style: TextStyle(
+                      color: context.colors.brandGreen,
+                      fontSize: 10,
+                    ),
+                  ),
                 ),
-                SizedBox(width: AppSizes.orderCodeBannerIconGap),
+                const SizedBox(width: AppSizes.orderCodeBannerIconGap),
                 Icon(
                   Icons.verified_user_outlined,
-                  color: AppColors.green,
+                  color: context.colors.brandGreen,
                   size: AppSizes.iconSm,
                 ),
               ],

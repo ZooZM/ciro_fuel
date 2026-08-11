@@ -1,9 +1,10 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/localization/translation_keys.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/order_card.dart';
-import '../constants/order_detail_strings.dart';
+import '../../../../core/theme/theme_context.dart';
 
 /// The "ملخص الطلب" card: fuel/quantity/price/total, then the
 /// fees-plus-tax-equals-total breakdown row.
@@ -13,41 +14,56 @@ import '../constants/order_detail_strings.dart';
 class OrderSummaryCard extends StatelessWidget {
   const OrderSummaryCard({
     super.key,
-    this.fuelType = 'بنزين 98',
-    this.quantity = '20,000 لتر',
-    this.pricePerLiter = '2.33 ريال',
-    this.totalWithTax = '46,600.00 ريال',
-    this.transportFees = '1,200.00 ريال',
-    this.vat = '6,060.00 ريال',
-    this.finalTotal = '46,600.00 ريال',
+    this.fuelType,
+    this.quantity,
+    this.pricePerLiter,
+    this.totalWithTax,
+    this.transportFees,
+    this.vat,
+    this.finalTotal,
   });
 
-  final String fuelType;
-  final String quantity;
-  final String pricePerLiter;
+  // Nullable rather than defaulted: the placeholder copy carries translated
+  // units, and a default parameter value has to be a compile-time constant.
+  final String? fuelType;
+  final String? quantity;
+  final String? pricePerLiter;
 
   /// Value of the fuel line itself, shown blue in the top row.
-  final String totalWithTax;
-  final String transportFees;
-  final String vat;
+  final String? totalWithTax;
+  final String? transportFees;
+  final String? vat;
 
   /// Fuel total plus fees and VAT, shown green in the bottom row. Distinct
   /// from [totalWithTax] — the create-order form computes them separately.
-  final String finalTotal;
+  final String? finalTotal;
 
   @override
   Widget build(BuildContext context) {
+    final currency = CommonKeys.riyal.tr();
+    final fuelType = this.fuelType ?? FuelKeys.gasoline98.tr();
+    final quantity = this.quantity ?? '20,000 ${CommonKeys.litre.tr()}';
+    final pricePerLiter = this.pricePerLiter ?? '2.33 $currency';
+    final totalWithTax = this.totalWithTax ?? '46,600.00 $currency';
+    final transportFees = this.transportFees ?? '1,200.00 $currency';
+    final vat = this.vat ?? '6,060.00 $currency';
+    final finalTotal = this.finalTotal ?? '46,600.00 $currency';
+
     return OrderCard(
       child: Column(
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.description_outlined, color: AppColors.navy, size: AppSizes.iconLg),
-              SizedBox(width: AppSpacing.sm),
+              Icon(
+                Icons.description_outlined,
+                color: context.colors.textPrimary,
+                size: AppSizes.iconLg,
+              ),
+              const SizedBox(width: AppSpacing.sm),
               Text(
-                OrderDetailStrings.orderSummary,
+                OrderDetailKeys.orderSummary.tr(),
                 style: TextStyle(
-                  color: AppColors.navy,
+                  color: context.colors.textPrimary,
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
                 ),
@@ -60,34 +76,34 @@ class OrderSummaryCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _SummaryColumn(
-                  title: OrderDetailStrings.fuelType,
+                  title: OrderDetailKeys.fuelType.tr(),
                   value: fuelType,
                 ),
               ),
               Expanded(
                 child: _SummaryColumn(
-                  title: OrderDetailStrings.quantity,
+                  title: OrderDetailKeys.quantity.tr(),
                   value: quantity,
                 ),
               ),
               Expanded(
                 child: _SummaryColumn(
-                  title: OrderDetailStrings.pricePerLiter,
+                  title: OrderDetailKeys.pricePerLiter.tr(),
                   value: pricePerLiter,
                 ),
               ),
               Expanded(
                 child: _SummaryColumn(
-                  title: OrderDetailStrings.totalWithTax,
+                  title: OrderDetailKeys.totalWithTax.tr(),
                   value: totalWithTax,
-                  valueColor: AppColors.blue,
+                  valueColor: context.colors.brandBlue,
                 ),
               ),
             ],
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
-            child: Divider(color: AppColors.itemBorder, height: 1),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+            child: Divider(color: context.colors.borderHairline, height: 1),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -95,34 +111,37 @@ class OrderSummaryCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _SummaryColumn(
-                  title: OrderDetailStrings.transportFees,
+                  title: OrderDetailKeys.transportFees.tr(),
                   value: transportFees,
                 ),
               ),
-              const Text(
+              Text(
                 '+',
                 style: TextStyle(
-                  color: AppColors.blue,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              Expanded(
-                child: _SummaryColumn(title: OrderDetailStrings.vat, value: vat),
-              ),
-              const Text(
-                '=',
-                style: TextStyle(
-                  color: AppColors.blue,
+                  color: context.colors.brandBlue,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                 ),
               ),
               Expanded(
                 child: _SummaryColumn(
-                  title: OrderDetailStrings.finalTotal,
+                  title: OrderDetailKeys.vat.tr(),
+                  value: vat,
+                ),
+              ),
+              Text(
+                '=',
+                style: TextStyle(
+                  color: context.colors.brandBlue,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              Expanded(
+                child: _SummaryColumn(
+                  title: OrderDetailKeys.finalTotal.tr(),
                   value: finalTotal,
-                  valueColor: AppColors.green,
+                  valueColor: context.colors.brandGreen,
                 ),
               ),
             ],
@@ -137,12 +156,15 @@ class _SummaryColumn extends StatelessWidget {
   const _SummaryColumn({
     required this.title,
     required this.value,
-    this.valueColor = AppColors.navy,
+    this.valueColor,
   });
 
   final String title;
   final String value;
-  final Color valueColor;
+
+  /// Null takes the palette's primary text colour — a default cannot resolve
+  /// the theme, so it is filled in at build time.
+  final Color? valueColor;
 
   @override
   Widget build(BuildContext context) {
@@ -152,13 +174,13 @@ class _SummaryColumn extends StatelessWidget {
         Text(
           title,
           textAlign: TextAlign.center,
-          style: const TextStyle(color: AppColors.grey, fontSize: 10),
+          style: TextStyle(color: context.colors.textSecondary, fontSize: 10),
         ),
         const SizedBox(height: AppSpacing.xs),
         Text(
           value,
           style: TextStyle(
-            color: valueColor,
+            color: valueColor ?? context.colors.textPrimary,
             fontSize: 12,
             fontWeight: FontWeight.w700,
           ),

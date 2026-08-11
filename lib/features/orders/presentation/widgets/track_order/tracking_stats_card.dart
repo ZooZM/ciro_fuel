@@ -1,34 +1,41 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../../core/constants/app_assets.dart';
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/order_card.dart';
-import '../../constants/order_detail_strings.dart';
-import '../../constants/track_order_strings.dart';
+import '../../../../../core/theme/theme_context.dart';
 
 /// Status, remaining distance and ETA, measured off the design: the
 /// status and ETA groups need about half again the room of the distance
 /// one.
 class TrackingStatsCard extends StatelessWidget {
   const TrackingStatsCard({
-    this.statusLabel = OrderDetailStrings.inDelivery,
-    this.distance = '12.7 كم',
-    this.etaTime = '04:35 م',
-    this.etaDate = '02/05/2024 اليوم',
+    this.statusLabel,
+    this.distance,
+    this.etaTime,
+    this.etaDate,
     super.key,
   });
 
-  final String statusLabel;
-  final String distance;
-  final String etaTime;
-  final String etaDate;
+  // Nullable rather than defaulted: the placeholder copy is translated, and
+  // a default parameter value has to be a compile-time constant.
+  final String? statusLabel;
+  final String? distance;
+  final String? etaTime;
+  final String? etaDate;
 
   static const _stationIconSize = 36.0;
 
   @override
   Widget build(BuildContext context) {
+    final statusLabel = this.statusLabel ?? OrderDetailKeys.inDelivery.tr();
+    final distance = this.distance ?? '12.7 ${CommonKeys.km.tr()}';
+    final etaTime = this.etaTime ?? '04:35 م';
+    final etaDate = this.etaDate ?? '02/05/2024 ${CommonKeys.today.tr()}';
+
     return OrderCard(
       child: IntrinsicHeight(
         child: Row(
@@ -48,9 +55,12 @@ class TrackingStatsCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          OrderDetailStrings.orderStatus,
-                          style: TextStyle(color: AppColors.grey, fontSize: 8),
+                        Text(
+                          OrderDetailKeys.orderStatus.tr(),
+                          style: TextStyle(
+                            color: context.colors.textSecondary,
+                            fontSize: 8,
+                          ),
                         ),
                         Row(
                           children: [
@@ -61,8 +71,8 @@ class TrackingStatsCard extends StatelessWidget {
                                 statusLabel,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  color: AppColors.green,
+                                style: TextStyle(
+                                  color: context.colors.brandGreen,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w800,
                                 ),
@@ -70,11 +80,14 @@ class TrackingStatsCard extends StatelessWidget {
                             ),
                           ],
                         ),
-                        const Text(
-                          TrackOrderStrings.onTheWay,
+                        Text(
+                          TrackOrderKeys.onTheWay.tr(),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(color: AppColors.grey, fontSize: 7),
+                          style: TextStyle(
+                            color: context.colors.textSecondary,
+                            fontSize: 7,
+                          ),
                         ),
                       ],
                     ),
@@ -82,26 +95,26 @@ class TrackingStatsCard extends StatelessWidget {
                 ],
               ),
             ),
-            const VerticalDivider(
+            VerticalDivider(
               width: 14,
               thickness: AppSizes.dividerThickness,
-              color: AppColors.itemBorder,
+              color: context.colors.borderHairline,
             ),
             Expanded(
               flex: 4,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    TrackOrderStrings.remainingDistance,
-                    style: TextStyle(color: AppColors.grey, fontSize: 8),
+                  Text(
+                    TrackOrderKeys.remainingDistance.tr(),
+                    style: TextStyle(color: context.colors.textSecondary, fontSize: 8),
                   ),
                   const SizedBox(height: AppSpacing.xxs),
                   Text(
                     distance,
                     maxLines: 1,
-                    style: const TextStyle(
-                      color: AppColors.navy,
+                    style: TextStyle(
+                      color: context.colors.textPrimary,
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
                     ),
@@ -109,10 +122,10 @@ class TrackingStatsCard extends StatelessWidget {
                 ],
               ),
             ),
-            const VerticalDivider(
+            VerticalDivider(
               width: 14,
               thickness: AppSizes.dividerThickness,
-              color: AppColors.itemBorder,
+              color: context.colors.borderHairline,
             ),
             Expanded(
               flex: 6,
@@ -120,17 +133,17 @@ class TrackingStatsCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    TrackOrderStrings.expectedArrival,
+                  Text(
+                    TrackOrderKeys.expectedArrival.tr(),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: AppColors.grey, fontSize: 8),
+                    style: TextStyle(color: context.colors.textSecondary, fontSize: 8),
                   ),
                   Text(
                     etaTime,
                     maxLines: 1,
-                    style: const TextStyle(
-                      color: AppColors.green,
+                    style: TextStyle(
+                      color: context.colors.brandGreen,
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
                     ),
@@ -139,7 +152,7 @@ class TrackingStatsCard extends StatelessWidget {
                     etaDate,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: AppColors.grey, fontSize: 7),
+                    style: TextStyle(color: context.colors.textSecondary, fontSize: 7),
                   ),
                 ],
               ),
@@ -160,7 +173,10 @@ class _Dot extends StatelessWidget {
     return Container(
       width: 5,
       height: 5,
-      decoration: const BoxDecoration(color: AppColors.green, shape: BoxShape.circle),
+      decoration: BoxDecoration(
+        color: context.colors.brandGreen,
+        shape: BoxShape.circle,
+      ),
     );
   }
 }

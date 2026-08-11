@@ -1,4 +1,8 @@
+// `hide TextDirection`: easy_localization re-exports intl, whose
+// `TextDirection` would otherwise shadow the Flutter one used below.
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
+import '../../../../core/localization/translation_keys.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
@@ -8,20 +12,14 @@ import '../../../home/presentation/widgets/new_request_button.dart';
 import '../../../home/presentation/widgets/current_order_card.dart';
 import '../../../home/presentation/widgets/quick_glance_row.dart';
 import '../../../home/presentation/widgets/section_header.dart';
+import '../../../../core/theme/theme_context.dart';
+import '../../../../core/widgets/app_logo.dart';
+import '../../../../core/widgets/date_time_row.dart';
 
-const _kAppBarLogo = 'assets/Logo/appBar Logo.svg';
 const _kProfileImage = 'assets/more/Image.png';
 
 const _kStationIcon = 'assets/HomePage/green station.svg';
-const _kCardDateIcon = 'assets/Icons/date.svg';
-const _kHourIcon = 'assets/HomePage/flow/hour.svg';
 
-const _kNavy = Color(0xFF0F1B2E);
-const _kGreen = Color(0xFF17A34A);
-const _kGrey = Color(0xFF8A93A6);
-const _kBackground = Color(0xFFF5F6F8);
-const _kBlue = Color(0xFF1E5FFF);
-const _kOrange = Color(0xFFF97316);
 
 class ClientStationsScreen extends StatefulWidget {
   const ClientStationsScreen({super.key});
@@ -31,10 +29,12 @@ class ClientStationsScreen extends StatefulWidget {
 }
 
 class _ClientStationsScreenState extends State<ClientStationsScreen> {
-  static const _currentOrder = CurrentOrderSummary(
-    fuelType: 'بنزين 95',
-    quantity: '20,000 لتر',
-    statusLabel: 'قيد التوصيل',
+  // A getter rather than a `const` field: the translated parts have to be
+  // resolved per build so they follow a locale switch.
+  static CurrentOrderSummary get _currentOrder => CurrentOrderSummary(
+    fuelType: FuelKeys.gasoline95.tr(),
+    quantity: '20,000 ${CommonKeys.litre.tr()}',
+    statusLabel: OrdersListKeys.statusInDelivery.tr(),
     driverName: 'أحمد السبيعي',
     truckPlate: 'ABC-1234',
     progress: 0.65,
@@ -46,83 +46,72 @@ class _ClientStationsScreenState extends State<ClientStationsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: _kBackground,
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.only(
-              left: 20.0,
-              right: 20.0,
-              top: 16.0,
-              bottom: 40.0,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildAppBar(),
-                const SizedBox(height: 24),
-                CurrentStationCard(
-                  name: 'محطة الرحاب',
-                  address: 'جدة - طريق مكة القديم - حي البوادي',
-                  onChangeStation: () {},
-                ),
-                const SizedBox(height: 24),
-                NewRequestButton(
-                  onPressed: () => context.push(AppRoutes.clientCreateOrder),
-                ),
-                const SizedBox(height: 32),
-                const SectionHeader('طلبك الحالي'),
-                const SizedBox(height: 12),
-                CurrentOrderCard(
-                  order: _currentOrder,
-                  onTrackOrder: () {},
-                  onContactDriver: () {},
-                ),
-                const SizedBox(height: 32),
-                const SectionHeader('أخر طلب'),
-                const SizedBox(height: 12),
-                _buildLastOrderCard(),
-                const SizedBox(height: 32),
-                const SectionHeader('نظرة سريعة'),
-                const SizedBox(height: 12),
-                const QuickGlanceRow(stats: defaultOrderCountStats),
-              ],
-            ),
+    return Scaffold(
+      backgroundColor: context.colors.canvas,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.only(
+            left: 20.0,
+            right: 20.0,
+            top: 16.0,
+            bottom: 40.0,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildAppBar(),
+              const SizedBox(height: 24),
+              CurrentStationCard(
+                name: 'محطة الرحاب',
+                address: 'جدة - طريق مكة القديم - حي البوادي',
+                onChangeStation: () {},
+                // This is the stations screen: nothing to point a chevron at.
+                headsWithStar: true,
+              ),
+              const SizedBox(height: 24),
+              NewRequestButton(
+                onPressed: () => context.push(AppRoutes.clientCreateOrder),
+              ),
+              const SizedBox(height: 32),
+              SectionHeader(StationsKeys.currentOrder.tr()),
+              const SizedBox(height: 12),
+              CurrentOrderCard(
+                order: _currentOrder,
+                onTrackOrder: () {},
+                onContactDriver: () {},
+              ),
+              const SizedBox(height: 32),
+              SectionHeader(StationsKeys.lastOrder.tr()),
+              const SizedBox(height: 12),
+              _buildLastOrderCard(),
+              const SizedBox(height: 32),
+              SectionHeader(StationsKeys.quickGlance.tr()),
+              const SizedBox(height: 12),
+              QuickGlanceRow(stats: defaultOrderCountStats(context)),
+            ],
           ),
         ),
       ),
     );
   }
 
-  /// Profile on the right, logo centred, and a way back on the left.
+  /// Back on the leading edge, logo centred, profile on the trailing one.
+  ///
+  /// The back button leads, as it does in [AppTopBar] and on every other
+  /// screen: it used to be the row's last child, which put it on the left in
+  /// Arabic and — once the row mirrored — on the right under English, where a
+  /// back button never sits.
   Widget _buildAppBar() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        ClipOval(
-          child: Image.asset(
-            _kProfileImage,
-            width: 44,
-            height: 44,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) => Container(
-              width: 44,
-              height: 44,
-              color: Colors.grey[200],
-              child: const Icon(Icons.person, color: Colors.grey),
-            ),
-          ),
-        ),
-        SvgPicture.asset(_kAppBarLogo, height: 20),
         GestureDetector(
           onTap: () => context.pop(),
           child: Container(
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(12),
               boxShadow: const [
                 BoxShadow(
@@ -132,12 +121,34 @@ class _ClientStationsScreenState extends State<ClientStationsScreen> {
                 ),
               ],
             ),
-            // The chevron is a matchTextDirection icon, so on this RTL page it
-            // would mirror and point right without this.
-            child: const Directionality(
-              textDirection: TextDirection.ltr,
-              child: Center(
-                child: Icon(Icons.arrow_back_ios_new, size: 20, color: _kNavy),
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsetsDirectional.only(end: 2.0),
+                // No manual swap: arrow_back_ios_new is declared
+                // `matchTextDirection`, so Flutter mirrors it already.
+                child: Icon(
+                  Icons.arrow_back_ios_new,
+                  size: 20,
+                  color: context.colors.textPrimary,
+                ),
+              ),
+            ),
+          ),
+        ),
+        const AppLogo(),
+        GestureDetector(
+          onTap: () => context.push(AppRoutes.clientProfile),
+          child: ClipOval(
+            child: Image.asset(
+              _kProfileImage,
+              width: 44,
+              height: 44,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
+                width: 44,
+                height: 44,
+                color: Colors.grey[200],
+                child: const Icon(Icons.person, color: Colors.grey),
               ),
             ),
           ),
@@ -159,7 +170,7 @@ class _ClientStationsScreenState extends State<ClientStationsScreen> {
         end: 12,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: const [
           BoxShadow(
@@ -177,94 +188,84 @@ class _ClientStationsScreenState extends State<ClientStationsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Fuel type + order id
-                const Row(
+                Row(
                   children: [
                     Expanded(
                       child: Text(
-                        'بنزين 95 • 20,000 لتر',
+                        '${FuelKeys.gasoline95.tr()} • 20,000 ${CommonKeys.litre.tr()}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: _kBlue,
+                          color: context.colors.brandBlue,
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Text(
                       'ORD-2024-256',
-                      style: TextStyle(color: _kGrey, fontSize: 12),
+                      style: TextStyle(color: context.colors.textSecondary, fontSize: 12),
                     ),
                   ],
                 ),
                 const SizedBox(height: 10),
                 // Bar first so it sits on the right under the fuel line, with
                 // the dot and then the label trailing off to the left. The
-                // label is [Flexible] because 'تم التسليم (الفاتورة مؤجلة)' is
+                // label is [Flexible] because StationsKeys.deliveredDeferredInvoice.tr() is
                 // long enough to push the fixed-width bar off the card on
                 // narrower screens.
                 Row(
                   children: [
-                    _buildProgressBar(1.0, _kOrange),
+                    _buildProgressBar(1.0, context.colors.brandOrange),
                     const SizedBox(width: 8),
                     Container(
                       width: 6,
                       height: 6,
-                      decoration: const BoxDecoration(
-                        color: _kOrange,
+                      decoration: BoxDecoration(
+                        color: context.colors.brandOrange,
                         shape: BoxShape.circle,
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Flexible(
+                    Flexible(
                       child: Text(
-                        'تم التسليم (الفاتورة مؤجلة)',
+                        StationsKeys.deliveredDeferredInvoice.tr(),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: _kGrey, fontSize: 12),
+                        style: TextStyle(color: context.colors.textSecondary, fontSize: 12),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 10),
-                const Text(
-                  'طريق أنس بن مالك، حي الملقا',
+                Text(
+                  context.locale.languageCode == 'ar' ? 'طريق أنس بن مالك، حي الملقا' : 'Anas Bin Malik Road, Al Malqa District',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: _kBlue,
+                    color: context.colors.brandBlue,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(height: 10),
-                Row(
-                  children: [
-                    SvgPicture.asset(_kCardDateIcon, width: 16, height: 16),
-                    const SizedBox(width: 4),
-                    const Text(
-                      '9 صفر 1446',
-                      style: TextStyle(color: _kNavy, fontSize: 12),
-                    ),
-                    const Spacer(),
-                    const Icon(Icons.access_time, color: _kGreen, size: 16),
-                    const SizedBox(width: 4),
-                    const Text(
-                      '06.30 صباحاً',
-                      style: TextStyle(color: _kNavy, fontSize: 12),
-                    ),
-                  ],
+                DateTimeRow(
+                  date: context.locale.languageCode == 'ar'
+                      ? '9 صفر 1446'
+                      : '9 Safar 1446',
+                  time: context.locale.languageCode == 'ar'
+                      ? '06.30 صباحاً'
+                      : '06.30 AM',
+                  iconSize: 16,
+                  fontSize: 12,
+                  textColor: context.colors.textPrimary,
                 ),
               ],
             ),
           ),
           const SizedBox(width: 12),
-          SvgPicture.asset(
-            _kStationIcon,
-            width: 72,
-            height: 72,
-          ),
+          SvgPicture.asset(_kStationIcon, width: 72, height: 72),
         ],
       ),
     );
@@ -275,7 +276,7 @@ class _ClientStationsScreenState extends State<ClientStationsScreen> {
       height: 8,
       width: 80,
       decoration: BoxDecoration(
-        color: const Color(0xFFE7E9EF),
+        color: context.colors.borderHairline,
         borderRadius: BorderRadius.circular(4),
       ),
       alignment: AlignmentDirectional.centerStart,

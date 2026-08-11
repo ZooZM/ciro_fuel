@@ -1,10 +1,11 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../../core/router/app_routes.dart';
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
-import '../../constants/order_detail_strings.dart';
+import '../../../../../core/theme/theme_context.dart';
 
 /// The floating "الدعم" pill anchored over the order-detail screen.
 class SupportFab extends StatelessWidget {
@@ -15,11 +16,11 @@ class SupportFab extends StatelessWidget {
     return Container(
       height: AppSizes.orderPrimaryActionHeight,
       decoration: BoxDecoration(
-        color: AppColors.blue,
+        color: context.colors.brandBlue,
         borderRadius: BorderRadius.circular(AppRadii.tile),
         boxShadow: [
           BoxShadow(
-            color: AppColors.blue.withValues(alpha: 0.2),
+            color: context.colors.brandBlue.withValues(alpha: 0.2),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -30,20 +31,20 @@ class SupportFab extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(AppRadii.tile),
           onTap: () => context.push(AppRoutes.support),
-          child: const Padding(
-            padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             child: Row(
               children: [
                 Text(
-                  OrderDetailStrings.support,
-                  style: TextStyle(
+                  CommonKeys.support.tr(),
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                SizedBox(width: AppSpacing.md),
-                Icon(
+                const SizedBox(width: AppSpacing.md),
+                const Icon(
                   Icons.headset_mic_outlined,
                   color: Colors.white,
                   size: AppSizes.iconLg,

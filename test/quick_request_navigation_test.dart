@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile_app/features/home/presentation/view/client_home_screen.dart';
 import 'package:mobile_app/features/orders/presentation/view/create_order_screen.dart';
 
+import 'helpers/localized_harness.dart';
+
 void main() {
   testWidgets('tapping a طلب سريع tile opens the order form on that grade', (
     tester,
@@ -15,10 +17,7 @@ void main() {
     final router = GoRouter(
       initialLocation: '/client',
       routes: [
-        GoRoute(
-          path: '/client',
-          builder: (_, _) => const ClientHomeScreen(),
-        ),
+        GoRoute(path: '/client', builder: (_, _) => const ClientHomeScreen()),
         GoRoute(
           path: '/client/orders/new',
           builder: (_, state) =>
@@ -28,8 +27,7 @@ void main() {
     );
     addTearDown(router.dispose);
 
-    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
-    await tester.pumpAndSettle();
+    await pumpLocalizedRouter(tester, router);
 
     expect(find.byType(CreateOrderScreen), findsNothing);
 

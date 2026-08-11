@@ -1,10 +1,15 @@
+// `hide TextDirection`: easy_localization re-exports intl, whose
+// `TextDirection` would otherwise shadow the Flutter one used below.
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
+import '../../../../core/localization/translation_keys.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 // Only NumberFormat: intl also exports a TextDirection that would shadow the
 // one this file lays out with.
 import 'package:intl/intl.dart' show NumberFormat;
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/theme_context.dart';
 import '../../../../core/widgets/app_top_bar.dart';
 import '../../../../core/widgets/step_tracker.dart';
 
@@ -12,24 +17,6 @@ import '../../../../core/widgets/step_tracker.dart';
 const _kCardIcon = 'assets/more/payment.svg';
 // The same document glyph the المزيد screen uses for الشروط و الأحكام.
 const _kTermsIcon = 'assets/more/order.svg';
-
-// Mirrors of AppColors.light — the palette lives on a const *instance*, whose
-// fields Dart will not read inside a const expression, so the values are
-// restated here the way the other client screens do.
-const _kNavy = Color(0xFF162155);
-const _kGrey = Color(0xFF6B7280);
-const _kGreyLight = Color(0xFF9CA3AF);
-const _kBlue = Color(0xFF1E5FFF);
-const _kGreen = Color(0xFF12A150);
-const _kGreenTint = Color(0xFFE4F7EC);
-const _kOrange = Color(0xFFFF5810);
-const _kOrangeTint = Color(0xFFFEEEDF);
-const _kRed = Color(0xFFEF3F3F);
-const _kRedTint = Color(0xFFFDE9E9);
-const _kCanvas = Color(0xFFF4F6FA);
-const _kSurface = Color(0xFFFFFFFF);
-const _kSurface2 = Color(0xFFF0F2F7);
-const _kBorder = Color(0xFFE7E9EF);
 
 /// How much a single tap on ‏+‎/‏−‎ moves the requested limit, and the floor it
 /// will not go below.
@@ -78,55 +65,52 @@ class _ClientCreditLimitScreenState extends State<ClientCreditLimitScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: _kCanvas,
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const AppTopBar(),
+    return Scaffold(
+      backgroundColor: context.colors.canvas,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const AppTopBar(),
+              const SizedBox(height: 24),
+              _buildCurrentLimitCard(),
+              // Once the request is in, the form is replaced by its status —
+              // there is nothing left to fill in until the company answers.
+              if (_submitted) ...[
+                const SizedBox(height: 40),
+                _buildRequestStatusCard(),
+              ] else ...[
+                const SizedBox(height: 32),
+                Text(
+                  CreditLimitKeys.requestOrRenew.tr(),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: context.colors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildAmountStepper(),
+                const SizedBox(height: 32),
+                _buildAcknowledgement(
+                  value: _firstAcknowledged,
+                  onChanged: (value) =>
+                      setState(() => _firstAcknowledged = value),
+                ),
+                const SizedBox(height: 20),
+                _buildAcknowledgement(
+                  value: _secondAcknowledged,
+                  onChanged: (value) =>
+                      setState(() => _secondAcknowledged = value),
+                ),
                 const SizedBox(height: 24),
-                _buildCurrentLimitCard(),
-                // Once the request is in, the form is replaced by its status —
-                // there is nothing left to fill in until the company answers.
-                if (_submitted) ...[
-                  const SizedBox(height: 40),
-                  _buildRequestStatusCard(),
-                ] else ...[
-                  const SizedBox(height: 32),
-                  const Text(
-                    'أطلب حدك الإئتماني أو جدده',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      color: _kNavy,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildAmountStepper(),
-                  const SizedBox(height: 32),
-                  _buildAcknowledgement(
-                    value: _firstAcknowledged,
-                    onChanged: (value) =>
-                        setState(() => _firstAcknowledged = value),
-                  ),
-                  const SizedBox(height: 20),
-                  _buildAcknowledgement(
-                    value: _secondAcknowledged,
-                    onChanged: (value) =>
-                        setState(() => _secondAcknowledged = value),
-                  ),
-                  const SizedBox(height: 24),
-                  _buildTermsRow(),
-                  const SizedBox(height: 24),
-                  _buildSubmitButton(),
-                ],
+                _buildTermsRow(),
+                const SizedBox(height: 24),
+                _buildSubmitButton(),
               ],
-            ),
+            ],
           ),
         ),
       ),
@@ -137,7 +121,7 @@ class _ClientCreditLimitScreenState extends State<ClientCreditLimitScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: _kSurface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: AppColors.shadowCard,
       ),
@@ -145,19 +129,19 @@ class _ClientCreditLimitScreenState extends State<ClientCreditLimitScreen> {
         children: [
           Row(
             children: [
-              const _IconTile(
-                background: _kOrangeTint,
-                color: _kOrange,
+              _IconTile(
+                background: context.colors.orangeTint,
+                color: context.colors.brandOrange,
                 size: 44,
                 iconSize: 20,
               ),
               const SizedBox(width: 12),
-              const Text(
-                'الحد الإئتماني',
+              Text(
+                CreditLimitKeys.title.tr(),
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
-                  color: _kNavy,
+                  color: context.colors.textPrimary,
                 ),
               ),
               const Spacer(),
@@ -167,15 +151,15 @@ class _ClientCreditLimitScreenState extends State<ClientCreditLimitScreen> {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: _kRedTint,
+                  color: context.colors.redTint,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Text(
-                  'غير متاح',
+                child: Text(
+                  CreditLimitKeys.unavailable.tr(),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: _kRed,
+                    color: context.colors.brandRed,
                   ),
                 ),
               ),
@@ -183,17 +167,17 @@ class _ClientCreditLimitScreenState extends State<ClientCreditLimitScreen> {
           ),
           const SizedBox(height: 28),
           // Empty state — there is no limit to show yet.
-          const _IconTile(
-            background: _kRedTint,
-            color: _kRed,
+          _IconTile(
+            background: context.colors.redTint,
+            color: context.colors.brandRed,
             size: 52,
             iconSize: 24,
           ),
           const SizedBox(height: 16),
-          const Text(
-            'لا يوجد حد ائتماني نشط. قدّم طلبك أدناه.',
+          Text(
+            CreditLimitKeys.noActiveLimit.tr(),
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, color: _kGrey),
+            style: TextStyle(fontSize: 13, color: context.colors.textSecondary),
           ),
           const SizedBox(height: 8),
         ],
@@ -207,7 +191,7 @@ class _ClientCreditLimitScreenState extends State<ClientCreditLimitScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: _kSurface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: AppColors.shadowCard,
       ),
@@ -217,21 +201,24 @@ class _ClientCreditLimitScreenState extends State<ClientCreditLimitScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'طلب الحد الإئتماني',
+                    CreditLimitKeys.requestTitle.tr(),
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
-                      color: _kNavy,
+                      color: context.colors.textPrimary,
                     ),
                   ),
-                  SizedBox(height: 6),
+                  const SizedBox(height: 6),
                   Text(
                     '9 ربيع الأول 1448',
-                    style: TextStyle(fontSize: 12, color: _kGrey),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: context.colors.textSecondary,
+                    ),
                   ),
                 ],
               ),
@@ -242,24 +229,24 @@ class _ClientCreditLimitScreenState extends State<ClientCreditLimitScreen> {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: _kGreenTint,
+                  color: context.colors.greenTint,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Text(
-                  'قيد المراجعة',
+                child: Text(
+                  CreditLimitKeys.underReview.tr(),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: _kGreen,
+                    color: context.colors.brandGreen,
                   ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 20),
-          const Text(
-            'الحد المطلوب',
-            style: TextStyle(fontSize: 13, color: _kGrey),
+          Text(
+            CreditLimitKeys.requestedLimit.tr(),
+            style: TextStyle(fontSize: 13, color: context.colors.textSecondary),
           ),
           const SizedBox(height: 6),
           Row(
@@ -267,36 +254,45 @@ class _ClientCreditLimitScreenState extends State<ClientCreditLimitScreen> {
               Text(
                 _amountFormat.format(_requestedAmount),
                 textDirection: TextDirection.ltr,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
-                  color: _kOrange,
+                  color: context.colors.brandOrange,
                 ),
               ),
               const SizedBox(width: 8),
-              const Text(
-                'ر.س',
+              Text(
+                CommonKeys.currencySymbol.tr(),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: _kOrange,
+                  color: context.colors.brandOrange,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 20),
-          const StepTracker(
+          StepTracker(
             steps: [
-              StepItem('تم الإرسال', TrackerStepState.done),
-              StepItem('قيد المراجعة', TrackerStepState.current),
-              StepItem('القرار', TrackerStepState.pending),
+              StepItem(CreditLimitKeys.stepSent.tr(), TrackerStepState.done),
+              StepItem(
+                CreditLimitKeys.stepReview.tr(),
+                TrackerStepState.current,
+              ),
+              StepItem(
+                CreditLimitKeys.stepDecision.tr(),
+                TrackerStepState.pending,
+              ),
             ],
           ),
           const SizedBox(height: 16),
-          const Center(
+          Center(
             child: Text(
-              'الرد المتوقع خلال 2-3 أيام عمل',
-              style: TextStyle(fontSize: 12, color: _kGrey),
+              CreditLimitKeys.expectedReply.tr(),
+              style: TextStyle(
+                fontSize: 12,
+                color: context.colors.textSecondary,
+              ),
             ),
           ),
         ],
@@ -310,7 +306,7 @@ class _ClientCreditLimitScreenState extends State<ClientCreditLimitScreen> {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: _kSurface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: AppColors.shadowCard,
       ),
@@ -328,18 +324,18 @@ class _ClientCreditLimitScreenState extends State<ClientCreditLimitScreen> {
                   // The grouped figure reads left-to-right even on this
                   // right-to-left page.
                   textDirection: TextDirection.ltr,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
-                    color: _kNavy,
+                    color: context.colors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 2),
-                const Text(
-                  'ر.س',
+                Text(
+                  CommonKeys.currencySymbol.tr(),
                   style: TextStyle(
                     fontSize: 12,
-                    color: _kGrey,
+                    color: context.colors.textSecondary,
                   ),
                 ),
               ],
@@ -367,28 +363,26 @@ class _ClientCreditLimitScreenState extends State<ClientCreditLimitScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'الإقرار بطلب الحد الائتماني',
+                  CreditLimitKeys.acknowledgementTitle.tr(),
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
-                    color: _kNavy,
+                    color: context.colors.textPrimary,
                   ),
                 ),
-                SizedBox(height: 6),
+                const SizedBox(height: 6),
                 Text(
-                  'أقر بأنني أطلب حدًا ائتمانيًا من شركة البترول بصفتها الجهة '
-                  'المانحة، وأن هذا الطلب يخضع لمراجعة واعتماد الشركة وفق '
-                  'سياساتها الداخلية.',
+                  CreditLimitKeys.acknowledgementBody.tr(),
                   textAlign: TextAlign.justify,
                   style: TextStyle(
                     fontSize: 12,
                     height: 1.7,
-                    color: _kGrey,
+                    color: context.colors.textSecondary,
                   ),
                 ),
               ],
@@ -413,26 +407,22 @@ class _ClientCreditLimitScreenState extends State<ClientCreditLimitScreen> {
           _kTermsIcon,
           width: 20,
           height: 20,
-          colorFilter: const ColorFilter.mode(
-            _kBlue,
+          colorFilter: ColorFilter.mode(
+            context.colors.brandBlue,
             BlendMode.srcIn,
           ),
         ),
         const SizedBox(width: 8),
-        const Text(
-          'طبق الشروط و الأحكام',
+        Text(
+          CreditLimitKeys.applyTerms.tr(),
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: _kBlue,
+            color: context.colors.brandBlue,
           ),
         ),
         const Spacer(),
-        const Icon(
-          Icons.info_outline,
-          size: 24,
-          color: _kBlue,
-        ),
+        Icon(Icons.info_outline, size: 24, color: context.colors.brandBlue),
       ],
     );
   }
@@ -444,7 +434,7 @@ class _ClientCreditLimitScreenState extends State<ClientCreditLimitScreen> {
       opacity: _canSubmit ? 1 : 0.5,
       child: Container(
         decoration: BoxDecoration(
-          color: _kBlue,
+          color: context.colors.brandBlue,
           borderRadius: BorderRadius.circular(16),
           boxShadow: _canSubmit ? AppColors.shadowFloating : null,
         ),
@@ -468,9 +458,9 @@ class _ClientCreditLimitScreenState extends State<ClientCreditLimitScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  const Text(
-                    'اطلب حدك الإئتماني',
-                    style: TextStyle(
+                  Text(
+                    CreditLimitKeys.requestYourLimit.tr(),
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
@@ -531,7 +521,7 @@ class _StepperButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: _kSurface2,
+      color: context.colors.surface2,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onTap,
@@ -543,8 +533,8 @@ class _StepperButton extends StatelessWidget {
             icon,
             size: 22,
             color: onTap == null
-                ? _kGreyLight
-                : _kBlue,
+                ? context.colors.textTertiary
+                : context.colors.brandBlue,
           ),
         ),
       ),
@@ -564,16 +554,12 @@ class _CheckBox extends StatelessWidget {
       width: 28,
       height: 28,
       decoration: BoxDecoration(
-        color: _kSurface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: _kBorder),
+        border: Border.all(color: context.colors.borderHairline),
       ),
       child: value
-          ? const Icon(
-              Icons.check,
-              size: 18,
-              color: _kBlue,
-            )
+          ? Icon(Icons.check, size: 18, color: context.colors.brandBlue)
           : null,
     );
   }

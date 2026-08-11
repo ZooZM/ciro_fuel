@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/localization/translation_keys.dart';
 import 'fuel_type.dart';
 
 /// A selectable fuel grade, with the badge/tile colour it's drawn in on
@@ -12,17 +13,19 @@ import 'fuel_type.dart';
 /// `AppColors`.
 ///
 /// [type] is null for grades the backend catalogue does not model yet
-/// (بنزين 98، كيروسين).
+/// (gasoline 98, kerosene).
 enum FuelGrade {
-  gasoline91('بنزين 91', '91', Color(0xFFDC2626), FuelType.gasoline91),
-  gasoline95('بنزين 95', '95', Color(0xFF9333EA), FuelType.gasoline95),
-  gasoline98('بنزين 98', '98', Color(0xFF16A34A), null),
-  diesel('ديزل', 'D', Color(0xFFF97316), FuelType.diesel),
-  kerosene('كيروسين', 'K', Color(0xFF2563EB), null);
+  gasoline91(FuelKeys.gasoline91, '91', Color(0xFFDC2626), FuelType.gasoline91),
+  gasoline95(FuelKeys.gasoline95, '95', Color(0xFF9333EA), FuelType.gasoline95),
+  gasoline98(FuelKeys.gasoline98, '98', Color(0xFF16A34A), null),
+  diesel(FuelKeys.diesel, 'D', Color(0xFFF97316), FuelType.diesel),
+  kerosene(FuelKeys.kerosene, 'K', Color(0xFF2563EB), null);
 
-  const FuelGrade(this.title, this.badge, this.color, this.type);
+  const FuelGrade(this.titleKey, this.badge, this.color, this.type);
 
-  final String title;
+  /// Translation key for the grade's display name — call `.tr()` on it at the
+  /// point of use so the label follows a locale switch.
+  final String titleKey;
 
   /// What the order form matches on when a tile is tapped.
   final String badge;

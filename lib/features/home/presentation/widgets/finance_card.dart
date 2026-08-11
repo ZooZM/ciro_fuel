@@ -1,9 +1,10 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../constants/client_home_strings.dart';
+import '../../../../core/localization/translation_keys.dart';
+import '../../../../core/theme/theme_context.dart';
 
 /// One of the two balance/invoice tiles above the "new request" button.
 class FinanceCard extends StatelessWidget {
@@ -23,9 +24,9 @@ class FinanceCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(AppRadii.tile),
-        border: Border.all(color: AppColors.itemBorder),
+        border: Border.all(color: context.colors.borderHairline),
       ),
       child: Row(
         children: [
@@ -35,10 +36,7 @@ class FinanceCard extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
-                    color: AppColors.grey,
-                    fontSize: 10,
-                  ),
+                  style: TextStyle(color: context.colors.textSecondary, fontSize: 10),
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 // Text.rich, not RichText: RichText ignores
@@ -49,16 +47,16 @@ class FinanceCard extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: '$amount ',
-                        style: const TextStyle(
-                          color: AppColors.navy,
+                        style: TextStyle(
+                          color: context.colors.textPrimary,
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      const TextSpan(
-                        text: ClientHomeStrings.currency,
+                      TextSpan(
+                        text: CommonKeys.riyal.tr(),
                         style: TextStyle(
-                          color: AppColors.grey,
+                          color: context.colors.textSecondary,
                           fontSize: 10,
                         ),
                       ),

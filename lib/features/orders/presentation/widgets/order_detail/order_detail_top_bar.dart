@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../../../../core/constants/app_assets.dart';
-import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/router/app_routes.dart';
+import '../../../../../core/widgets/app_logo.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/icon_card.dart';
+import '../../../../../core/theme/theme_context.dart';
 
 /// Notification bell, brand logo and back button across the top of the
 /// order-detail screen.
@@ -23,11 +24,26 @@ class OrderDetailTopBar extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
+        IconCard(
+          onTap: onBack,
+          child: Padding(
+            padding: const EdgeInsetsDirectional.only(end: 2.0),
+            child: Icon(
+              Icons.arrow_back_ios_new,
+              size: AppSizes.orderBackIconSize,
+              color: context.colors.textPrimary,
+            ),
+          ),
+        ),
+        const AppLogo(),
         Stack(
           clipBehavior: Clip.none,
           children: [
-            const IconCard(
-              child: Icon(Icons.notifications_none, color: AppColors.navy),
+            IconCard(
+              // The bell opens the notifications screen here too; it carried
+              // no handler at all and so did nothing on this screen.
+              onTap: () => context.push(AppRoutes.notifications),
+              child: Icon(Icons.notifications_none, color: context.colors.textPrimary),
             ),
             Positioned(
               right: AppSizes.orderTopBarBadgeOffsetX,
@@ -36,33 +52,21 @@ class OrderDetailTopBar extends StatelessWidget {
                 width: AppSizes.orderTopBarBadgeSize,
                 height: AppSizes.orderTopBarBadgeSize,
                 alignment: Alignment.center,
-                decoration: const BoxDecoration(
-                  color: AppColors.red,
+                decoration: BoxDecoration(
+                  color: context.colors.brandRed,
                   shape: BoxShape.circle,
                 ),
                 child: Text(
                   '$notificationCount',
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 10,
+                    fontSize: AppSizes.orderTopBarBadgeFontSize,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
             ),
           ],
-        ),
-        SvgPicture.asset(AppAssets.appBarLogo, height: AppSizes.appBarLogoHeight),
-        IconCard(
-          onTap: onBack,
-          child: const Directionality(
-            textDirection: TextDirection.ltr,
-            child: Icon(
-              Icons.arrow_back_ios,
-              size: AppSizes.orderBackIconSize,
-              color: AppColors.navy,
-            ),
-          ),
         ),
       ],
     );

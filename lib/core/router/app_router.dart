@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/cubit/session_cubit.dart';
 import '../../features/auth/presentation/cubit/session_state.dart';
-import '../../features/auth/presentation/view/forgot_password_screen.dart';
 import '../../features/auth/presentation/view/login_screen.dart';
 import '../../features/delivery/presentation/view/delivery_detail_screen.dart';
 import '../../features/delivery/presentation/view/driver_home_screen.dart';
@@ -52,7 +51,10 @@ class AppRouter {
   AppRouter({required SessionCubit sessionCubit})
     : _sessionCubit = sessionCubit {
     config = GoRouter(
-      initialLocation: AppRoutes.login,
+      // Opens straight on the client dashboard, skipping login — paired with
+      // the SessionUnauthenticated bypass in [_redirect] below. Both are
+      // development shortcuts: restore this to AppRoutes.login before release.
+      initialLocation: AppRoutes.clientHome,
       refreshListenable: _StreamRefreshListenable(_sessionCubit.stream),
       redirect: _redirect,
       routes: [
@@ -141,8 +143,13 @@ class AppRouter {
         GoRoute(
           path: AppRoutes.clientOrderDetailPattern,
           builder: (context, state) {
-            final mockState = state.extra is MockOrderState ? state.extra as MockOrderState : MockOrderState.pendingReview;
-            return OrderDetailScreen(orderId: state.pathParameters['id']!, mockState: mockState);
+            final mockState = state.extra is MockOrderState
+                ? state.extra as MockOrderState
+                : MockOrderState.pendingReview;
+            return OrderDetailScreen(
+              orderId: state.pathParameters['id']!,
+              mockState: mockState,
+            );
           },
         ),
         GoRoute(

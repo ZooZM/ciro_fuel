@@ -113,9 +113,9 @@ flutter:
   assets:
     - assets/SignIn/
     - assets/Biometric/
-    - assets/social media/
-    - assets/logo/
-    - assets/icons/
+    - assets/Social Media/
+    - assets/Logo/
+    - assets/Icons/
     - assets/Help Screen/
     - assets/NavBar/
     - assets/HomePage/

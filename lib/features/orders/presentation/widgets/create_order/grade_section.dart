@@ -1,43 +1,52 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/fuel_pump_icon.dart';
 import '../../../../../core/widgets/order_card.dart';
 import '../../../../../shared/enums/fuel_grade.dart';
-import '../../constants/create_order_strings.dart';
+import '../../../../../core/theme/theme_context.dart';
 
-/// "2. نوع الوقود" — the row of selectable fuel-grade tiles. Any number of
-/// grades may be selected at once, each ordered independently.
+/// "2. نوع الوقود" — the row of selectable fuel-grade tiles. Exactly one
+/// grade is on order at a time; picking another replaces it.
 class GradeSection extends StatelessWidget {
   const GradeSection({
-    required this.selectedIndices,
-    required this.onToggle,
+    required this.selectedIndex,
+    required this.onSelect,
     super.key,
   });
 
-  final Set<int> selectedIndices;
-  final ValueChanged<int> onToggle;
+  /// Index into [FuelGrade.values], or null before anything is chosen.
+  final int? selectedIndex;
+  final ValueChanged<int> onSelect;
 
   @override
   Widget build(BuildContext context) {
     const grades = FuelGrade.values;
 
     return OrderCard(
-      title: CreateOrderStrings.sectionGrade,
-      child: Row(
-        children: [
-          for (final (index, grade) in grades.indexed) ...[
-            if (index > 0) const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: _GradeTile(
-                grade: grade,
-                selected: selectedIndices.contains(index),
-                onTap: () => onToggle(index),
+      title: CreateOrderKeys.sectionGrade.tr(),
+      // Five grades share this row; splitting the card between them left the
+      // names ellipsized, so each tile keeps its own width and the row
+      // scrolls.
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            for (final (index, grade) in grades.indexed) ...[
+              if (index > 0) const SizedBox(width: AppSpacing.sm),
+              SizedBox(
+                width: AppSizes.orderGradeTileWidth,
+                child: _GradeTile(
+                  grade: grade,
+                  selected: selectedIndex == index,
+                  onTap: () => onSelect(index),
+                ),
               ),
-            ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -63,10 +72,10 @@ class _GradeTile extends StatelessWidget {
       child: Container(
         height: AppSizes.orderGradeTileHeight,
         decoration: BoxDecoration(
-          color: selected ? AppColors.light.greenTint : Colors.white,
+          color: selected ? context.colors.greenTint : context.colors.surface,
           borderRadius: BorderRadius.circular(AppRadii.tile),
           border: Border.all(
-            color: selected ? AppColors.green : AppColors.itemBorder,
+            color: selected ? context.colors.brandGreen : context.colors.borderHairline,
             width: selected
                 ? AppSizes.orderTileSelectedBorderWidth
                 : AppSizes.orderTileBorderWidth,
@@ -87,30 +96,31 @@ class _GradeTile extends StatelessWidget {
                         size: _pumpIconSize,
                       ),
                       if (selected)
-                        const Positioned(
+                        Positioned(
                           top: -4,
                           right: -4,
                           child: DecoratedBox(
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.white,
+                              color: context.colors.surface,
                             ),
                             child: Icon(
                               Icons.check_circle,
                               size: AppSizes.iconMd,
-                              color: AppColors.green,
+                              color: context.colors.brandGreen,
                             ),
                           ),
                         ),
                     ],
                   ),
                   const SizedBox(height: AppSpacing.sm),
+                  // No ellipsis: the tile spells the grade out, wrapping to a
+                  // second line inside the tile's height if it has to.
                   Text(
-                    grade.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: AppColors.navy,
+                    grade.titleKey.tr(),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: context.colors.textPrimary,
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                     ),

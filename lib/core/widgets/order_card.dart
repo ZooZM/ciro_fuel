@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// The white card every step of the order flow sits in.
+import '../theme/theme_context.dart';
+
+/// The card every step of the order flow sits in.
 ///
 /// The order form set the house style — 16pt padding, a 16pt radius, and 14pt
 /// between a heading and its content — so the detail and tracking screens draw
@@ -45,15 +47,20 @@ class OrderCard extends StatelessWidget {
   static const double radius = 16;
   static const double titleGapDefault = 14;
 
-  static const _titleStyle = TextStyle(color: Color(0xFF0F1B2E), fontSize: 15, fontWeight: FontWeight.w700);
-  static const _subtitleStyle = TextStyle(color: Color(0xFF8A93A6), fontSize: 12);
-
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    final titleStyle = TextStyle(
+      color: colors.textPrimary,
+      fontSize: 15,
+      fontWeight: FontWeight.w700,
+    );
+    final subtitleStyle = TextStyle(color: colors.textSecondary, fontSize: 12);
+
     final card = Container(
       padding: const EdgeInsets.all(padding),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(radius),
         border: border == null ? null : Border.all(color: border!),
       ),
@@ -67,10 +74,10 @@ class OrderCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title!, style: _titleStyle),
+                      Text(title!, style: titleStyle),
                       if (subtitle != null) ...[
                         const SizedBox(height: 4),
-                        Text(subtitle!, style: _subtitleStyle),
+                        Text(subtitle!, style: subtitleStyle),
                       ],
                     ],
                   ),
@@ -88,18 +95,24 @@ class OrderCard extends StatelessWidget {
     );
 
     if (!dashed) return card;
-    return CustomPaint(painter: const DashedCardBorderPainter(), child: card);
+    return CustomPaint(
+      painter: DashedCardBorderPainter(colors.brandBlue),
+      child: card,
+    );
   }
 }
 
 /// The dashed blue outline traced around an [OrderCard] at [OrderCard.radius].
 class DashedCardBorderPainter extends CustomPainter {
-  const DashedCardBorderPainter();
+  const DashedCardBorderPainter(this.color);
+
+  /// Handed in from the widget above — a painter has no [BuildContext].
+  final Color color;
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFF1E5FFF)
+      ..color = color
       ..strokeWidth = 1.2
       ..style = PaintingStyle.stroke;
 
@@ -121,5 +134,6 @@ class DashedCardBorderPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant DashedCardBorderPainter oldDelegate) => false;
+  bool shouldRepaint(covariant DashedCardBorderPainter oldDelegate) =>
+      oldDelegate.color != color;
 }

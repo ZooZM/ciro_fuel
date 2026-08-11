@@ -1,14 +1,15 @@
 import 'dart:math' as math;
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/order_card.dart';
 import '../../../../../core/widgets/order_flow.dart';
-import '../../constants/order_detail_strings.dart';
 import '../../view/track_order_screen.dart';
 import 'status_chip.dart';
+import '../../../../../core/theme/theme_context.dart';
 
 /// The order-status card while the delivery is en route: fuel/driver/truck
 /// details beside the ETA gauge, the order-flow stepper, and the
@@ -16,8 +17,8 @@ import 'status_chip.dart';
 class InTransitOrderStatusCard extends StatelessWidget {
   const InTransitOrderStatusCard({
     this.orderReference = 'ORD-2024-256 · 9 صفر 1448',
-    this.fuelType = 'بنزين 95',
-    this.quantity = '20,000 لتر',
+    this.fuelType,
+    this.quantity,
     this.driverName = 'أحمد السبيعي',
     this.truckPlate = 'ABC-1234',
     this.etaMinutes = 35,
@@ -27,8 +28,8 @@ class InTransitOrderStatusCard extends StatelessWidget {
   });
 
   final String orderReference;
-  final String fuelType;
-  final String quantity;
+  final String? fuelType;
+  final String? quantity;
   final String driverName;
   final String truckPlate;
   final int etaMinutes;
@@ -37,13 +38,16 @@ class InTransitOrderStatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fuelType = this.fuelType ?? FuelKeys.gasoline95.tr();
+    final quantity = this.quantity ?? '20,000 ${CommonKeys.litre.tr()}';
+
     return OrderCard(
       dashed: true,
-      title: OrderDetailStrings.orderStatus,
+      title: OrderDetailKeys.orderStatus.tr(),
       subtitle: orderReference,
-      trailing: const StatusChip(
-        OrderDetailStrings.inDelivery,
-        color: AppColors.blue,
+      trailing: StatusChip(
+        OrderDetailKeys.inDelivery.tr(),
+        color: context.colors.brandBlue,
       ),
       child: Column(
         children: [
@@ -53,7 +57,7 @@ class InTransitOrderStatusCard extends StatelessWidget {
             padding: const EdgeInsets.all(AppSpacing.lg),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(OrderCard.radius),
-              border: Border.all(color: AppColors.itemBorder),
+              border: Border.all(color: context.colors.borderHairline),
             ),
             child: Column(
               children: [
@@ -65,13 +69,13 @@ class InTransitOrderStatusCard extends StatelessWidget {
                           _TransitDetailRow(label: fuelType, value: quantity),
                           const SizedBox(height: AppSpacing.md),
                           _TransitDetailRow(
-                            label: OrderDetailStrings.driverLabel,
+                            label: CommonKeys.driver.tr(),
                             value: driverName,
                             icon: Icons.person_outline,
                           ),
                           const SizedBox(height: AppSpacing.md),
                           _TransitDetailRow(
-                            label: OrderDetailStrings.truckLabel,
+                            label: CommonKeys.truck.tr(),
                             value: truckPlate,
                             icon: Icons.local_shipping_outlined,
                           ),
@@ -103,7 +107,7 @@ class InTransitOrderStatusCard extends StatelessWidget {
                       );
                     },
                     style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.blue,
+                      backgroundColor: context.colors.brandBlue,
                       padding: const EdgeInsets.symmetric(
                         horizontal: AppSizes.orderTransitButtonPaddingH,
                       ),
@@ -116,10 +120,10 @@ class InTransitOrderStatusCard extends StatelessWidget {
                       size: AppSizes.icon16,
                       color: Colors.white,
                     ),
-                    label: const Text(
-                      OrderDetailStrings.trackOnMap,
+                    label: Text(
+                      OrderDetailKeys.trackOnMap.tr(),
                       maxLines: 1,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -136,7 +140,7 @@ class InTransitOrderStatusCard extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: onContactDriver ?? () {},
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppColors.itemBorder),
+                      side: BorderSide(color: context.colors.borderHairline),
                       padding: const EdgeInsets.symmetric(
                         horizontal: AppSizes.orderTransitButtonPaddingH,
                       ),
@@ -144,16 +148,16 @@ class InTransitOrderStatusCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(AppRadii.tile),
                       ),
                     ),
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.phone_outlined,
-                      color: AppColors.navy,
+                      color: context.colors.textPrimary,
                       size: AppSizes.icon16,
                     ),
-                    label: const Text(
-                      OrderDetailStrings.contactDriver,
+                    label: Text(
+                      CommonKeys.contactDriver.tr(),
                       maxLines: 1,
                       style: TextStyle(
-                        color: AppColors.navy,
+                        color: context.colors.textPrimary,
                         fontSize: 10.5,
                         fontWeight: FontWeight.w700,
                       ),
@@ -172,7 +176,11 @@ class InTransitOrderStatusCard extends StatelessWidget {
 /// A label/value pair with its glyph on the trailing side, as the
 /// in-transit card stacks the fuel, driver and truck.
 class _TransitDetailRow extends StatelessWidget {
-  const _TransitDetailRow({required this.label, required this.value, this.icon});
+  const _TransitDetailRow({
+    required this.label,
+    required this.value,
+    this.icon,
+  });
 
   final String label;
   final String value;
@@ -185,7 +193,7 @@ class _TransitDetailRow extends StatelessWidget {
     return Row(
       children: [
         if (icon != null)
-          Icon(icon, color: AppColors.green, size: AppSizes.iconLg)
+          Icon(icon, color: context.colors.brandGreen, size: AppSizes.iconLg)
         else
           const SizedBox(width: AppSizes.iconLg),
         const SizedBox(width: AppSizes.orderTransitIconGap),
@@ -197,14 +205,14 @@ class _TransitDetailRow extends StatelessWidget {
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: AppColors.grey, fontSize: 10),
+                style: TextStyle(color: context.colors.textSecondary, fontSize: 10),
               ),
               Text(
                 value,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: AppColors.navy,
+                style: TextStyle(
+                  color: context.colors.textPrimary,
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                 ),
@@ -238,28 +246,33 @@ class _EtaGauge extends StatelessWidget {
       width: _size,
       height: _size,
       child: CustomPaint(
-        painter: _GaugePainter(progress: progress, stroke: _stroke),
+        painter: _GaugePainter(
+          progress: progress,
+          stroke: _stroke,
+          color: context.colors.brandGreen,
+          trackColor: context.colors.borderHairline,
+        ),
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.local_shipping, color: AppColors.navy, size: 16),
-              const Text(
-                OrderDetailStrings.arrivalIn,
-                style: TextStyle(color: AppColors.navy, fontSize: 8),
+              Icon(Icons.local_shipping, color: context.colors.textPrimary, size: 16),
+              Text(
+                CommonKeys.arrivalIn.tr(),
+                style: TextStyle(color: context.colors.textPrimary, fontSize: 8),
               ),
               Text(
                 '$minutes',
-                style: const TextStyle(
-                  color: AppColors.green,
+                style: TextStyle(
+                  color: context.colors.brandGreen,
                   fontSize: 19,
                   height: 1.1,
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              const Text(
-                OrderDetailStrings.minutes,
-                style: TextStyle(color: AppColors.green, fontSize: 8),
+              Text(
+                CommonKeys.minutes.tr(),
+                style: TextStyle(color: context.colors.brandGreen, fontSize: 8),
               ),
             ],
           ),
@@ -270,12 +283,19 @@ class _EtaGauge extends StatelessWidget {
 }
 
 class _GaugePainter extends CustomPainter {
-  const _GaugePainter({required this.progress, required this.stroke});
+  const _GaugePainter({
+    required this.progress,
+    required this.stroke,
+    required this.color,
+    required this.trackColor,
+  });
 
   final double progress;
   final double stroke;
 
-  static const _trackColor = Color(0xFFE7E9EF);
+  /// Handed in from the widget above — a painter has no [BuildContext].
+  final Color color;
+  final Color trackColor;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -289,7 +309,7 @@ class _GaugePainter extends CustomPainter {
       math.pi * 2,
       false,
       Paint()
-        ..color = _trackColor
+        ..color = trackColor
         ..style = PaintingStyle.stroke
         ..strokeWidth = stroke,
     );
@@ -300,7 +320,7 @@ class _GaugePainter extends CustomPainter {
       math.pi * 2 * progress,
       false,
       Paint()
-        ..color = AppColors.green
+        ..color = color
         ..style = PaintingStyle.stroke
         ..strokeWidth = stroke
         ..strokeCap = StrokeCap.round,
@@ -309,5 +329,8 @@ class _GaugePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _GaugePainter oldDelegate) =>
-      oldDelegate.progress != progress || oldDelegate.stroke != stroke;
+      oldDelegate.progress != progress ||
+      oldDelegate.stroke != stroke ||
+      oldDelegate.color != color ||
+      oldDelegate.trackColor != trackColor;
 }

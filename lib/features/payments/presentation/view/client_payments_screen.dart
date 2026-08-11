@@ -1,8 +1,17 @@
+// `hide TextDirection`: easy_localization re-exports intl, whose
+// `TextDirection` would otherwise shadow the Flutter one used below.
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
+import '../../../../core/localization/translation_keys.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
-import '../../../../core/router/app_routes.dart';
+import '../../../../core/widgets/date_time_row.dart';
 import '../../../../core/widgets/search_filter_bar.dart';
+import '../../../../shared/models/filter_selection.dart';
+import '../../../../shared/models/station_option.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/theme_context.dart';
+import '../../../../core/widgets/app_top_bar.dart';
+import '../../../../core/widgets/app_action_icon.dart';
 
 class ClientPaymentsScreen extends StatefulWidget {
   const ClientPaymentsScreen({super.key});
@@ -12,98 +21,111 @@ class ClientPaymentsScreen extends StatefulWidget {
 }
 
 class _ClientPaymentsScreenState extends State<ClientPaymentsScreen> {
-  static const List<_MockPayment> _payments = [
-    _MockPayment(
-      fuelType: 'بنزين 95',
-      quantity: '20,000 لتر',
-      orderId: 'ORD-2024-256',
-      statusText: 'تم التأكيد',
-      statusColor: Color(0xFF17A34A),
-      progress: 1.0,
-      address: 'طريق أنس بن مالك، حي الملقا',
-      time: '06.30 صباحاً',
-      date: '9 صفر 1446',
-    ),
-    _MockPayment(
-      fuelType: 'بنزين 95',
-      quantity: '20,000 لتر',
-      orderId: 'ORD-2024-256',
-      statusText: 'الفاتورة معلقة',
-      statusColor: Color(0xFFF97316),
-      progress: 0.7,
-      address: 'طريق أنس بن مالك، حي الملقا',
-      time: '06.30 صباحاً',
-      date: '9 صفر 1446',
-    ),
-  ];
+  /// What the filter sheet last returned.
+  FilterSelection _filters = const FilterSelection();
+
+  List<_MockPayment> get _payments {
+    final isAr = context.locale.languageCode == 'ar';
+    final loc = isAr
+        ? 'طريق أنس بن مالك، حي الملقا'
+        : 'Anas Bin Malik Road, Al Malqa District';
+    final dat = isAr ? '9 صفر 1446' : '9 Safar 1446';
+    final tim = isAr ? '06.30 صباحاً' : '06.30 AM';
+    return [
+      _MockPayment(
+        fuelType: FuelKeys.gasoline95.tr(),
+        quantity: '20,000 ${CommonKeys.litre.tr()}',
+        orderId: 'ORD-2024-256',
+        statusText: OrdersListKeys.statusConfirmed.tr(),
+        statusColor: context.colors.brandGreen,
+        progress: 1.0,
+        address: loc,
+        time: tim,
+        date: dat,
+      ),
+      _MockPayment(
+        fuelType: FuelKeys.gasoline95.tr(),
+        quantity: '20,000 ${CommonKeys.litre.tr()}',
+        orderId: 'ORD-2024-256',
+        statusText: OrdersListKeys.statusInvoicePending.tr(),
+        statusColor: context.colors.brandOrange,
+        progress: 0.7,
+        address: loc,
+        time: tim,
+        date: dat,
+      ),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF5F6F8),
-        body: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 16),
-              _buildAppBar(),
-              const SizedBox(height: 24),
-              _buildTitleRow(),
-              const SizedBox(height: 16),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: SearchFilterBar(),
+    return Scaffold(
+      backgroundColor: context.colors.canvas,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // The bar sits straight under the safe area, as on the orders and
+            // invoices screens — the 16 that used to lead here pushed this
+            // header lower than theirs, and its own inset already spaces it.
+            _buildAppBar(),
+            const SizedBox(height: 16),
+            _buildTitleRow(),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: SearchFilterBar(
+                // No fuel grade or quantity here: these lists are money,
+                // not consignments. Confirm the exact sections with the
+                // design before treating this as settled.
+                sortOptions: const [
+                  SortOption.newestFirst,
+                  SortOption.oldestFirst,
+                  SortOption.highestAmount,
+                  SortOption.lowestAmount,
+                ],
+                filterStations: [
+                  for (final s in kStationOptions)
+                    if (s.isActive) s,
+                ],
+                showDateFilter: true,
+                filters: _filters,
+                onFiltersChanged: (f) => setState(() => _filters = f),
               ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  itemCount: _payments.length,
-                  itemBuilder: (context, index) {
-                    return _PaymentCard(payment: _payments[index]);
-                  },
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
                 ),
+                itemCount: _payments.length,
+                itemBuilder: (context, index) {
+                  return _PaymentCard(payment: _payments[index]);
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
   Widget _buildAppBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          ClipOval(
-            child: Image.asset(
-              'assets/more/Image.png',
-              width: 44,
-              height: 44,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
-                width: 44,
-                height: 44,
-                color: Colors.grey[200],
-                child: const Icon(Icons.person, color: Colors.grey),
-              ),
-            ),
-          ),
-          SvgPicture.asset('assets/Logo/appBar Logo.svg', height: 20),
-          GestureDetector(
-            onTap: () => context.push(AppRoutes.notifications),
-            child: SvgPicture.asset(
-              'assets/Icons/notification_badge.svg',
-              width: 62,
-              height: 63,
-            ),
-          ),
-        ],
+    // Was a hand-rolled copy of [AppTopBar] whose bell came from
+    // `notification_badge.svg` — a composite that wraps the tile, glyph and
+    // count in a `<g filter="url(#…)">` drop shadow. flutter_svg does not
+    // implement that filter and drops the whole group, so nothing drew; the
+    // artwork also baked in a white tile and navy glyph, which would have
+    // been wrong on a dark canvas either way. The shared bar draws the same
+    // three pieces from the palette.
+    return const Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: AppSpacing.topBarInsetH,
+        vertical: AppSpacing.topBarInsetV,
       ),
+      child: AppTopBar(showProfile: true, notificationCount: 3),
     );
   }
 
@@ -117,27 +139,31 @@ class _ClientPaymentsScreenState extends State<ClientPaymentsScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'كل الطلبات مستحقة الدفع',
-                style: TextStyle(color: Color(0xFF0F1B2E), fontSize: 18, fontWeight: FontWeight.w800),
+              Text(
+                PaymentsKeys.title.tr(),
+                style: TextStyle(
+                  color: context.colors.textPrimary,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
               const SizedBox(height: 4),
               Text(
-                '${_payments.length} طلب إجمالاً',
-                style: const TextStyle(color: Color(0xFF8A93A6), fontSize: 12),
+                PaymentsKeys.count.tr(
+                  namedArgs: {'count': '${_payments.length}'},
+                ),
+                style: TextStyle(
+                  color: context.colors.textSecondary,
+                  fontSize: 12,
+                ),
               ),
             ],
           ),
-          SvgPicture.asset(
-            'assets/Icons/reload.svg',
-            width: 32,
-            height: 32,
-          ),
+          const AppActionIcon.paymentsReload(),
         ],
       ),
     );
   }
-
 }
 
 class _PaymentCard extends StatelessWidget {
@@ -149,40 +175,54 @@ class _PaymentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsetsDirectional.only(start: 16, top: 16, bottom: 16, end: 0),
+      padding: const EdgeInsetsDirectional.only(
+        start: 16,
+        top: 16,
+        bottom: 16,
+        end: 0,
+      ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: const [
-          BoxShadow(color: Color(0x0A000000), blurRadius: 10, offset: Offset(0, 4)),
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
         ],
       ),
-      child: Directionality(
-        textDirection: TextDirection.rtl, // Enforces RTL for the entire card
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Right Side: All Text Content
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Row 1: Fuel Type & Order ID
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          '${payment.fuelType} • ${payment.quantity}',
-                          style: const TextStyle(color: Color(0xFF1E5FFF), fontSize: 13, fontWeight: FontWeight.w700),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Right Side: All Text Content
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Row 1: Fuel Type & Order ID
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '${payment.fuelType} • ${payment.quantity}',
+                        style: TextStyle(
+                          color: context.colors.brandBlue,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(width: 8),
+                    ),
+                    const SizedBox(width: 8),
                     Text(
                       payment.orderId,
-                      style: const TextStyle(color: Color(0xFF8A93A6), fontSize: 12),
+                      style: TextStyle(
+                        color: context.colors.textSecondary,
+                        fontSize: 12,
+                      ),
                     ),
                   ],
                 ),
@@ -193,7 +233,10 @@ class _PaymentCard extends StatelessWidget {
                   children: [
                     Text(
                       payment.statusText,
-                      style: const TextStyle(color: Color(0xFF8A93A6), fontSize: 12),
+                      style: TextStyle(
+                        color: context.colors.textSecondary,
+                        fontSize: 12,
+                      ),
                     ),
                     const SizedBox(width: 8),
                     Container(
@@ -205,7 +248,11 @@ class _PaymentCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    _buildProgressBar(payment.progress, payment.statusColor),
+                    _buildProgressBar(
+                      context,
+                      payment.progress,
+                      payment.statusColor,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -214,54 +261,52 @@ class _PaymentCard extends StatelessWidget {
                   payment.address,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Color(0xFF1E5FFF), fontSize: 13, fontWeight: FontWeight.w500),
+                  style: TextStyle(
+                    color: context.colors.brandBlue,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
                 const SizedBox(height: 10),
                 // Row 4: Date & Time
-                Row(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/Icons/date.svg',
-                      width: 16,
-                      height: 16,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      payment.date,
-                      style: const TextStyle(color: Color(0xFF0F1B2E), fontSize: 12),
-                    ),
-                    const Spacer(),
-                    const Icon(Icons.access_time, color: Color(0xFF17A34A), size: 16),
-                    const SizedBox(width: 4),
-                    Text(
-                      payment.time,
-                      style: const TextStyle(color: Color(0xFF0F1B2E), fontSize: 12),
-                    ),
-                  ],
+                DateTimeRow(
+                  date: payment.date,
+                  time: payment.time,
+                  iconSize: 16,
+                  fontSize: 12,
+                  textColor: context.colors.textPrimary,
                 ),
               ],
             ),
           ),
           const SizedBox(width: 12),
-          // Left Side: Fuel Pump
-          SvgPicture.asset(
-            'assets/OrdersPage/fuel_pump.svg',
-            width: 50,
-            height: 68,
-            colorFilter: const ColorFilter.mode(Color(0xFF17A34A), BlendMode.srcIn),
+          // Trailing: the fuel pump, drawn facing the card's start edge — how
+          // it reads under Arabic, where it sits on the left. The row mirrors
+          // under English and the artwork does not, so it is flipped there to
+          // keep it facing into the card rather than off it.
+          Transform.flip(
+            flipX: Directionality.of(context) == TextDirection.ltr,
+            child: SvgPicture.asset(
+              'assets/OrdersPage/fuel_pump.svg',
+              width: 50,
+              height: 68,
+              colorFilter: ColorFilter.mode(
+                context.colors.brandGreen,
+                BlendMode.srcIn,
+              ),
+            ),
           ),
         ],
-      ),
       ),
     );
   }
 
-  Widget _buildProgressBar(double progress, Color color) {
+  Widget _buildProgressBar(BuildContext context, double progress, Color color) {
     return Container(
       height: 8,
       width: 100, // Fixed width matching the image proportions
       decoration: BoxDecoration(
-        color: const Color(0xFFE7E9EF),
+        color: context.colors.borderHairline,
         borderRadius: BorderRadius.circular(4),
       ),
       alignment: AlignmentDirectional.centerStart,

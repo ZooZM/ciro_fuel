@@ -113,8 +113,18 @@ class AppColors {
   static const List<BoxShadow> shadowCard = [
     BoxShadow(color: Color(0x0F000000), offset: Offset(0, 2), blurRadius: 10),
   ];
+  /// Cast upwards: the bar sits on the bottom edge, so the only side of it
+  /// that shows is the top. At the 6%/2pt this started as, the bar and the
+  /// screen behind it met with no separation at all — it reads in the same
+  /// family as [shadowSheet], the other shadow this design throws upward.
   static const List<BoxShadow> shadowNav = [
-    BoxShadow(color: Color(0x0F000000), offset: Offset(0, -2), blurRadius: 16),
+    BoxShadow(color: Color(0x1F0F1B2E), offset: Offset(0, -6), blurRadius: 22),
+  ];
+
+  /// [shadowNav] for the dark theme. A navy tint over a #121316 canvas is not
+  /// there at all, so the same shape is cast in black, and far deeper.
+  static const List<BoxShadow> shadowNavDark = [
+    BoxShadow(color: Color(0x99000000), offset: Offset(0, -6), blurRadius: 22),
   ];
   static const List<BoxShadow> shadowFloating = [
     BoxShadow(color: Color(0x401E5FFF), offset: Offset(0, 8), blurRadius: 24),
@@ -161,6 +171,14 @@ class AppColors {
   /// Tint behind the credit-card icon on the credit-limit card. Distinct
   /// from [AppPalette.orangeTint] — a separate one-off from the same design.
   static const Color creditIconBackground = Color(0xFFFFF7ED);
+
+  /// Fill behind the success chips and selected tiles on the order screens.
+  /// Same value as [AppPalette.greenTint], declared flat for the same reason
+  /// [blue] and [red] are: these screens sit on a hardcoded white [OrderCard]
+  /// with mode-independent [navy]/[grey] text, so resolving this one fill per
+  /// mode would put a dark chip on a light card. Route it through the palette
+  /// once these screens get a real dark treatment.
+  static const Color greenTint = Color(0xFFE4F7EC);
 }
 
 /// One resolved set of semantic colours. Both [AppColors.light] and

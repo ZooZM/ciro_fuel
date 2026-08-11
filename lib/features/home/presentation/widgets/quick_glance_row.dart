@@ -1,33 +1,38 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../core/constants/app_assets.dart';
+import '../../../../core/localization/translation_keys.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../constants/client_home_strings.dart';
+import '../../../../core/theme/theme_context.dart';
 
-/// One order-status counter shown on the "نظرة سريعة" row.
+/// One order-status counter shown on the at-a-glance row.
 ///
 /// [asset] wins over [icon] where artwork exists; counters without their
 /// own artwork fall back to the closest Material glyph.
 class OrderCountStat {
   const OrderCountStat({
-    required this.label,
+    required this.labelKey,
     required this.count,
     required this.color,
     this.icon,
     this.asset,
   }) : assert(icon != null || asset != null, 'Provide an icon or an asset.');
 
-  final String label;
+  /// Translation key, not display text — the stat set below is `const`, so
+  /// the copy is resolved when the card is built rather than when it's
+  /// declared, and follows a locale switch.
+  final String labelKey;
   final String count;
   final Color color;
   final IconData? icon;
   final String? asset;
 }
 
-/// Order-status counters. Listed so that, in RTL, تم التوصيل ends up on
-/// the left and ملغاة on the right — the order shown in the design.
+/// Order-status counters. Listed so that, in RTL, "delivered" ends up on
+/// the left and "cancelled" on the right — the order shown in the design.
 ///
 /// Rendered as four separate cards rather than one bordered strip, as
 /// designed.
@@ -62,9 +67,9 @@ class _StatCard extends StatelessWidget {
         vertical: AppSizes.dashboardStatCardPaddingV,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(AppRadii.tile),
-        border: Border.all(color: AppColors.itemBorder),
+        border: Border.all(color: context.colors.borderHairline),
       ),
       child: Column(
         children: [
@@ -89,11 +94,7 @@ class _StatCard extends StatelessWidget {
                 width: AppSizes.icon16,
                 height: AppSizes.icon16,
                 child: stat.asset == null
-                    ? Icon(
-                        stat.icon,
-                        size: AppSizes.icon16,
-                        color: stat.color,
-                      )
+                    ? Icon(stat.icon, size: AppSizes.icon16, color: stat.color)
                     : SvgPicture.asset(
                         stat.asset!,
                         fit: BoxFit.contain,
@@ -107,10 +108,10 @@ class _StatCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSizes.dashboardStatCardRowGap),
           Text(
-            stat.label,
+            stat.labelKey.tr(),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(color: AppColors.grey, fontSize: 9),
+            style: TextStyle(color: context.colors.textSecondary, fontSize: 9),
           ),
         ],
       ),
@@ -120,30 +121,34 @@ class _StatCard extends StatelessWidget {
 
 /// The dashboard's default stat set — cancelled, in-preparation,
 /// in-delivery and delivered order counts.
-const defaultOrderCountStats = [
+///
+/// A function rather than a constant list: the accent on each stat now comes
+/// from the active palette, so it cannot be resolved until there is a context.
+List<OrderCountStat> defaultOrderCountStats(BuildContext context) => [
   OrderCountStat(
-    label: ClientHomeStrings.statCancelled,
+    labelKey: HomeKeys.statCancelled,
     count: '0',
-    color: AppColors.red,
+    color: context.colors.brandRed,
     icon: Icons.highlight_off,
   ),
-  OrderCountStat(
-    label: ClientHomeStrings.statInPreparation,
+  const OrderCountStat(
+    labelKey: HomeKeys.statInPreparation,
     count: '1',
     color: AppColors.amber,
     icon: Icons.hourglass_empty,
   ),
   OrderCountStat(
-    label: ClientHomeStrings.statInDelivery,
+    labelKey: HomeKeys.statInDelivery,
     count: '3',
-    color: AppColors.blue,
+    color: context.colors.brandBlue,
     icon: Icons.access_time,
   ),
   OrderCountStat(
-    label: ClientHomeStrings.statDelivered,
+    labelKey: HomeKeys.statDelivered,
     count: '12',
-    color: AppColors.green,
+    color: context.colors.brandGreen,
     // Uses the truck artwork, so it has no Material fallback.
     asset: AppAssets.dashboardStatTruckIcon,
   ),
 ];
+

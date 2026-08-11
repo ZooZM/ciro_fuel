@@ -1,35 +1,34 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 
 import '../../../../../core/constants/app_assets.dart';
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/fuel_pump_icon.dart';
 import '../../../../../core/widgets/order_card.dart';
 import '../../../../../shared/enums/fuel_grade.dart';
-import '../../constants/order_detail_strings.dart';
-import '../../constants/track_order_strings.dart';
+import '../../../../../core/theme/theme_context.dart';
 
 /// Consignment, truck and driver details, plus a call button and the
 /// driver's photo. Right to left: the consignment, the truck, the driver,
 /// and their photo on the far edge — flexes measured off the design.
 class DriverCard extends StatelessWidget {
   const DriverCard({
-    this.fuelType = 'بنزين 95',
-    this.quantity = '20,000 لتر',
+    this.fuelType,
+    this.quantity,
     this.truckPlate = 'ABC-1234',
     this.driverName = 'أحمد السبيعي',
     this.onCallDriver,
     super.key,
   });
 
-  final String fuelType;
-  final String quantity;
+  final String? fuelType;
+  final String? quantity;
   final String truckPlate;
   final String driverName;
   final VoidCallback? onCallDriver;
 
   static const _fuelIconBoxSize = 36.0;
-  static const _fuelIconTint = Color(0xFFF3E8FF);
   static const _pumpIconSize = 24.0;
   static const _truckImageWidth = 60.0;
   static const _truckImageHeight = 36.0;
@@ -37,6 +36,9 @@ class DriverCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fuelType = this.fuelType ?? FuelKeys.gasoline95.tr();
+    final quantity = this.quantity ?? '20,000 ${CommonKeys.litre.tr()}';
+
     return OrderCard(
       child: IntrinsicHeight(
         child: Row(
@@ -50,9 +52,15 @@ class DriverCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _Field(label: OrderDetailStrings.fuelType, value: fuelType),
+                        _Field(
+                          label: OrderDetailKeys.fuelType.tr(),
+                          value: fuelType,
+                        ),
                         const SizedBox(height: 6),
-                        _Field(label: OrderDetailStrings.quantity, value: quantity),
+                        _Field(
+                          label: OrderDetailKeys.quantity.tr(),
+                          value: quantity,
+                        ),
                       ],
                     ),
                   ),
@@ -62,7 +70,7 @@ class DriverCard extends StatelessWidget {
                     height: _fuelIconBoxSize,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: _fuelIconTint,
+                      color: context.colors.purpleTint,
                       borderRadius: BorderRadius.circular(
                         AppSizes.orderCreditIconRadius,
                       ),
@@ -76,10 +84,10 @@ class DriverCard extends StatelessWidget {
                 ],
               ),
             ),
-            const VerticalDivider(
+            VerticalDivider(
               width: 14,
               thickness: AppSizes.dividerThickness,
-              color: AppColors.itemBorder,
+              color: context.colors.borderHairline,
             ),
             Expanded(
               flex: 6,
@@ -87,15 +95,15 @@ class DriverCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   _Field(
-                    label: TrackOrderStrings.vehicle,
+                    label: TrackOrderKeys.vehicle.tr(),
                     value: truckPlate,
                     center: true,
                   ),
-                  const Text(
-                    TrackOrderStrings.fuelTankerTruck,
+                  Text(
+                    TrackOrderKeys.fuelTankerTruck.tr(),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: AppColors.grey, fontSize: 7),
+                    style: TextStyle(color: context.colors.textSecondary, fontSize: 7),
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   Image.asset(
@@ -107,10 +115,10 @@ class DriverCard extends StatelessWidget {
                 ],
               ),
             ),
-            const VerticalDivider(
+            VerticalDivider(
               width: 14,
               thickness: AppSizes.dividerThickness,
-              color: AppColors.itemBorder,
+              color: context.colors.borderHairline,
             ),
             Expanded(
               flex: 6,
@@ -118,22 +126,24 @@ class DriverCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _Field(label: OrderDetailStrings.driverLabel, value: driverName),
+                  _Field(label: CommonKeys.driver.tr(), value: driverName),
                   const SizedBox(height: AppSpacing.sm),
                   GestureDetector(
                     onTap: onCallDriver,
                     child: Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpacing.sm,
+                      ),
                       decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.itemBorder),
+                        border: Border.all(color: context.colors.borderHairline),
                         borderRadius: BorderRadius.circular(
                           AppSizes.orderCreditIconRadius,
                         ),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.phone_outlined,
-                        color: AppColors.navy,
+                        color: context.colors.textPrimary,
                         size: AppSizes.iconMd,
                       ),
                     ),
@@ -168,20 +178,22 @@ class _Field extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: center ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+      crossAxisAlignment: center
+          ? CrossAxisAlignment.center
+          : CrossAxisAlignment.start,
       children: [
         Text(
           label,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(color: AppColors.grey, fontSize: 8),
+          style: TextStyle(color: context.colors.textSecondary, fontSize: 8),
         ),
         Text(
           value,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: AppColors.navy,
+          style: TextStyle(
+            color: context.colors.textPrimary,
             fontSize: 11,
             fontWeight: FontWeight.w700,
           ),
