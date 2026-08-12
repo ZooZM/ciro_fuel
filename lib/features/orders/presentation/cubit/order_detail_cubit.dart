@@ -10,7 +10,7 @@ import 'order_detail_state.dart';
 /// Loads an order and keeps it live via the `/tracking` socket's
 /// `order:status`/`order:otp` pushes. A status push carries only
 /// `{orderId, from, to, at}` — richer fields that change alongside a
-/// transition (`finalPrice`, `paymentWindowEndsAt`, `assignedDriverId`)
+/// transition (`finalPrice`, `paymentDeadline`, `driverId`)
 /// only exist on the REST representation, so a push triggers a full
 /// re-fetch rather than a local patch, keeping every field in sync with
 /// the backend (research R7). A push is only acted on if its timestamp is

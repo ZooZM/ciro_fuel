@@ -175,6 +175,57 @@ class AppColors {
   /// The unfilled part of a progress track — the order stepper's bars and
   /// the in-transit ETA gauge. Matches `light.borderHairline`.
   static const Color track = Color(0xFFE7E9EF);
+
+  // ---------------------------------------------------------------------
+  // Pushed client screens — settings (المزيد), credit limit, terms,
+  // stations, support. Same story as the block above: flat constants so
+  // they survive inside `const` widgets.
+  // ---------------------------------------------------------------------
+
+  /// Ink for headings and list titles on these screens. A cooler, deeper
+  /// navy than [navy]; matches `light.textPrimary`.
+  static const Color heading = Color(0xFF162155);
+
+  /// Screen background. Matches `light.canvas` — a touch bluer than
+  /// [screenBackground], which the stations/support screens use.
+  static const Color canvas = Color(0xFFF4F6FA);
+
+  /// Card fill. Matches `light.surface`.
+  static const Color surface = Color(0xFFFFFFFF);
+
+  /// Fill of a control sitting inside a card — the credit stepper's keys.
+  /// Matches `light.surface2`.
+  static const Color surfaceAlt = Color(0xFFF0F2F7);
+
+  /// Ink for a control that is present but currently inert (the stepper's
+  /// minus key at the floor). Matches `light.textTertiary`.
+  static const Color disabledInk = Color(0xFF9CA3AF);
+
+  /// Tints behind status pills and icon tiles. Match `light.greenTint`,
+  /// `light.redTint` and `light.orangeTint`.
+  static const Color greenTint = Color(0xFFE4F7EC);
+  static const Color redTint = Color(0xFFFDE9E9);
+  static const Color orangeTint = Color(0xFFFEEEDF);
+
+  /// Fill of the support screen's اتصال مباشر button — a greyer blue than
+  /// [blueTintAlt], a one-off from the same design.
+  static const Color callButtonTint = Color(0xFFEDF2FA);
+
+  /// The terms screen's clause cards: a pale green field inside a slightly
+  /// stronger green rule, with the number badge on its own near-white blue.
+  static const Color clauseFill = Color(0xFFE9F8EF);
+  static const Color clauseBorder = Color(0xFFA8DFC0);
+  static const Color clauseBadgeFill = Color(0xFFF5F8FF);
+
+  /// Cast by the terms screen's floating back-to-top button, which uses
+  /// [Material.elevation] rather than a [BoxShadow] list.
+  static const Color elevationShadow = Color(0x1F000000);
+
+  /// A softer, lower-lying [shadowCard] — the list cards on the stations
+  /// and payments screens sit on this one.
+  static const List<BoxShadow> shadowCardSoft = [
+    BoxShadow(color: Color(0x0A000000), offset: Offset(0, 4), blurRadius: 10),
+  ];
 }
 
 /// One resolved set of semantic colours. Both [AppColors.light] and

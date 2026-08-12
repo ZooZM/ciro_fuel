@@ -23,8 +23,17 @@ abstract final class AppFontSizes {
   static const double bodyLarge = 14;
   static const double subtitle = 15;
   static const double title = 16;
+
+  /// Clause titles on the terms screen — a step above [title] without
+  /// reaching [titleLarge].
+  static const double heading = 17;
+
   static const double titleLarge = 18;
   static const double display = 20;
+
+  /// The one figure a screen is about: the profile card's name, the
+  /// credit-limit amount.
+  static const double displayLarge = 22;
 }
 
 /// Named, fully-formed text styles — including colour — resolved against the

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../constants/app_assets.dart';
+
 /// The filter button + search field row used above the payments, orders and
 /// invoices lists. Extracted from the payments screen so the three list
 /// pages share one look (Principle I — no duplicated layout literals).
@@ -28,7 +30,7 @@ class SearchFilterBar extends StatelessWidget {
         GestureDetector(
           onTap: onFilterTap,
           child: SvgPicture.asset(
-            'assets/Icons/filter.svg',
+            AppAssets.filterIcon,
             width: 48,
             height: 48,
           ),

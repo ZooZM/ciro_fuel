@@ -6,30 +6,24 @@
   "login": {
     "welcome_title": "Welcome to Ciro",
     "welcome_subtitle": "Order your fuel and track delivery moment by moment",
-
     "phone_label": "Mobile number",
     "phone_hint": "5X XXX XXXX",
     "phone_required": "Enter your mobile number",
     "phone_invalid": "Invalid mobile number",
-
     "password_hint": "Password",
     "password_required": "Enter your password",
     "show_password": "Show password",
     "hide_password": "Hide password",
-
     "remember_me": "Remember me",
     "forgot_password": "Forgot password?",
     "submit": "Sign in",
-
     "alternatives_divider": "Or sign in with",
     "face_id": "Face ID",
     "fingerprint": "Fingerprint",
     "biometric_reason": "Confirm your identity to access your account",
-
     "continue_with_apple": "Apple",
     "continue_with_google": "Google",
     "coming_soon": "Coming soon",
-
     "support": "Support & help",
     "security_note": "Secure, encrypted connection to the highest standards"
   },
@@ -46,48 +40,59 @@
     "currency_long": "SAR",
     "quantity_in_litres": "{quantity} L",
     "amount_with_currency": "{amount} SAR",
-    "amount_with_currency_long": "{amount} SAR"
+    "amount_with_currency_long": "{amount} SAR",
+    "filters": {
+      "all": "All",
+      "under_review": "Under review",
+      "confirmed": "Confirmed",
+      "awaiting_payment": "Awaiting payment",
+      "in_delivery": "In delivery",
+      "delivered": "Delivered",
+      "failed": "Failed"
+    },
+    "total_count": "{count} orders in total",
+    "retry": "Retry",
+    "location_unavailable": "Delivery location not set"
   },
   "order_create": {
     "title": "New fuel order",
     "subtitle": "Order fuel in under a minute",
-
     "section_station": "1. Station",
     "section_grade": "2. Fuel type",
     "section_quantity": "3. Quantity",
     "section_delivery": "4. Delivery time",
     "section_payment": "5. Payment method",
-
+    "payment_direct_title": "Pay now",
+    "payment_direct_subtitle": "Via Sadad",
+    "payment_deferred_title": "Deferred",
+    "payment_deferred_subtitle": "Paid by the transporter",
+    "payment_credit_title": "Credit limit",
+    "payment_credit_subtitle": "From your available balance",
     "current_station": "Current station",
     "favourite_stations": "Your favourite stations",
     "change_station": "Change station",
-
     "choose_fuel_type_first": "Please choose a fuel type first",
     "custom_quantity": "Other amount",
-
     "schedule_title": "Schedule",
     "schedule_subtitle": "Pick a date and time",
     "today_title": "Today",
     "today_subtitle": "Delivered the same day",
     "fastest_title": "As soon as possible",
     "fastest_subtitle": "Earliest available slot",
-
     "notes_label": "Notes for the driver (optional)",
     "notes_hint": "Add any delivery instructions ...",
-
     "confirm_order": "Confirm order",
     "select_at_least_one_fuel_type": "Please select at least one fuel type",
+    "order_failed": "Could not submit the order, please try again",
     "enter_valid_quantity_for": "Enter a valid quantity for {grade}"
   },
   "order_detail": {
     "order_status": "Order status",
     "order_summary": "Order summary",
-
     "step_confirm_order": "Confirmation",
     "step_payment": "Payment",
     "step_delivery": "Delivery",
     "step_handover": "Handover",
-
     "fuel_type": "Fuel type",
     "quantity": "Quantity",
     "price_per_liter": "Price / litre",
@@ -95,12 +100,10 @@
     "transport_fees": "Transport fees",
     "vat": "VAT\n(15%)",
     "final_total": "Final total",
-
     "headline_deferred": "Deferred to next time",
     "headline_paid": "Paid",
     "headline_delivered": "Delivered",
     "order_another": "Order again",
-
     "paid_successfully": "Paid successfully",
     "reference_number": "Reference number",
     "day": "Day",
@@ -114,7 +117,6 @@
     "total": "Total",
     "show_details": "Show details",
     "hide_details": "Hide details",
-
     "in_delivery": "Out for delivery",
     "driver": "Driver",
     "truck": "Truck",
@@ -122,7 +124,6 @@
     "minutes": "min",
     "track_on_map": "Track order on the map",
     "contact_driver": "Contact driver",
-
     "handover_method_title": "How to take delivery when the order arrives",
     "handover_method_note": "For a safe, fast handover, show the driver the following to complete collection.",
     "qr_label": "QR",
@@ -131,7 +132,6 @@
     "pickup_code": "Pickup code",
     "valid_for": "Valid for",
     "code_share_warning": "Do not share this code with anyone other than your order's driver",
-
     "invoice_pending": "Invoice pending",
     "confirmed": "Confirmed",
     "complete_payment": "Complete payment",
@@ -140,7 +140,6 @@
     "pay_next_time": "Pay next time",
     "request_credit_limit": "Request a credit limit",
     "pending_review": "Under review",
-
     "credit_limit": "Credit limit",
     "credit_valid_until": "Valid until {date}",
     "credit_total_limit": "of {amount} SAR",
@@ -149,7 +148,6 @@
     "available_now": "Available to pay now",
     "credit_limit_in_budget": "This order is within your credit limit",
     "pay_from_credit_limit": "Pay from credit limit",
-
     "support": "Support",
     "change_mock_state": "Change state (Mock)"
   },
@@ -192,5 +190,97 @@
     "generic": "Something went wrong. Please try again.",
     "biometric_unavailable": "No saved session on this device. Sign in with your password first.",
     "biometric_failed": "We couldn't verify your identity. Please try again."
+  },
+  "order_status": {
+    "pending_approval": "Under review",
+    "approved": "Confirmed",
+    "assigned_to_driver": "Driver assigned",
+    "pending_payment": "Awaiting payment",
+    "in_transit": "In transit",
+    "unloading": "Unloading",
+    "delivered": "Delivered",
+    "rejected": "Rejected",
+    "cancelled": "Cancelled"
+  },
+  "fuel_type": {
+    "diesel": "Diesel",
+    "gasoline_91": "Gasoline 91",
+    "gasoline_95": "Gasoline 95"
+  },
+  "more": {
+    "section_account": "Account",
+    "section_app": "App",
+    "section_about": "About",
+    "stations": "Your stations",
+    "invoices_and_payments": "Invoices & payments",
+    "credit_limit": "Credit limit",
+    "app_lock": "App lock",
+    "app_lock_value": "Fingerprint",
+    "notifications": "Notifications",
+    "language": "Language",
+    "support": "Support & help",
+    "terms": "Terms & conditions",
+    "about": "About us",
+    "app_version": "v1.0.0",
+    "language_arabic": "Arabic",
+    "language_english": "English",
+    "station_count": "Stations: {count}",
+    "logout": "Sign out",
+    "logout_confirmation": "Your session on this device will end. Continue?"
+  },
+  "credit_limit": {
+    "title": "Credit limit",
+    "unavailable": "Not available",
+    "empty_state": "No active credit limit. Submit your request below.",
+    "request_heading": "Request or renew your credit limit",
+    "acknowledgement_title": "Credit limit request acknowledgement",
+    "acknowledgement_body": "I acknowledge that I am requesting a credit limit from the petroleum company as the granting party, and that this request is subject to the company's review and approval under its internal policies.",
+    "terms_link": "Terms & conditions apply",
+    "submit": "Request your credit limit",
+    "request_title": "Credit limit request",
+    "under_review": "Under review",
+    "requested_limit": "Requested limit",
+    "step_submitted": "Submitted",
+    "step_under_review": "Under review",
+    "step_decision": "Decision",
+    "expected_reply": "Expect a reply within 2-3 business days"
+  },
+  "terms": {
+    "contents": "Contents",
+    "back_to_top": "Back to top",
+    "clause_1_title": "Introduction",
+    "clause_1_body": "Please read these terms and conditions carefully before using the platform or continuing with any of its services. Using the platform is your explicit agreement to be bound by every clause on this page, as well as any later updates or amendments to them.",
+    "clause_2_title": "Updates to the terms",
+    "clause_2_body": "The platform's owner reserves the right to amend or update these terms at any time it sees fit, and your continued use of the service after amendments are published is implicit acceptance of them.",
+    "clause_3_title": "Accuracy of your data",
+    "clause_3_body": "You accept full responsibility for the accuracy of the data you enter when creating your account or using any of the platform's services. Incorrect or misleading data may lead to the account being suspended, service being refused, or any other action the operator sees fit.",
+    "clause_4_title": "Keeping your credentials private",
+    "clause_4_body": "You undertake to keep your sign-in credentials confidential and not to share them with anyone else, and you alone bear responsibility for any use made through your account.",
+    "clause_5_title": "Lawful use",
+    "clause_5_body": "The platform may not be used for any unlawful purpose, anything contrary to regulations or public decency, or anything that could cause direct or indirect harm to the platform, to other users, or to a third party.",
+    "clause_6_title": "Protecting the system",
+    "clause_6_body": "You undertake not to tamper with the system, gain unauthorised access to any part of the platform, disrupt its services, or affect its performance by any means."
+  },
+  "stations": {
+    "current_order": "Your current order",
+    "last_order": "Last order",
+    "quick_glance": "At a glance",
+    "delivered_deferred_invoice": "Delivered (invoice deferred)",
+    "back": "Back"
+  },
+  "support": {
+    "brand_suffix": "FUEL",
+    "contact_now": "Get in touch now",
+    "direct_call": "Call us",
+    "or_via": "or through",
+    "whatsapp": "WhatsApp",
+    "telegram": "Telegram",
+    "facebook": "Facebook",
+    "top_topics": "Most searched topics",
+    "topic_fuel_orders": "Fuel orders",
+    "topic_delivery_delay": "Delivery delays",
+    "topic_payment_methods": "Payment methods",
+    "topic_account_login": "Account & sign-in",
+    "availability": "Support is available daily from 8am to 12am"
   }
 }

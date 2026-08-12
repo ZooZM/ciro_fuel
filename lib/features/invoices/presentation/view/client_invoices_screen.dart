@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/search_filter_bar.dart';
 
@@ -121,7 +122,7 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
               ),
             ),
             // Logo
-            SvgPicture.asset('assets/Logo/appBar Logo.svg', height: 24),
+            SvgPicture.asset(AppAssets.appBarLogo, height: 24),
             // Notification bell
             Container(
               width: 44,

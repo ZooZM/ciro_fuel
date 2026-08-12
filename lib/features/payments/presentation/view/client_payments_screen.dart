@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/constants/app_assets.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/widgets/search_filter_bar.dart';
 
@@ -93,11 +94,11 @@ class _ClientPaymentsScreenState extends State<ClientPaymentsScreen> {
               ),
             ),
           ),
-          SvgPicture.asset('assets/Logo/appBar Logo.svg', height: 20),
+          SvgPicture.asset(AppAssets.appBarLogo, height: 20),
           GestureDetector(
             onTap: () => context.push(AppRoutes.notifications),
             child: SvgPicture.asset(
-              'assets/Icons/notification_badge.svg',
+              AppAssets.notificationBadgeIcon,
               width: 62,
               height: 63,
             ),
@@ -129,7 +130,7 @@ class _ClientPaymentsScreenState extends State<ClientPaymentsScreen> {
             ],
           ),
           SvgPicture.asset(
-            'assets/Icons/reload.svg',
+            AppAssets.reloadIcon,
             width: 32,
             height: 32,
           ),
@@ -221,7 +222,7 @@ class _PaymentCard extends StatelessWidget {
                 Row(
                   children: [
                     SvgPicture.asset(
-                      'assets/Icons/date.svg',
+                      AppAssets.dateIcon,
                       width: 16,
                       height: 16,
                     ),

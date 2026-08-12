@@ -6,12 +6,16 @@ import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/di/injector.dart';
+import '../../../../core/error/failure.dart';
 import '../../../../core/localization/translation_keys.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/enums/fuel_grade.dart';
 import '../../../../shared/enums/fuel_type.dart';
+import '../../../../shared/enums/payment_method.dart';
+import '../../domain/usecases/create_order.dart';
 import '../constants/order_formatting.dart';
 import '../constants/order_mock_data.dart';
 import '../widgets/create_order/confirm_button.dart';
@@ -40,8 +44,10 @@ class CreateOrderScreen extends StatefulWidget {
 class _CreateOrderScreenState extends State<CreateOrderScreen> {
   final Map<int, TextEditingController> _customQuantityControllers = {};
   final Map<int, int?> _quantities = {};
+  final CreateOrder _createOrder = getIt<CreateOrder>();
 
   DeliveryOption _delivery = DeliveryOption.fastest;
+  PaymentMethod _paymentMethod = PaymentMethod.direct;
   bool _submitting = false;
 
   @override
@@ -128,26 +134,56 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
 
     setState(() => _submitting = true);
 
-    // Simulating network delay for static UI
-    await Future<void>.delayed(const Duration(seconds: 1));
+    // Selecting several grades places one order per grade (the backend's
+    // `POST /orders` is single-fuel-type, spec 004's routing/billing all
+    // operate per order) — sequential, so a mid-batch failure still leaves
+    // every order placed before it intact rather than raced against each other.
+    final createdOrderIds = <String>[];
+    Failure? failure;
+    for (final (fuelType, quantity) in orderPayloads) {
+      final result = await _createOrder(
+        fuelType: fuelType,
+        quantityLiters: quantity,
+        paymentMethod: _paymentMethod,
+      );
+      final shouldStop = result.fold((f) {
+        failure = f;
+        return true;
+      }, (order) {
+        createdOrderIds.add(order.id);
+        return false;
+      });
+      if (shouldStop) break;
+    }
 
     if (!mounted) return;
     setState(() => _submitting = false);
 
-    // Mock order IDs for static navigation
-    final orderIds = <String>[];
-    for (var i = 0; i < orderPayloads.length; i++) {
-      orderIds.add('mock-order-${DateTime.now().millisecondsSinceEpoch}-$i');
+    if (failure != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_messageFor(failure!))),
+      );
+      return;
     }
 
-    if (orderIds.isNotEmpty) {
-      if (orderIds.length == 1) {
-        context.push(AppRoutes.clientOrderDetail(orderIds.first));
+    if (createdOrderIds.isNotEmpty) {
+      if (createdOrderIds.length == 1) {
+        context.push(AppRoutes.clientOrderDetail(createdOrderIds.first));
       } else {
         context.go(AppRoutes.clientOrders);
       }
     }
   }
+
+  /// A [ValidationFailure] already carries a specific, human-readable
+  /// backend message (e.g. a credit shortfall naming the amount, FR-025) —
+  /// surfaced directly rather than replaced with a generic string. Every
+  /// other failure kind is deliberately generic (Constitution Principle III:
+  /// no internal detail reaches the UI).
+  String _messageFor(Failure failure) => switch (failure) {
+    ValidationFailure(:final message) => message,
+    _ => CreateOrderKeys.orderFailed.tr(),
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -196,7 +232,11 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                     onChanged: (value) => setState(() => _delivery = value),
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  const PaymentSection(),
+                  PaymentSection(
+                    selected: _paymentMethod,
+                    onChanged: (value) =>
+                        setState(() => _paymentMethod = value),
+                  ),
                   const SizedBox(height: AppSpacing.lg),
                   _buildOrderSummarySection(),
                   const SizedBox(height: AppSpacing.lg),

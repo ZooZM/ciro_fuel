@@ -203,12 +203,12 @@ class _CountrySelector extends StatelessWidget {
                       title: Text(
                         option.nameAr,
                         style: textStyles.fieldInput.copyWith(
-                          fontWeight:
-                              isSelected ? FontWeight.bold : FontWeight.normal,
-                          color:
-                              isSelected
-                                  ? colors.brandBlue
-                                  : colors.textPrimary,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          color: isSelected
+                              ? colors.brandBlue
+                              : colors.textPrimary,
                         ),
                       ),
                       trailing: Row(
@@ -219,10 +219,9 @@ class _CountrySelector extends StatelessWidget {
                             child: Text(
                               option.dialCode,
                               style: textStyles.countryCode.copyWith(
-                                color:
-                                    isSelected
-                                        ? colors.brandBlue
-                                        : colors.textPrimary,
+                                color: isSelected
+                                    ? colors.brandBlue
+                                    : colors.textPrimary,
                               ),
                             ),
                           ),
@@ -290,7 +289,7 @@ class _CountrySelector extends StatelessWidget {
               Directionality(
                 textDirection: TextDirection.ltr,
                 child: Text(
-                  country.flag + ' ' + country.dialCode,
+                  '${country.flag} ${country.dialCode}',
                   style: context.textStyles.countryCode,
                 ),
               ),

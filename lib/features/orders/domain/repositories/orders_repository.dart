@@ -2,8 +2,10 @@ import 'package:dartz/dartz.dart' hide Order;
 
 import '../../../../core/error/failure.dart';
 import '../../../../shared/entities/order.dart';
+import '../../../../shared/enums/order_status.dart';
 import '../../../../shared/entities/value_objects.dart';
 import '../../../../shared/enums/fuel_type.dart';
+import '../../../../shared/enums/payment_method.dart';
 import '../entities/otp_challenge.dart';
 
 abstract interface class OrdersRepository {
@@ -11,9 +13,12 @@ abstract interface class OrdersRepository {
     required FuelType fuelType,
     required int quantityLiters,
     GeoPoint? deliveryLocation,
+    PaymentMethod? paymentMethod,
   });
 
-  Future<Either<Failure, List<Order>>> getOrders({int page = 1});
+  /// Backend-scoped to the caller and filterable only by [status] — the
+  /// `/orders` list endpoint exposes no pagination.
+  Future<Either<Failure, List<Order>>> getOrders({OrderStatus? status});
 
   Future<Either<Failure, Order>> getOrder(String orderId);
 

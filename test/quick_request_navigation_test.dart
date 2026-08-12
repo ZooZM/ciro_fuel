@@ -6,12 +6,16 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:easy_localization/src/localization.dart';
 import 'package:easy_localization/src/translations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_app/core/constants/app_assets.dart';
 import 'package:mobile_app/core/localization/app_locales.dart';
+import 'package:mobile_app/features/auth/presentation/cubit/session_cubit.dart';
 import 'package:mobile_app/features/home/presentation/view/client_home_screen.dart';
 import 'package:mobile_app/features/orders/presentation/view/create_order_screen.dart';
+
+import 'support/orders_test_di.dart';
 
 void main() {
   setUpAll(() async {
@@ -24,6 +28,17 @@ void main() {
     );
     Localization.load(AppLocales.arabic, translations: Translations(arabic));
   });
+
+  setUp(() {
+    registerOrdersTestDi();
+    registerFinanceTestDi();
+  });
+
+  tearDown(() {
+    resetOrdersTestDi();
+    resetFinanceTestDi();
+  });
+
 
   testWidgets('tapping a طلب سريع tile opens the order form on that grade', (
     tester,
@@ -48,7 +63,14 @@ void main() {
     );
     addTearDown(router.dispose);
 
-    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+    await tester.pumpWidget(
+      // ClientHomeScreen reads SessionCubit from an ancestor provider in
+      // production (app.dart's app-root MultiBlocProvider) — mirrored here.
+      BlocProvider<SessionCubit>.value(
+        value: sampleAuthenticatedSessionCubit(),
+        child: MaterialApp.router(routerConfig: router),
+      ),
+    );
     await tester.pumpAndSettle();
 
     expect(find.byType(CreateOrderScreen), findsNothing);

@@ -3,7 +3,9 @@ import 'package:dio/dio.dart';
 import '../../../../shared/entities/order.dart';
 import '../../../../shared/entities/value_objects.dart';
 import '../../../../shared/enums/fuel_type.dart';
+import '../../../../shared/enums/order_status.dart';
 import '../../../../shared/enums/otp_purpose.dart';
+import '../../../../shared/enums/payment_method.dart';
 import '../../domain/entities/otp_challenge.dart';
 import '../models/order_mapper.dart';
 
@@ -15,9 +17,10 @@ abstract interface class OrdersRemoteDataSource {
     required FuelType fuelType,
     required int quantityLiters,
     GeoPoint? deliveryLocation,
+    PaymentMethod? paymentMethod,
   });
 
-  Future<List<Order>> getOrders({int page = 1});
+  Future<List<Order>> getOrders({OrderStatus? status});
 
   Future<Order> getOrder(String orderId);
 
@@ -38,30 +41,35 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
     required FuelType fuelType,
     required int quantityLiters,
     GeoPoint? deliveryLocation,
+    PaymentMethod? paymentMethod,
   }) async {
     final response = await _dio.post<Map<String, dynamic>>(
       '/orders',
       data: {
         'fuelType': fuelType.toWire(),
         'quantityLiters': quantityLiters,
+        // Backend GeoPointDto field names — `lat`/`lng` fail validation.
         if (deliveryLocation != null)
           'deliveryLocation': {
-            'lat': deliveryLocation.lat,
-            'lng': deliveryLocation.lng,
+            'longitude': deliveryLocation.lng,
+            'latitude': deliveryLocation.lat,
           },
+        if (paymentMethod != null) 'paymentMethod': paymentMethod.toWire(),
       },
     );
     return OrderMapper.fromJson(response.data!);
   }
 
+  /// `GET /orders` returns a bare JSON array, already scoped to the caller
+  /// (CLIENT → own, DRIVER → assigned). It takes no `page` parameter — the
+  /// only supported filter is `status` — so pagination is not requested here.
   @override
-  Future<List<Order>> getOrders({int page = 1}) async {
-    final response = await _dio.get<Map<String, dynamic>>(
+  Future<List<Order>> getOrders({OrderStatus? status}) async {
+    final response = await _dio.get<List<dynamic>>(
       '/orders',
-      queryParameters: {'page': page},
+      queryParameters: {if (status != null) 'status': status.toWire()},
     );
-    final items = response.data!['data'] as List<dynamic>;
-    return items
+    return response.data!
         .cast<Map<String, dynamic>>()
         .map(OrderMapper.fromJson)
         .toList();

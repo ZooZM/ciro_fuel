@@ -26,6 +26,7 @@ import 'package:mobile_app/features/auth/presentation/widgets/phone_field.dart';
 import 'package:mobile_app/features/orders/data/datasources/orders_remote_data_source.dart';
 import 'package:mobile_app/features/orders/data/repositories/orders_repository_impl.dart';
 import 'package:mobile_app/features/orders/domain/usecases/get_orders.dart';
+import 'package:mobile_app/features/orders/presentation/cubit/orders_cubit.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
@@ -91,6 +92,11 @@ class _Harness {
       ..registerSingleton<SignOut>(SignOut(authRepository))
       ..registerSingleton<AppRouter>(router)
       ..registerSingleton<GetOrders>(GetOrders(ordersRepository))
+      // The client dashboard resolves its own cubit from getIt once the
+      // router lands on it after sign-in.
+      ..registerFactory<OrdersCubit>(
+        () => OrdersCubit(getOrders: getIt<GetOrders>()),
+      )
       // LoginScreen resolves both when building its cubits. The real
       // classes are used: the preferences store rides the same fake secure
       // storage, and the biometric probe degrades to "unavailable" when the

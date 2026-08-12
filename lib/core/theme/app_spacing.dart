@@ -11,6 +11,19 @@ abstract final class AppSpacing {
   static const double xxl = 32;
   static const double xxxl = 36;
 
+  /// Steps between (and beyond) the stops above. The settings, credit-limit,
+  /// terms, stations and support screens are drawn on a rhythm the base
+  /// scale does not cover; naming the gaps here keeps the literals out of
+  /// the widget tree the same way the scale above does.
+  static const double space6 = 6;
+  static const double space10 = 10;
+  static const double space14 = 14;
+  static const double space18 = 18;
+  static const double space20 = 20;
+  static const double space28 = 28;
+  static const double space40 = 40;
+  static const double space48 = 48;
+
   /// Inset between the screen edge and on-screen content — the language
   /// pill and the login card share it, so their left edges line up as they
   /// do in the frame. Only the hero photograph ignores it and bleeds to the
@@ -29,6 +42,11 @@ abstract final class AppSpacing {
   /// Bottom padding on the order-detail scroll view so content clears the
   /// floating support FAB instead of running under it.
   static const double orderScreenBottomPadding = 100;
+
+  /// The same idea for the settings list, which is a tab and so sits behind
+  /// the nav bar — but shorter than [dashboardNavBarClearance], because it
+  /// ends in a bordered button rather than a card that must clear fully.
+  static const double moreListNavBarClearance = 100;
 }
 
 /// Corner radii, named by the component they belong to rather than by size,
@@ -46,6 +64,14 @@ abstract final class AppRadii {
   /// Client home dashboard's larger cards — the current-station and
   /// current-order containers, and the order status badge.
   static const double dashboardCard = 16;
+
+  /// Inline controls that sit *inside* a card — language chips, the support
+  /// screen's call button, progress-bar tracks.
+  static const double small = 8;
+
+  /// Status pills and number badges (credit-limit status chips, terms
+  /// clause numbers) — a step above [small] without reaching [tile].
+  static const double badge = 10;
 }
 
 /// Fixed control heights and icon sizes taken from the Figma frame.
@@ -72,7 +98,14 @@ abstract final class AppSizes {
   static const double icon16 = 16;
   static const double iconMd = 18;
   static const double iconLg = 20;
+  static const double icon22 = 22;
+  static const double icon24 = 24;
   static const double iconXl = 28;
+
+  /// The smallest reliable touch target, and the side of the white rounded
+  /// squares built around one — the top bar's buttons, the terms screen's
+  /// back-to-top button, the stations avatar.
+  static const double tapTarget = 44;
 
   static const double logoWidth = 205;
   static const double waveWidth = 160;
@@ -247,4 +280,90 @@ abstract final class AppSizes {
   /// under it rather than hiding it behind an opaque panel.
   static const double orderActionBarBlur = 10;
   static const double orderActionBarOpacity = 0.8;
+
+  // ---------------------------------------------------------------------
+  // More / settings screen
+  // ---------------------------------------------------------------------
+  static const double moreProfileImageSize = 80;
+  static const double moreListIconSize = 24;
+
+  /// The profile card's green rule and code pill are drawn from the brand
+  /// green held well back, so the card reads as tinted rather than outlined.
+  static const double moreProfileBorderOpacity = 0.3;
+
+  /// The notification switch is artwork rather than a Material [Switch], so
+  /// only its width is set — its height follows the SVG's aspect ratio.
+  static const double moreToggleWidth = 44;
+
+  static const double moreLanguageRadioSize = 16;
+  static const double moreLanguageRadioDotSize = 8;
+  static const double moreLanguageRadioBorderWidth = 2;
+
+  /// How long the notification switch cross-fades between its two artworks
+  /// and the language section folds open — long enough to read as a change
+  /// of state, short enough not to delay the next tap.
+  static const Duration moreToggleDuration = Duration(milliseconds: 250);
+
+  /// The chevron's rotation and the language chips' selection, both of which
+  /// should land before [moreToggleDuration]'s fade finishes.
+  static const Duration moreSelectionDuration = Duration(milliseconds: 200);
+
+  // ---------------------------------------------------------------------
+  // Credit-limit screen
+  // ---------------------------------------------------------------------
+  static const double creditIconTileSize = 44;
+
+  /// The empty-state tile sits a size up from the header's [creditIconTileSize].
+  static const double creditEmptyIconTileSize = 52;
+
+  /// Wider than it is tall, as drawn — the two stepper keys flank a much
+  /// taller amount column.
+  static const double creditStepperButtonWidth = 52;
+  static const double creditStepperButtonHeight = 44;
+  static const double creditCheckBoxSize = 28;
+
+  /// Untick an acknowledgement and the submit button dims to this rather
+  /// than disappearing, so the form keeps its shape.
+  static const double creditSubmitDisabledOpacity = 0.5;
+
+  // ---------------------------------------------------------------------
+  // Terms screen
+  // ---------------------------------------------------------------------
+  /// The ride back to the top of a long document — slower than a state
+  /// change, so the reader can see how far they are being taken.
+  static const Duration termsScrollToTopDuration = Duration(milliseconds: 400);
+
+  /// Line height of the clause bodies. Justified Arabic paragraphs need the
+  /// air; the acknowledgements on the credit-limit form are set tighter.
+  static const double termsClauseLineHeight = 1.9;
+
+  /// The clause number's badge is ruled in the brand blue held back, so it
+  /// reads as a tint rather than an outline.
+  static const double clauseBadgeOpacity = 0.4;
+  static const double creditAcknowledgementLineHeight = 1.7;
+
+  // ---------------------------------------------------------------------
+  // Stations screen
+  // ---------------------------------------------------------------------
+  static const double stationsLastOrderArtSize = 72;
+  static const double stationsProgressBarWidth = 80;
+  static const double stationsProgressBarHeight = 8;
+  static const double stationsStatusDotSize = 6;
+
+  // ---------------------------------------------------------------------
+  // Support screen
+  // ---------------------------------------------------------------------
+  static const double supportLogoHeight = 24;
+
+  /// 'FUEL' is set beside the mark rather than under it, and the mark's own
+  /// artwork carries empty space at the top — so the word is pushed down to
+  /// sit on the mark's baseline instead of its bounding box.
+  static const double supportBrandBaselineOffset = 15;
+  static const double supportBrandLetterSpacing = 1.2;
+
+  /// The wordmark is drawn tight, without the line box's usual leading.
+  static const double supportBrandLineHeight = 1;
+
+  static const double supportSocialIconSize = 24;
+  static const double supportTopicIconSize = 20;
 }

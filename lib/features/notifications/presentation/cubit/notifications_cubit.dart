@@ -35,6 +35,15 @@ class NotificationsCubit extends Cubit<NotificationsState> {
     );
   }
 
+  /// Drops everything held for the signed-out user. This cubit is an
+  /// app-lifetime singleton (registered eagerly so it can receive
+  /// `notification:new` from launch), so without this its state would survive
+  /// a sign-out and the next account to sign in on the same device would see
+  /// the previous one's notifications until its own [load] resolved.
+  /// Back to `loading`, not an empty `loaded`: nothing has been fetched for
+  /// whoever comes next, and "no notifications yet" is a different claim.
+  void clear() => emit(const NotificationsState.loading());
+
   Future<void> markRead(String id) async {
     final current = state;
     if (current is! NotificationsLoaded) return;

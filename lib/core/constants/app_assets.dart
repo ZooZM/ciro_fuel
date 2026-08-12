@@ -1,9 +1,17 @@
 /// The single place asset paths are spelled out (Constitution Principle I).
 ///
-/// Several folders shipped from design contain spaces (`assets/sign in/`,
+/// Several folders shipped from design contain spaces (`assets/help screen/`,
 /// `assets/social media/`) and one filename has a trailing space before its
 /// extension. Those quirks are contained here rather than being repeated —
 /// and mistyped — across the widget tree.
+///
+/// Every path below must match `pubspec.yaml`'s declaration **exactly**,
+/// including case. The declared string is what Flutter writes into
+/// AssetManifest, and the lookup behind `SvgPicture.asset` / `AssetImage` is
+/// an ordinary case-sensitive map read — but `flutter test` resolves assets
+/// off the (case-insensitive on macOS) filesystem instead, so a mis-cased
+/// path passes every test here and then renders nothing on a device. That is
+/// exactly how `assets/Icons/…` and `assets/Logo/…` went unnoticed.
 abstract final class AppAssets {
   static const String _signIn = 'assets/SignIn';
   static const String _logo = 'assets/logo';
@@ -13,6 +21,8 @@ abstract final class AppAssets {
   static const String _homePage = 'assets/HomePage';
   static const String _homeFlow = '$_homePage/flow';
   static const String _order = 'assets/Order';
+  static const String _more = 'assets/more';
+  static const String _help = 'assets/help screen';
 
   // Sign-in scene
   static const String loginBackground = '$_signIn/background .jpg';
@@ -26,6 +36,15 @@ abstract final class AppAssets {
   static const String lockIcon = '$_icons/locked.svg';
   static const String shieldIcon = '$_icons/protection.svg';
   static const String supportIcon = '$_icons/customer service.svg';
+  static const String filterIcon = '$_icons/filter.svg';
+
+  /// The list screens' refresh glyph. Distinct from [orderMapReloadIcon],
+  /// which is the map control from the Order folder.
+  static const String reloadIcon = '$_icons/reload.svg';
+
+  /// The bell's unread dot, drawn as its own artwork on the screens that do
+  /// not compose the badge from a [Container].
+  static const String notificationBadgeIcon = '$_icons/notification_badge.svg';
 
   // Biometrics
   static const String faceIdIcon = '$_biometric/Face ID.svg';
@@ -34,6 +53,11 @@ abstract final class AppAssets {
   // Federated identity providers
   static const String appleIcon = '$_social/apple.svg';
   static const String googleIcon = '$_social/google.svg';
+
+  // Support channels — full-colour brand marks, so they are never tinted.
+  static const String facebookIcon = '$_social/facebook.svg';
+  static const String telegramIcon = '$_social/telegram.svg';
+  static const String whatsappIcon = '$_social/whatsapp.svg';
 
   /// Root passed to `EasyLocalization(path: ...)`.
   static const String translationsPath = 'assets/translations';
@@ -108,4 +132,38 @@ abstract final class AppAssets {
   static const String orderMapZoomInIcon = '$_order/zoom_in.svg';
   static const String orderMapZoomOutIcon = '$_order/zoom_out.svg';
   static const String orderMapShareIcon = '$_order/share.svg';
+
+  // ---------------------------------------------------------------------
+  // More / settings screen
+  // ---------------------------------------------------------------------
+  static const String moreProfileImage = '$_more/Image.png';
+  static const String moreStationIcon = '$_more/station.svg';
+  static const String moreInvoiceIcon = '$_more/invoice.svg';
+
+  /// A 16x16 stroked credit card in Ignition Orange — retinted per use, so
+  /// it serves both the settings row and the credit-limit screen's tiles.
+  static const String morePaymentIcon = '$_more/payment.svg';
+  static const String moreSupportIcon = '$_more/customer service.svg';
+
+  /// The document glyph behind الشروط و الأحكام, in the settings list and
+  /// again on the credit-limit form's terms row.
+  static const String moreTermsIcon = '$_more/order.svg';
+  static const String moreLanguageIcon = '$_more/language.svg';
+
+  // The switch is drawn as artwork rather than composed from a Material
+  // Switch. Despite the file name, "Pressed" is the *off* state.
+  static const String moreToggleOnIcon = '$_more/Toggole Button.svg';
+  static const String moreToggleOffIcon = '$_more/Toggole Button Pressed.svg';
+
+  // ---------------------------------------------------------------------
+  // Support screen — the four most-searched topics
+  // ---------------------------------------------------------------------
+  static const String supportFuelOrdersIcon = '$_help/gas.svg';
+  static const String supportDeliveryDelayIcon = '$_help/truck.svg';
+  static const String supportPaymentIcon = '$_help/contract.svg';
+  static const String supportAccountIcon = '$_help/profile.svg';
+
+  /// Calendar glyph on the stations screen's last-order card. Distinct from
+  /// [dashboardDateIcon], which is the dashboard's own copy.
+  static const String dateIcon = '$_icons/date.svg';
 }

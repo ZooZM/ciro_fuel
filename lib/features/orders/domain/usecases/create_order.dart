@@ -4,6 +4,7 @@ import '../../../../core/error/failure.dart';
 import '../../../../shared/entities/order.dart';
 import '../../../../shared/entities/value_objects.dart';
 import '../../../../shared/enums/fuel_type.dart';
+import '../../../../shared/enums/payment_method.dart';
 import '../repositories/orders_repository.dart';
 
 class CreateOrder {
@@ -11,13 +12,17 @@ class CreateOrder {
 
   final OrdersRepository _repository;
 
+  /// [paymentMethod] defaults to DIRECT backend-side when omitted (spec 004
+  /// FR-021) — passed explicitly once the create-order form has a selector.
   Future<Either<Failure, Order>> call({
     required FuelType fuelType,
     required int quantityLiters,
     GeoPoint? deliveryLocation,
+    PaymentMethod? paymentMethod,
   }) => _repository.createOrder(
     fuelType: fuelType,
     quantityLiters: quantityLiters,
     deliveryLocation: deliveryLocation,
+    paymentMethod: paymentMethod,
   );
 }

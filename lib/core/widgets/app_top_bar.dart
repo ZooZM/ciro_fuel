@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
+import '../constants/app_assets.dart';
 import '../router/app_routes.dart';
-
-const _kLogo = 'assets/Logo/appBar Logo.svg';
-const _kNotification = 'assets/Icons/notification.svg';
 
 const _kNavy = Color(0xFF162155);
 const _kSurface = Color(0xFFFFFFFF);
@@ -39,14 +37,14 @@ class AppTopBar extends StatelessWidget {
             onTap: onBack ?? () => context.pop(),
             child: const Icon(Icons.arrow_back_ios_new, size: 20, color: _kNavy),
           ),
-          SvgPicture.asset(_kLogo, height: 20),
+          SvgPicture.asset(AppAssets.appBarLogo, height: 20),
           Stack(
             clipBehavior: Clip.none,
             children: [
               _TopBarButton(
                 onTap: () => context.push(AppRoutes.notifications),
                 child: SvgPicture.asset(
-                  _kNotification,
+                  AppAssets.notificationIcon,
                   width: 20,
                   height: 20,
                   colorFilter: const ColorFilter.mode(_kNavy, BlendMode.srcIn),

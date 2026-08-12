@@ -110,28 +110,29 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
+  # Each entry must match the folder's real name on disk, character for
+  # character: the string written here becomes the key in AssetManifest, and
+  # a build on a case-sensitive filesystem (Linux CI) cannot find a folder
+  # whose case does not match.
   assets:
     - assets/SignIn/
-    - assets/Biometric/
+    - assets/biometric/
     - assets/social media/
     - assets/logo/
     - assets/icons/
-    - assets/Help Screen/
+    - assets/help screen/
     - assets/NavBar/
     - assets/HomePage/
     - assets/more/
     - assets/invoices/
-    # Asset directories are not recursive, so nested folders need their own entry.
-    - assets/HomePage/flow/
     - assets/Notification Page/
     - assets/Order/
     - assets/OrdersPage/
+    # Asset directories are not recursive, so nested folders need their own
+    # entry. `assets/Order/status/` is deliberately absent — those SVGs bake a
+    # placeholder label into the artwork and are unused (see order_stepper.dart).
+    - assets/HomePage/flow/
     - assets/OrdersPage/status/
-    - assets/Order/zoom_in.svg
-    - assets/Order/zoom_out.svg
-    - assets/Order/reload.svg
-    - assets/Order/share.svg
-    - assets/Order/tank_truck.png
     - assets/translations/
 
   # An image asset can refer to one or more resolution-specific "variants", see

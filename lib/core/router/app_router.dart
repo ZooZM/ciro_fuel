@@ -14,7 +14,7 @@ import '../../features/notifications/presentation/view/notifications_screen.dart
 import '../../features/orders/presentation/view/create_order_screen.dart';
 import '../../features/orders/presentation/view/order_detail_screen.dart';
 import '../../features/orders/presentation/view/orders_list_screen.dart';
-import '../../features/support/presentation/support_screen.dart';
+import '../../features/support/presentation/view/support_screen.dart';
 import '../../features/home/presentation/view/client_main_scaffold.dart';
 import '../../features/invoices/presentation/view/client_invoices_screen.dart';
 import '../../features/more/presentation/view/client_more_screen.dart';
@@ -182,7 +182,9 @@ class AppRouter {
     return switch (session) {
       // Splash/launch: stay on the current route while session restore runs.
       SessionUnknown() => null,
-      SessionUnauthenticated() => null, // Bypass redirect for testing
+      // Signed out (or the session was revoked mid-use): the only reachable
+      // destinations are the login screen itself and help & support.
+      SessionUnauthenticated() => atLogin || atSupport ? null : AppRoutes.login,
       SessionAuthenticated(:final user) => _redirectAuthenticated(
         user.role,
         state.matchedLocation,

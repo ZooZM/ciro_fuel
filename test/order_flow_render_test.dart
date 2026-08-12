@@ -15,6 +15,8 @@ import 'package:mobile_app/features/orders/presentation/view/invoice_payment_scr
 import 'package:mobile_app/features/orders/presentation/view/order_detail_screen.dart';
 import 'package:mobile_app/features/orders/presentation/view/track_order_screen.dart';
 
+import 'support/orders_test_di.dart';
+
 /// Without the real font, text falls back to a fixed-width test face that is
 /// far wider than Tajawal, which reports overflows the app would never hit.
 Future<void> _loadTajawal() async {
@@ -50,6 +52,11 @@ void main() {
     );
     Localization.load(AppLocales.arabic, translations: Translations(arabic));
   });
+
+  // CreateOrderScreen resolves CreateOrder from getIt on construction
+  // (spec 004 T090's real submit wiring).
+  setUp(registerOrdersTestDi);
+  tearDown(resetOrdersTestDi);
 
   Future<void> pumpPhone(WidgetTester tester, Widget screen) async {
     await _loadTajawal();

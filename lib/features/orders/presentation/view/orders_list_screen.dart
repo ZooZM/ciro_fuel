@@ -1,100 +1,78 @@
+import 'dart:ui' as ui;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/constants/app_assets.dart';
+import '../../../../core/di/injector.dart';
+import '../../../../core/localization/translation_keys.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/utils/number_formatting.dart';
 import '../../../../core/widgets/search_filter_bar.dart';
+import '../../../../shared/entities/order.dart';
 import '../../../home/presentation/widgets/home_top_bar.dart';
-import '../widgets/order_detail/mock_order_state.dart';
-import 'order_detail_screen.dart';
+import '../constants/order_formatting.dart';
+import '../constants/order_presentation.dart';
+import '../cubit/orders_cubit.dart';
+import '../cubit/orders_state.dart';
 
-class OrdersListScreen extends StatefulWidget {
+/// The client's order history, served by `GET /orders` — already scoped to the
+/// signed-in client by the backend, so no client-side ownership filtering is
+/// needed here.
+class OrdersListScreen extends StatelessWidget {
   const OrdersListScreen({super.key});
 
   @override
-  State<OrdersListScreen> createState() => _OrdersListScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider<OrdersCubit>(
+      create: (_) => getIt<OrdersCubit>()..load(),
+      child: const _OrdersListView(),
+    );
+  }
 }
 
-class _OrdersListScreenState extends State<OrdersListScreen> {
-  String _selectedFilter = 'الكل';
+class _OrdersListView extends StatefulWidget {
+  const _OrdersListView();
 
-  final List<String> _filtersRow1 = [
-    'قيد التوصيل',
-    'تم التسليم',
-    'فشلت',
-    'الكل',
-  ];
-  final List<String> _filtersRow2 = ['قيد المراجعة', 'مؤكد', 'مدفوع'];
+  @override
+  State<_OrdersListView> createState() => _OrdersListViewState();
+}
 
-  // ── Static mock orders ──
-  static const List<_MockOrder> _orders = [
-    _MockOrder(
-      fuelType: 'بنزين 95',
-      quantity: '20,000 لتر',
-      orderId: 'ORD-2024-256',
-      statusText: 'تم التأكيد',
-      statusColor: Color(0xFF12A150),
-      statusProgress: 1.0,
-      address: 'طريق أنس بن مالك، حي الملقا',
-      time: '06.30 صباحاً',
-      date: '9 صفر 1446',
-      mockState: MockOrderState.confirmed,
-    ),
-    _MockOrder(
-      fuelType: 'بنزين 95',
-      quantity: '20,000 لتر',
-      orderId: 'ORD-2024-256',
-      statusText: 'الفاتورة معلقة',
-      statusColor: Color(0xFFF97316),
-      statusProgress: 0.6,
-      address: 'طريق أنس بن مالك، حي الملقا',
-      time: '06.30 صباحاً',
-      date: '9 صفر 1446',
-      mockState: MockOrderState.waitingPayment,
-    ),
-    _MockOrder(
-      fuelType: 'بنزين 95',
-      quantity: '20,000 لتر',
-      orderId: 'ORD-2024-256',
-      statusText: 'فشلت',
-      statusColor: Color(0xFFEF3F3F),
-      statusProgress: 0.35,
-      address: 'طريق أنس بن مالك، حي الملقا',
-      time: '06.30 صباحاً',
-      date: '9 صفر 1446',
-      mockState: MockOrderState.failedPayment,
-    ),
-    _MockOrder(
-      fuelType: 'بنزين 95',
-      quantity: '20,000 لتر',
-      orderId: 'ORD-2024-256',
-      statusText: 'تم السداد',
-      statusColor: Color(0xFF12A150),
-      statusProgress: 1.0,
-      address: 'طريق أنس بن مالك، حي الملقا',
-      time: '06.30 صباحاً',
-      date: '9 صفر 1446',
-      mockState: MockOrderState.paid,
-    ),
-    _MockOrder(
-      fuelType: 'بنزين 95',
-      quantity: '20,000 لتر',
-      orderId: 'ORD-2024-256',
-      statusText: 'قيد التوصيل',
-      statusColor: Color(0xFF1E5FFF),
-      statusProgress: 0.75,
-      address: 'طريق أنس بن مالك، حي الملقا',
-      time: '06.30 صباحاً',
-      date: '9 صفر 1446',
-      mockState: MockOrderState.inTransit,
-    ),
+class _OrdersListViewState extends State<_OrdersListView> {
+  OrderFilter _selectedFilter = OrderFilter.all;
+  String _query = '';
+
+  // The design lays the pills out in two rows.
+  static const List<OrderFilter> _filtersRow1 = [
+    OrderFilter.inDelivery,
+    OrderFilter.delivered,
+    OrderFilter.failed,
+    OrderFilter.all,
   ];
+  static const List<OrderFilter> _filtersRow2 = [
+    OrderFilter.underReview,
+    OrderFilter.confirmed,
+    OrderFilter.awaitingPayment,
+  ];
+
+  /// Filter and search are applied to the loaded list rather than refetched:
+  /// several pills span more than one status, which `?status=` cannot express
+  /// in a single request.
+  List<Order> _visible(List<Order> orders) {
+    final query = _query.trim().toUpperCase();
+    return orders.where((order) {
+      if (!_selectedFilter.matches(order)) return false;
+      if (query.isEmpty) return true;
+      return order.id.toUpperCase().contains(query);
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Directionality(
-      textDirection: TextDirection.rtl,
+      textDirection: ui.TextDirection.rtl,
       child: Scaffold(
         backgroundColor: const Color(0xFFF7FAFC),
         body: SafeArea(
@@ -105,98 +83,24 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                   horizontal: 16,
                   vertical: 8,
                 ),
+                // TODO: the unread count is still the design's placeholder —
+                // wiring it means depending on NotificationsCubit here.
                 child: HomeTopBar(
                   notificationCount: 3,
-                  onNotificationTap: () {},
+                  onNotificationTap: () => context.push(AppRoutes.notifications),
                 ),
               ),
               Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  children: [
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text(
-                              'كل الطلبات',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF162155),
-                              ),
-                            ),
-                            Text(
-                              '8 طلب إجمالاً',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Color(0xFF8A93A6),
-                              ),
-                            ),
-                          ],
-                        ),
-                        // Reload icon button
-                        SvgPicture.asset(
-                          'assets/invoices/reload.svg',
-                          width: 44,
-                          height: 44,
-                        ),
-                      ],
+                child: BlocBuilder<OrdersCubit, OrdersState>(
+                  builder: (context, state) => switch (state) {
+                    OrdersLoading() => const Center(
+                      child: CircularProgressIndicator(),
                     ),
-                    const SizedBox(height: 16),
-                    const SearchFilterBar(hintText: 'ابحث بكود الطلب'),
-                    const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 10,
-                        horizontal: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFF1F3F5)),
-                      ),
-                      child: Directionality(
-                        textDirection: TextDirection.ltr,
-                        child: Column(
-                          children: [
-                            Row(
-                              children: _filtersRow1
-                                  .map(
-                                    (filter) => Expanded(
-                                      child: _buildFilterPill(filter),
-                                    ),
-                                  )
-                                  .toList(),
-                            ),
-                            const SizedBox(height: 16),
-                            Row(
-                              children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: _buildFilterPill('قيد المراجعة'),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: _buildFilterPill('مؤكد'),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: _buildFilterPill('مدفوع'),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
+                    OrdersLoadFailure() => _ErrorView(
+                      onRetry: context.read<OrdersCubit>().load,
                     ),
-                    const SizedBox(height: 24),
-                    ..._orders.map((order) => _buildOrderCard(context, order)),
-                    const SizedBox(height: 100),
-                  ],
+                    OrdersLoaded(:final orders) => _buildList(context, orders),
+                  },
                 ),
               ),
             ],
@@ -206,43 +110,132 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
     );
   }
 
-  Widget _buildFilterPill(String title) {
-    final isActive = _selectedFilter == title;
+  Widget _buildList(BuildContext context, List<Order> orders) {
+    final visible = _visible(orders);
 
-    // Determine the base color of the text
-    Color baseColor;
-    if (title == 'قيد التوصيل')
-      baseColor = const Color(0xFF1E5FFF);
-    else if (title == 'تم التسليم')
-      baseColor = const Color(0xFF12A150);
-    else if (title == 'فشلت')
-      baseColor = const Color(0xFFEF3F3F);
-    else if (title == 'مدفوع')
-      baseColor = const Color(0xFFFF5810);
-    else if (title == 'الكل')
-      baseColor = const Color(0xFF1E5FFF);
-    else
-      baseColor = const Color(
-        0xFF162155,
-      ); // Default dark color for others like 'مؤكد' and 'قيد المراجعة'
+    return RefreshIndicator(
+      onRefresh: context.read<OrdersCubit>().load,
+      child: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: [
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    OrdersKeys.listTitle.tr(),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF162155),
+                    ),
+                  ),
+                  Text(
+                    OrdersKeys.totalCount.tr(
+                      namedArgs: {
+                        'count': NumberFormatting.thousands(orders.length),
+                      },
+                    ),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF8A93A6),
+                    ),
+                  ),
+                ],
+              ),
+              GestureDetector(
+                onTap: context.read<OrdersCubit>().load,
+                child: SvgPicture.asset(
+                  'assets/invoices/reload.svg',
+                  width: 44,
+                  height: 44,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          SearchFilterBar(
+            hintText: 'ابحث بكود الطلب',
+            onChanged: (value) => setState(() => _query = value),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFF1F3F5)),
+            ),
+            child: Directionality(
+              textDirection: ui.TextDirection.ltr,
+              child: Column(
+                children: [
+                  Row(
+                    children: _filtersRow1
+                        .map((f) => Expanded(child: _buildFilterPill(f)))
+                        .toList(),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      ..._filtersRow2.map(
+                        (f) => Expanded(child: _buildFilterPill(f)),
+                      ),
+                      const Spacer(),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          if (visible.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 48),
+              child: Center(
+                child: Text(
+                  OrdersKeys.empty.tr(),
+                  style: const TextStyle(
+                    color: Color(0xFF8A93A6),
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            )
+          else
+            ...visible.map((order) => _buildOrderCard(context, order)),
+          const SizedBox(height: 100),
+        ],
+      ),
+    );
+  }
 
-    // Text color becomes white ONLY for 'الكل' when active
-    Color textColor = baseColor;
-    if (isActive && title == 'الكل') {
-      textColor = Colors.white;
-    }
+  Widget _buildFilterPill(OrderFilter filter) {
+    final isActive = _selectedFilter == filter;
 
-    // Background color: Blue for 'الكل', Light Grey for others when active
-    Color bgColor = Colors.transparent;
-    if (isActive) {
-      if (title == 'الكل')
-        bgColor = const Color(0xFF1E5FFF);
-      else
-        bgColor = const Color(0xFFE2E8F0);
-    }
+    final baseColor = switch (filter) {
+      OrderFilter.inDelivery || OrderFilter.all => const Color(0xFF1E5FFF),
+      OrderFilter.delivered => const Color(0xFF12A150),
+      OrderFilter.failed => const Color(0xFFEF3F3F),
+      OrderFilter.awaitingPayment => const Color(0xFFFF5810),
+      _ => const Color(0xFF162155),
+    };
+
+    // Only the "all" pill inverts to white-on-blue when active.
+    final isAll = filter == OrderFilter.all;
+    final textColor = isActive && isAll ? Colors.white : baseColor;
+    final bgColor = !isActive
+        ? Colors.transparent
+        : isAll
+        ? const Color(0xFF1E5FFF)
+        : const Color(0xFFE2E8F0);
 
     return GestureDetector(
-      onTap: () => setState(() => _selectedFilter = title),
+      onTap: () => setState(() => _selectedFilter = filter),
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 4),
         alignment: Alignment.center,
@@ -254,7 +247,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
         child: FittedBox(
           fit: BoxFit.scaleDown,
           child: Text(
-            title,
+            filter.label,
             style: TextStyle(
               color: textColor,
               fontWeight: FontWeight.bold,
@@ -266,12 +259,11 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
     );
   }
 
-  Widget _buildOrderCard(BuildContext context, _MockOrder order) {
+  Widget _buildOrderCard(BuildContext context, Order order) {
+    final statusColor = OrderPresentation.statusColor(order.status);
+
     return GestureDetector(
-      onTap: () => context.push(
-        AppRoutes.clientOrderDetail(order.orderId),
-        extra: order.mockState,
-      ),
+      onTap: () => context.push(AppRoutes.clientOrderDetail(order.id)),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(12),
@@ -289,16 +281,19 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        '${order.fuelType} · ${order.quantity}',
-                        style: const TextStyle(
-                          color: Color(0xFF1E5FFF),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 11,
+                      Flexible(
+                        child: Text(
+                          '${OrderPresentation.fuelLabel(order.fuelType)} · '
+                          '${OrderFormatting.litres(order.quantityLiters)}',
+                          style: const TextStyle(
+                            color: Color(0xFF1E5FFF),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11,
+                          ),
                         ),
                       ),
                       Text(
-                        order.orderId,
+                        OrderPresentation.shortReference(order.id),
                         style: const TextStyle(
                           color: Color(0xFFA0AEC0),
                           fontSize: 11,
@@ -310,7 +305,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                   Row(
                     children: [
                       Text(
-                        order.statusText,
+                        OrderPresentation.statusLabel(order.status),
                         style: const TextStyle(
                           color: Color(0xFF718096),
                           fontSize: 10,
@@ -321,43 +316,43 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                         width: 6,
                         height: 6,
                         decoration: BoxDecoration(
-                          color: order.statusColor,
+                          color: statusColor,
                           shape: BoxShape.circle,
                         ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            return Stack(
-                              children: [
-                                Container(
-                                  height: 6,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFEDF2F7),
-                                    borderRadius: BorderRadius.circular(3),
-                                  ),
+                          builder: (context, constraints) => Stack(
+                            children: [
+                              Container(
+                                height: 6,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFEDF2F7),
+                                  borderRadius: BorderRadius.circular(3),
                                 ),
-                                Container(
-                                  height: 6,
-                                  width:
-                                      constraints.maxWidth *
-                                      order.statusProgress,
-                                  decoration: BoxDecoration(
-                                    color: order.statusColor,
-                                    borderRadius: BorderRadius.circular(3),
-                                  ),
+                              ),
+                              Container(
+                                height: 6,
+                                width:
+                                    constraints.maxWidth *
+                                    OrderPresentation.statusProgress(
+                                      order.status,
+                                    ),
+                                decoration: BoxDecoration(
+                                  color: statusColor,
+                                  borderRadius: BorderRadius.circular(3),
                                 ),
-                              ],
-                            );
-                          },
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    order.address,
+                    OrderPresentation.destinationLabel(order),
                     style: const TextStyle(
                       color: Color(0xFF1E5FFF),
                       fontSize: 11,
@@ -366,10 +361,10 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      SvgPicture.asset('assets/Icons/date.svg', height: 12),
+                      SvgPicture.asset(AppAssets.dateIcon, height: 12),
                       const SizedBox(width: 4),
                       Text(
-                        order.date,
+                        OrderPresentation.date(order.statusChangedAt),
                         style: const TextStyle(
                           color: Color(0xFF4A5568),
                           fontSize: 10,
@@ -383,7 +378,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        order.time,
+                        OrderPresentation.time(order.statusChangedAt),
                         style: const TextStyle(
                           color: Color(0xFF4A5568),
                           fontSize: 10,
@@ -403,28 +398,29 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
   }
 }
 
-class _MockOrder {
-  final String fuelType;
-  final String quantity;
-  final String orderId;
-  final String statusText;
-  final Color statusColor;
-  final double statusProgress;
-  final String address;
-  final String time;
-  final String date;
-  final MockOrderState mockState;
+class _ErrorView extends StatelessWidget {
+  const _ErrorView({required this.onRetry});
 
-  const _MockOrder({
-    required this.fuelType,
-    required this.quantity,
-    required this.orderId,
-    required this.statusText,
-    required this.statusColor,
-    required this.statusProgress,
-    required this.address,
-    required this.time,
-    required this.date,
-    required this.mockState,
-  });
+  final Future<void> Function() onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            OrdersKeys.loadFailed.tr(),
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Color(0xFF718096), fontSize: 14),
+          ),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: onRetry,
+            child: Text(OrdersKeys.retry.tr()),
+          ),
+        ],
+      ),
+    );
+  }
 }

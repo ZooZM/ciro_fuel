@@ -61,6 +61,40 @@ abstract final class OrdersKeys {
   static const String amountWithCurrency = 'orders.amount_with_currency';
   static const String amountWithCurrencyLong =
       'orders.amount_with_currency_long';
+
+  /// `{count}` — a pre-formatted number.
+  static const String totalCount = 'orders.total_count';
+  static const String retry = 'orders.retry';
+  static const String locationUnavailable = 'orders.location_unavailable';
+
+  static const String filterAll = 'orders.filters.all';
+  static const String filterUnderReview = 'orders.filters.under_review';
+  static const String filterConfirmed = 'orders.filters.confirmed';
+  static const String filterAwaitingPayment = 'orders.filters.awaiting_payment';
+  static const String filterInDelivery = 'orders.filters.in_delivery';
+  static const String filterDelivered = 'orders.filters.delivered';
+  static const String filterFailed = 'orders.filters.failed';
+}
+
+/// One label per backend `OrderStatus` — the client renders the server's
+/// status verbatim and never derives it (research R7).
+abstract final class OrderStatusKeys {
+  static const String pendingApproval = 'order_status.pending_approval';
+  static const String approved = 'order_status.approved';
+  static const String assignedToDriver = 'order_status.assigned_to_driver';
+  static const String pendingPayment = 'order_status.pending_payment';
+  static const String inTransit = 'order_status.in_transit';
+  static const String unloading = 'order_status.unloading';
+  static const String delivered = 'order_status.delivered';
+  static const String rejected = 'order_status.rejected';
+  static const String cancelled = 'order_status.cancelled';
+}
+
+/// One label per backend `FuelType`.
+abstract final class FuelTypeKeys {
+  static const String diesel = 'fuel_type.diesel';
+  static const String gasoline91 = 'fuel_type.gasoline_91';
+  static const String gasoline95 = 'fuel_type.gasoline_95';
 }
 
 /// The create-order form.
@@ -73,6 +107,17 @@ abstract final class CreateOrderKeys {
   static const String sectionQuantity = 'order_create.section_quantity';
   static const String sectionDelivery = 'order_create.section_delivery';
   static const String sectionPayment = 'order_create.section_payment';
+  static const String paymentDirectTitle = 'order_create.payment_direct_title';
+  static const String paymentDirectSubtitle =
+      'order_create.payment_direct_subtitle';
+  static const String paymentDeferredTitle =
+      'order_create.payment_deferred_title';
+  static const String paymentDeferredSubtitle =
+      'order_create.payment_deferred_subtitle';
+  static const String paymentCreditTitle =
+      'order_create.payment_credit_title';
+  static const String paymentCreditSubtitle =
+      'order_create.payment_credit_subtitle';
 
   static const String currentStation = 'order_create.current_station';
   static const String favouriteStations = 'order_create.favourite_stations';
@@ -99,6 +144,7 @@ abstract final class CreateOrderKeys {
   /// `{grade}` — the fuel grade's display title.
   static const String enterValidQuantityFor =
       'order_create.enter_valid_quantity_for';
+  static const String orderFailed = 'order_create.order_failed';
 }
 
 /// The order-detail screen and every status card on it.
@@ -228,6 +274,105 @@ abstract final class OrderFlowKeys {
   static const String dispatched = 'order_flow.dispatched';
   static const String onTheWay = 'order_flow.on_the_way';
   static const String delivered = 'order_flow.delivered';
+}
+
+/// The المزيد settings screen.
+abstract final class MoreKeys {
+  static const String sectionAccount = 'more.section_account';
+  static const String sectionApp = 'more.section_app';
+  static const String sectionAbout = 'more.section_about';
+
+  static const String stations = 'more.stations';
+  static const String invoicesAndPayments = 'more.invoices_and_payments';
+  static const String creditLimit = 'more.credit_limit';
+  static const String appLock = 'more.app_lock';
+  static const String appLockValue = 'more.app_lock_value';
+  static const String notifications = 'more.notifications';
+  static const String language = 'more.language';
+  static const String support = 'more.support';
+  static const String terms = 'more.terms';
+  static const String about = 'more.about';
+  static const String appVersion = 'more.app_version';
+
+  static const String languageArabic = 'more.language_arabic';
+  static const String languageEnglish = 'more.language_english';
+
+  /// `{count}` — how many stations the client has.
+  static const String stationCount = 'more.station_count';
+
+  static const String logout = 'more.logout';
+  static const String logoutConfirmation = 'more.logout_confirmation';
+}
+
+/// The credit-limit screen: the current limit, and the form for requesting
+/// or renewing it.
+abstract final class CreditLimitKeys {
+  static const String title = 'credit_limit.title';
+  static const String unavailable = 'credit_limit.unavailable';
+  static const String emptyState = 'credit_limit.empty_state';
+  static const String requestHeading = 'credit_limit.request_heading';
+
+  static const String acknowledgementTitle =
+      'credit_limit.acknowledgement_title';
+  static const String acknowledgementBody = 'credit_limit.acknowledgement_body';
+  static const String termsLink = 'credit_limit.terms_link';
+  static const String submit = 'credit_limit.submit';
+
+  static const String requestTitle = 'credit_limit.request_title';
+  static const String underReview = 'credit_limit.under_review';
+  static const String requestedLimit = 'credit_limit.requested_limit';
+  static const String stepSubmitted = 'credit_limit.step_submitted';
+  static const String stepUnderReview = 'credit_limit.step_under_review';
+  static const String stepDecision = 'credit_limit.step_decision';
+  static const String expectedReply = 'credit_limit.expected_reply';
+}
+
+/// الشروط والأحكام. The clauses are numbered rather than named because the
+/// contents list, the badges and the bodies all have to stay in step.
+abstract final class TermsKeys {
+  static const String contents = 'terms.contents';
+  static const String backToTop = 'terms.back_to_top';
+
+  /// How many `clause_N_*` pairs exist in the JSON. Adding a clause means
+  /// adding its two keys to both locales and raising this.
+  static const int clauseCount = 6;
+
+  static String clauseTitle(int number) => 'terms.clause_${number}_title';
+  static String clauseBody(int number) => 'terms.clause_${number}_body';
+}
+
+/// The client's stations screen.
+abstract final class StationsKeys {
+  static const String currentOrder = 'stations.current_order';
+  static const String lastOrder = 'stations.last_order';
+  static const String quickGlance = 'stations.quick_glance';
+  static const String deliveredDeferredInvoice =
+      'stations.delivered_deferred_invoice';
+  static const String back = 'stations.back';
+}
+
+/// The support screen, reachable both signed in and from the login screen.
+abstract final class SupportKeys {
+  /// The word set beside the logo in the signed-out header. Untranslated by
+  /// design — it is part of the wordmark.
+  static const String brandSuffix = 'support.brand_suffix';
+
+  static const String contactNow = 'support.contact_now';
+  static const String directCall = 'support.direct_call';
+  static const String orVia = 'support.or_via';
+
+  // Accessibility labels for the three channel marks, which are artwork
+  // carrying no text of their own.
+  static const String whatsapp = 'support.whatsapp';
+  static const String telegram = 'support.telegram';
+  static const String facebook = 'support.facebook';
+
+  static const String topTopics = 'support.top_topics';
+  static const String topicFuelOrders = 'support.topic_fuel_orders';
+  static const String topicDeliveryDelay = 'support.topic_delivery_delay';
+  static const String topicPaymentMethods = 'support.topic_payment_methods';
+  static const String topicAccountLogin = 'support.topic_account_login';
+  static const String availability = 'support.availability';
 }
 
 /// User-facing failure copy. Deliberately non-enumerating: none of these

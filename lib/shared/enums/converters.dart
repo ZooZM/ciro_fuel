@@ -1,9 +1,11 @@
 import 'package:json_annotation/json_annotation.dart';
 
 import 'fuel_type.dart';
+import 'invoice_state.dart';
 import 'notification_type.dart';
 import 'order_status.dart';
 import 'otp_purpose.dart';
+import 'payment_method.dart';
 import 'user_role.dart';
 
 /// `JsonConverter`s bridging our enums' backend wire strings and
@@ -47,4 +49,20 @@ class FuelTypeConverter implements JsonConverter<FuelType, String> {
   FuelType fromJson(String json) => FuelType.fromWire(json);
   @override
   String toJson(FuelType object) => object.toWire();
+}
+
+class PaymentMethodConverter implements JsonConverter<PaymentMethod, String> {
+  const PaymentMethodConverter();
+  @override
+  PaymentMethod fromJson(String json) => PaymentMethod.fromWire(json);
+  @override
+  String toJson(PaymentMethod object) => object.toWire();
+}
+
+class InvoiceStateConverter implements JsonConverter<InvoiceState, String> {
+  const InvoiceStateConverter();
+  @override
+  InvoiceState fromJson(String json) => InvoiceState.fromWire(json);
+  @override
+  String toJson(InvoiceState object) => object.toWire();
 }

@@ -3,8 +3,10 @@ import 'package:dio/dio.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../shared/entities/order.dart';
+import '../../../../shared/enums/order_status.dart';
 import '../../../../shared/entities/value_objects.dart';
 import '../../../../shared/enums/fuel_type.dart';
+import '../../../../shared/enums/payment_method.dart';
 import '../../domain/entities/otp_challenge.dart';
 import '../../domain/repositories/orders_repository.dart';
 import '../datasources/orders_remote_data_source.dart';
@@ -19,17 +21,19 @@ class OrdersRepositoryImpl implements OrdersRepository {
     required FuelType fuelType,
     required int quantityLiters,
     GeoPoint? deliveryLocation,
+    PaymentMethod? paymentMethod,
   }) => _guard(
     () => _remoteDataSource.createOrder(
       fuelType: fuelType,
       quantityLiters: quantityLiters,
       deliveryLocation: deliveryLocation,
+      paymentMethod: paymentMethod,
     ),
   );
 
   @override
-  Future<Either<Failure, List<Order>>> getOrders({int page = 1}) =>
-      _guard(() => _remoteDataSource.getOrders(page: page));
+  Future<Either<Failure, List<Order>>> getOrders({OrderStatus? status}) =>
+      _guard(() => _remoteDataSource.getOrders(status: status));
 
   @override
   Future<Either<Failure, Order>> getOrder(String orderId) =>

@@ -31,6 +31,11 @@ import '../../features/orders/domain/usecases/get_order.dart';
 import '../../features/orders/domain/usecases/get_orders.dart';
 import '../../features/orders/domain/usecases/redispatch.dart';
 import '../../features/orders/presentation/cubit/orders_cubit.dart';
+import '../../features/invoices/data/datasources/invoices_remote_data_source.dart';
+import '../../features/invoices/data/repositories/invoices_repository_impl.dart';
+import '../../features/invoices/domain/repositories/invoices_repository.dart';
+import '../../features/invoices/domain/usecases/get_invoices.dart';
+import '../../features/invoices/presentation/cubit/finance_cubit.dart';
 import '../../features/notifications/data/datasources/notifications_remote_data_source.dart';
 import '../../features/notifications/data/repositories/notifications_repository_impl.dart';
 import '../../features/notifications/domain/repositories/notifications_repository.dart';
@@ -52,6 +57,7 @@ final GetIt getIt = GetIt.instance;
 Future<void> configureDependencies() async {
   _registerCore();
   _registerOrdersFeature();
+  _registerInvoicesFeature();
   _registerDeliveryFeature();
   _registerNotificationsFeature();
   await _registerAuthFeature();
@@ -93,6 +99,11 @@ void _registerCore() {
         getIt<NotificationsCubit>().load();
       case SessionUnauthenticated():
         trackingSocket.dispose();
+        // Every sign-out path lands here — the deliberate one from the "more"
+        // screen, a refresh failure via AuthInterceptor's onSessionExpired,
+        // and a failed launch hydration — so clearing per-user state once
+        // here covers all of them rather than only the button.
+        getIt<NotificationsCubit>().clear();
       case SessionUnknown():
         break;
     }
@@ -120,6 +131,20 @@ void _registerOrdersFeature() {
   getIt.registerLazySingleton(() => Redispatch(getIt()));
   
   getIt.registerFactory(() => OrdersCubit(getOrders: getIt()));
+}
+
+void _registerInvoicesFeature() {
+  final dio = getIt<Dio>();
+
+  getIt.registerLazySingleton<InvoicesRemoteDataSource>(
+    () => InvoicesRemoteDataSourceImpl(dio),
+  );
+  getIt.registerLazySingleton<InvoicesRepository>(
+    () => InvoicesRepositoryImpl(getIt()),
+  );
+  getIt.registerLazySingleton(() => GetInvoices(getIt()));
+
+  getIt.registerFactory(() => FinanceCubit(getInvoices: getIt()));
 }
 
 void _registerDeliveryFeature() {

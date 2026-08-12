@@ -4,6 +4,9 @@
 abstract final class ClientHomeStrings {
   static const String currentStation = 'المحطة الحالية';
   static const String changeStation = 'تغيير المحطة';
+  // Shown while the profile is still loading, or for the rare client whose
+  // station has no name/address on file yet — never invented.
+  static const String stationNameUnavailable = 'غير متوفر';
 
   static const String pendingInvoice = 'فاتورة مستحقة';
   static const String availableBalance = 'الرصيد المتاح';

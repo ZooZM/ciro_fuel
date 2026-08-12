@@ -6,30 +6,24 @@
   "login": {
     "welcome_title": "مرحباً بك في سيرو",
     "welcome_subtitle": "لطلب وقودك و متابعة الاستلام لحظة بلحظة",
-
     "phone_label": "رقم الجوال",
     "phone_hint": "5X XXX XXXX",
     "phone_required": "أدخل رقم الجوال",
     "phone_invalid": "رقم جوال غير صحيح",
-
     "password_hint": "كلمة المرور",
     "password_required": "أدخل كلمة المرور",
     "show_password": "إظهار كلمة المرور",
     "hide_password": "إخفاء كلمة المرور",
-
     "remember_me": "تذكرني",
     "forgot_password": "نسيت كلمة المرور ؟",
     "submit": "دخول",
-
     "alternatives_divider": "أو سجل الدخول باستخدام",
     "face_id": "بصمة الوجه",
     "fingerprint": "بصمة الإصبع",
     "biometric_reason": "أكد هويتك للدخول إلى حسابك",
-
     "continue_with_apple": "Apple",
     "continue_with_google": "Google",
     "coming_soon": "قريباً",
-
     "support": "الدعم و المساعدة",
     "security_note": "اتصال آمن و مشفر وفق أعلى معايير الحماية"
   },
@@ -46,48 +40,59 @@
     "currency_long": "ريال",
     "quantity_in_litres": "{quantity} لتر",
     "amount_with_currency": "{amount} ر.س",
-    "amount_with_currency_long": "{amount} ريال"
+    "amount_with_currency_long": "{amount} ريال",
+    "filters": {
+      "all": "الكل",
+      "under_review": "قيد المراجعة",
+      "confirmed": "مؤكد",
+      "awaiting_payment": "بانتظار الدفع",
+      "in_delivery": "قيد التوصيل",
+      "delivered": "تم التسليم",
+      "failed": "فشلت"
+    },
+    "total_count": "{count} طلب إجمالاً",
+    "retry": "إعادة المحاولة",
+    "location_unavailable": "موقع التوصيل غير محدد"
   },
   "order_create": {
     "title": "طلب وقود جديد",
     "subtitle": "اطلب الوقود خلال أقل من دقيقة",
-
     "section_station": "1. نوع الوقود",
     "section_grade": "2. نوع الوقود",
     "section_quantity": "3. الكمية",
     "section_delivery": "4. موعد التوصيل",
     "section_payment": "5. طريقة الدفع",
-
+    "payment_direct_title": "دفع مباشر",
+    "payment_direct_subtitle": "عبر سداد",
+    "payment_deferred_title": "دفع آجل",
+    "payment_deferred_subtitle": "تدفعه شركة النقل",
+    "payment_credit_title": "حد ائتماني",
+    "payment_credit_subtitle": "من رصيدك المتاح",
     "current_station": "المحطة الحالية",
     "favourite_stations": "محطاتك المفضلة",
     "change_station": "تغيير المحطة",
-
     "choose_fuel_type_first": "الرجاء اختيار نوع الوقود أولاً",
     "custom_quantity": "كمية أخرى",
-
     "schedule_title": "جدول موعد",
     "schedule_subtitle": "اختر التاريخ و الوقت",
     "today_title": "اليوم",
     "today_subtitle": "توصيل خلال نفس اليوم",
     "fastest_title": "بأسرع وقت",
     "fastest_subtitle": "أقرب وقت متاح",
-
     "notes_label": "ملاحظات للسائق (اختياري)",
     "notes_hint": "اكتب أي ملاحظات خاصة بالتوصيل ...",
-
     "confirm_order": "تأكيد الطلب",
     "select_at_least_one_fuel_type": "الرجاء اختيار نوع وقود واحد على الأقل",
+    "order_failed": "تعذر إرسال الطلب، حاول مرة أخرى",
     "enter_valid_quantity_for": "أدخل كمية صحيحة لـ {grade}"
   },
   "order_detail": {
     "order_status": "حالة الطلب",
     "order_summary": "ملخص الطلب",
-
     "step_confirm_order": "تأكيد الطلب",
     "step_payment": "الدفع",
     "step_delivery": "التوصيل",
     "step_handover": "التسليم",
-
     "fuel_type": "نوع الوقود",
     "quantity": "الكمية",
     "price_per_liter": "سعر اللتر",
@@ -95,12 +100,10 @@
     "transport_fees": "رسوم النقل",
     "vat": "ضريبة القيمة المضافة\n(%15)",
     "final_total": "الإجمالي النهائي",
-
     "headline_deferred": "مؤجلة للمرة القادمة",
     "headline_paid": "تم السداد",
     "headline_delivered": "تم التسليم",
     "order_another": "طلب أخر",
-
     "paid_successfully": "تم الدفع بنجاح",
     "reference_number": "الرقم المرجعي",
     "day": "اليوم",
@@ -114,7 +117,6 @@
     "total": "الإجمالي",
     "show_details": "إظهار التفاصيل",
     "hide_details": "إخفاء التفاصيل",
-
     "in_delivery": "قيد التوصيل",
     "driver": "السائق",
     "truck": "الشاحنة",
@@ -122,7 +124,6 @@
     "minutes": "دقيقة",
     "track_on_map": "تتبع الطلب علي الخريطة",
     "contact_driver": "تواصل مع السائق",
-
     "handover_method_title": "طريقة الاستلام عند وصول الطلب",
     "handover_method_note": "لضمان إستلام أمن و سريع، أعرض علي السائق التالي لاستكمال عملية الاستلام.",
     "qr_label": "QR",
@@ -131,7 +132,6 @@
     "pickup_code": "كود الإستلام",
     "valid_for": "صالح لمدة",
     "code_share_warning": "لا تقم بمشاركة الكود مع أي شخص غير السائق الخاص بالطلب",
-
     "invoice_pending": "الفاتورة معلقة",
     "confirmed": "تم التأكيد",
     "complete_payment": "إكمال الدفع",
@@ -140,7 +140,6 @@
     "pay_next_time": "إدفع المرة القادمة",
     "request_credit_limit": "أطلب حد إئتماني",
     "pending_review": "قيد المراجعة",
-
     "credit_limit": "الحد الإئتماني",
     "credit_valid_until": "صالح حتى {date}",
     "credit_total_limit": "من {amount} ر.س",
@@ -149,7 +148,6 @@
     "available_now": "المتاح للدفع الآن",
     "credit_limit_in_budget": "هذا الطلب ضمن حدك الإئتماني",
     "pay_from_credit_limit": "أدفع من الحد الإئتماني",
-
     "support": "الدعم",
     "change_mock_state": "تغيير الحالة (Mock)"
   },
@@ -192,5 +190,97 @@
     "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
     "biometric_unavailable": "لا توجد جلسة محفوظة على هذا الجهاز. سجل الدخول بكلمة المرور أولاً.",
     "biometric_failed": "تعذر التحقق من هويتك. حاول مرة أخرى."
+  },
+  "order_status": {
+    "pending_approval": "قيد المراجعة",
+    "approved": "تم التأكيد",
+    "assigned_to_driver": "تم تعيين سائق",
+    "pending_payment": "بانتظار الدفع",
+    "in_transit": "قيد التوصيل",
+    "unloading": "جاري التفريغ",
+    "delivered": "تم التسليم",
+    "rejected": "مرفوض",
+    "cancelled": "ملغي"
+  },
+  "fuel_type": {
+    "diesel": "ديزل",
+    "gasoline_91": "بنزين 91",
+    "gasoline_95": "بنزين 95"
+  },
+  "more": {
+    "section_account": "الحساب",
+    "section_app": "التطبيق",
+    "section_about": "عن التطبيق",
+    "stations": "محطاتك",
+    "invoices_and_payments": "الفواتير و الدفع",
+    "credit_limit": "الحد الإئتماني",
+    "app_lock": "قفل التطبيق",
+    "app_lock_value": "بصمة إصبع",
+    "notifications": "الإشعارات",
+    "language": "اللغة",
+    "support": "الدعم و المساعدة",
+    "terms": "الشروط و الأحكام",
+    "about": "من نحن",
+    "app_version": "v1.0.0",
+    "language_arabic": "اللغة العربية",
+    "language_english": "English",
+    "station_count": "عدد المحطات :  {count}",
+    "logout": "تسجيل الخروج",
+    "logout_confirmation": "سيتم إنهاء جلستك على هذا الجهاز. هل تريد المتابعة؟"
+  },
+  "credit_limit": {
+    "title": "الحد الإئتماني",
+    "unavailable": "غير متاح",
+    "empty_state": "لا يوجد حد ائتماني نشط. قدّم طلبك أدناه.",
+    "request_heading": "أطلب حدك الإئتماني أو جدده",
+    "acknowledgement_title": "الإقرار بطلب الحد الائتماني",
+    "acknowledgement_body": "أقر بأنني أطلب حدًا ائتمانيًا من شركة البترول بصفتها الجهة المانحة، وأن هذا الطلب يخضع لمراجعة واعتماد الشركة وفق سياساتها الداخلية.",
+    "terms_link": "طبق الشروط و الأحكام",
+    "submit": "اطلب حدك الإئتماني",
+    "request_title": "طلب الحد الإئتماني",
+    "under_review": "قيد المراجعة",
+    "requested_limit": "الحد المطلوب",
+    "step_submitted": "تم الإرسال",
+    "step_under_review": "قيد المراجعة",
+    "step_decision": "القرار",
+    "expected_reply": "الرد المتوقع خلال 2-3 أيام عمل"
+  },
+  "terms": {
+    "contents": "المحتويات",
+    "back_to_top": "العودة إلى الأعلى",
+    "clause_1_title": "مقدمة الشروط والأحكام",
+    "clause_1_body": "يرجى قراءة هذه الشروط والأحكام بعناية قبل استخدام المنصة أو الاستمرار في أي من خدماتها، حيث إن استخدامك للمنصة يُعد موافقة صريحة منك على الالتزام بجميع البنود الواردة في هذه الصفحة، وكذلك أي تحديثات أو تعديلات قد تطرأ عليها لاحقًا.",
+    "clause_2_title": "تحديث الشروط",
+    "clause_2_body": "تحتفظ الجهة المالكة للمنصة بحق تعديل أو تحديث هذه الشروط في أي وقت تراه مناسبًا، ويُعد استمرارك في استخدام الخدمة بعد نشر التعديلات قبولًا ضمنيًا بها.",
+    "clause_3_title": "مسؤولية صحة البيانات",
+    "clause_3_body": "يقر المستخدم بأنه مسؤول مسؤولية كاملة عن صحة ودقة البيانات التي يقوم بإدخالها أثناء إنشاء الحساب أو أثناء استخدام أي من خدمات المنصة، وأن أي بيانات غير صحيحة أو مضللة قد تؤدي إلى تعليق الحساب أو رفض الخدمة أو اتخاذ الإجراءات اللازمة وفقًا لما تراه الجهة المشغلة مناسبًا.",
+    "clause_4_title": "سرية بيانات الدخول",
+    "clause_4_body": "كما يلتزم المستخدم بالحفاظ على سرية بيانات الدخول الخاصة به، وعدم مشاركتها مع أي طرف آخر، ويتحمل وحده المسؤولية عن أي استخدام يتم من خلال حسابه.",
+    "clause_5_title": "الاستخدام المشروع",
+    "clause_5_body": "ويُمنع استخدام المنصة لأي أغراض غير مشروعة أو مخالفة للأنظمة أو الآداب العامة أو ما قد يسبب ضررًا مباشرًا أو غير مباشر للمنصة أو للمستخدمين الآخرين أو لأي طرف ثالث.",
+    "clause_6_title": "حماية النظام",
+    "clause_6_body": "كما يلتزم المستخدم بعدم محاولة العبث بالنظام أو الوصول غير المصرح به إلى أي جزء من المنصة أو تعطيل خدماتها أو التأثير على أدائها بأي وسيلة كانت."
+  },
+  "stations": {
+    "current_order": "طلبك الحالي",
+    "last_order": "أخر طلب",
+    "quick_glance": "نظرة سريعة",
+    "delivered_deferred_invoice": "تم التسليم (الفاتورة مؤجلة)",
+    "back": "رجوع"
+  },
+  "support": {
+    "brand_suffix": "FUEL",
+    "contact_now": "تواصل معنا فوراً",
+    "direct_call": "اتصال مباشر",
+    "or_via": "او من خلال",
+    "whatsapp": "واتساب",
+    "telegram": "تيليجرام",
+    "facebook": "فيسبوك",
+    "top_topics": "أكثر المواضيع بحثاً",
+    "topic_fuel_orders": "طلبيات الوقود",
+    "topic_delivery_delay": "تأخير التوصيل",
+    "topic_payment_methods": "طرق الدفع",
+    "topic_account_login": "الحساب و تسجيل الدخول",
+    "availability": "فريق الدعم متاح يوميًا من 8 ص إلى 12 م"
   }
 }

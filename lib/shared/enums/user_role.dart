@@ -1,8 +1,11 @@
-/// Mirrors backend `UserRole` (feature 001). The only place role wire
-/// strings are parsed — no role literal appears elsewhere (Principle I).
+/// Mirrors backend `UserRole` (feature 004: `COMPANY_ADMIN` split into a
+/// Fuel Company tier and a Transportation Company tier). The only place
+/// role wire strings are parsed — no role literal appears elsewhere
+/// (Principle I).
 enum UserRole {
   superAdmin('SUPER_ADMIN'),
-  companyAdmin('COMPANY_ADMIN'),
+  fuelCompanyAdmin('FUEL_COMPANY_ADMIN'),
+  transportCompanyAdmin('TRANSPORT_COMPANY_ADMIN'),
   client('CLIENT'),
   driver('DRIVER');
 
@@ -12,7 +15,8 @@ enum UserRole {
 
   static UserRole fromWire(String wire) => switch (wire) {
     'SUPER_ADMIN' => UserRole.superAdmin,
-    'COMPANY_ADMIN' => UserRole.companyAdmin,
+    'FUEL_COMPANY_ADMIN' => UserRole.fuelCompanyAdmin,
+    'TRANSPORT_COMPANY_ADMIN' => UserRole.transportCompanyAdmin,
     'CLIENT' => UserRole.client,
     'DRIVER' => UserRole.driver,
     _ => throw ArgumentError.value(wire, 'wire', 'Unknown UserRole'),

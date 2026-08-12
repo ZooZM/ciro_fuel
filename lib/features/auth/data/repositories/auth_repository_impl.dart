@@ -31,7 +31,12 @@ class AuthRepositoryImpl implements AuthRepository {
         access: response.accessToken,
         refresh: response.refreshToken,
       );
-      return Right(response.user);
+      // `/auth/login`'s own `user` is the thin SafeUser shape (no
+      // station/creditLimit — spec 004 FR-009/FR-023); fetching `/auth/me`
+      // here keeps a freshly-signed-in session identical to a restored one
+      // rather than only gaining the richer profile after an app restart.
+      final me = await _remoteDataSource.me();
+      return Right(me);
     } on DioException catch (e) {
       return Left(_failureOf(e));
     }
