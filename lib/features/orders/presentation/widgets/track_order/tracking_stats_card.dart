@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../../core/constants/app_assets.dart';
@@ -32,6 +34,11 @@ class TrackingStatsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final statusLabel = this.statusLabel ?? OrderDetailKeys.inDelivery.tr();
+    final distance = this.distance ?? '12.7 ${CommonKeys.km.tr()}';
+    final etaTime = this.etaTime ?? '04:35 م';
+    final etaDate = this.etaDate ?? '02/05/2024 ${CommonKeys.today.tr()}';
+
     return OrderCard(
       child: IntrinsicHeight(
         child: Row(
@@ -77,6 +84,8 @@ class TrackingStatsCard extends StatelessWidget {
                             ),
                           ],
                         ),
+                        Text(
+                          TrackOrderKeys.onTheWay.tr(),
                         Text(
                           TrackOrderKeys.onTheWay.tr(),
                           maxLines: 1,
@@ -127,6 +136,8 @@ class TrackingStatsCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  Text(
+                    TrackOrderKeys.expectedArrival.tr(),
                   Text(
                     TrackOrderKeys.expectedArrival.tr(),
                     maxLines: 1,

@@ -1,14 +1,15 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../core/constants/app_assets.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/order_flow.dart';
-import '../constants/client_home_strings.dart';
+import '../../../../core/localization/translation_keys.dart';
 import 'order_action_buttons.dart';
 import 'order_info_row.dart';
 import 'order_progress_ring.dart';
+import '../../../../core/theme/theme_context.dart';
 
 /// Everything known about the client's in-flight order, as shown on the
 /// dashboard's current-order card.
@@ -59,16 +60,20 @@ class CurrentOrderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(AppRadii.dashboardCard),
-        border: Border.all(color: AppColors.itemBorder),
+        border: Border.all(color: context.colors.borderHairline),
       ),
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _Header(fuelType: order.fuelType, quantity: order.quantity, statusLabel: order.statusLabel),
+            _Header(
+              fuelType: order.fuelType,
+              quantity: order.quantity,
+              statusLabel: order.statusLabel,
+            ),
             const SizedBox(height: AppSpacing.lg),
             _MiddleSection(order: order),
             const SizedBox(height: AppSpacing.xl),
@@ -108,13 +113,13 @@ class _Header extends StatelessWidget {
           children: [
             Text(
               fuelType,
-              style: const TextStyle(color: AppColors.grey, fontSize: 10),
+              style: TextStyle(color: context.colors.textSecondary, fontSize: 10),
             ),
             const SizedBox(height: AppSpacing.xxs),
             Text(
               quantity,
-              style: const TextStyle(
-                color: AppColors.navy,
+              style: TextStyle(
+                color: context.colors.textPrimary,
                 fontWeight: FontWeight.w700,
                 fontSize: 12,
               ),
@@ -128,7 +133,7 @@ class _Header extends StatelessWidget {
             vertical: AppSizes.dashboardOrderStatusBadgePaddingV,
           ),
           decoration: BoxDecoration(
-            color: AppColors.green.withValues(alpha: 0.1),
+            color: context.colors.brandGreen.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(AppRadii.dashboardCard),
           ),
           child: Row(
@@ -137,16 +142,16 @@ class _Header extends StatelessWidget {
               Container(
                 width: AppSizes.dashboardOrderStatusDotSize,
                 height: AppSizes.dashboardOrderStatusDotSize,
-                decoration: const BoxDecoration(
-                  color: AppColors.green,
+                decoration: BoxDecoration(
+                  color: context.colors.brandGreen,
                   shape: BoxShape.circle,
                 ),
               ),
               const SizedBox(width: AppSizes.dashboardOrderStatusDotSize),
               Text(
                 statusLabel,
-                style: const TextStyle(
-                  color: AppColors.green,
+                style: TextStyle(
+                  color: context.colors.brandGreen,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
@@ -175,20 +180,23 @@ class _MiddleSection extends StatelessWidget {
             children: [
               OrderInfoRow(
                 asset: AppAssets.dashboardDriverIcon,
-                label: ClientHomeStrings.driverLabel,
+                label: CommonKeys.driver.tr(),
                 value: order.driverName,
               ),
               const SizedBox(height: AppSpacing.sm),
               OrderInfoRow(
                 asset: AppAssets.dashboardLorryIcon,
-                label: ClientHomeStrings.truckLabel,
+                label: CommonKeys.truck.tr(),
                 value: order.truckPlate,
               ),
             ],
           ),
         ),
 
-        OrderProgressRing(progress: order.progress, etaMinutes: order.etaMinutes),
+        OrderProgressRing(
+          progress: order.progress,
+          etaMinutes: order.etaMinutes,
+        ),
 
         // Order ID + date/time (LEFT in RTL = end)
         Expanded(
@@ -197,8 +205,8 @@ class _MiddleSection extends StatelessWidget {
             children: [
               Text(
                 order.orderId,
-                style: const TextStyle(
-                  color: AppColors.navy,
+                style: TextStyle(
+                  color: context.colors.textPrimary,
                   fontWeight: FontWeight.w700,
                   fontSize: 12,
                 ),
@@ -209,7 +217,7 @@ class _MiddleSection extends StatelessWidget {
                 children: [
                   Text(
                     order.orderDate,
-                    style: const TextStyle(color: AppColors.grey, fontSize: 10),
+                    style: TextStyle(color: context.colors.textSecondary, fontSize: 10),
                   ),
                   const SizedBox(width: AppSpacing.xs),
                   SvgPicture.asset(
@@ -225,7 +233,7 @@ class _MiddleSection extends StatelessWidget {
                 children: [
                   Text(
                     order.orderTime,
-                    style: const TextStyle(color: AppColors.grey, fontSize: 10),
+                    style: TextStyle(color: context.colors.textSecondary, fontSize: 10),
                   ),
                   const SizedBox(width: AppSpacing.xs),
                   SvgPicture.asset(
@@ -236,9 +244,9 @@ class _MiddleSection extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: AppSpacing.xs),
-              const Text(
-                ClientHomeStrings.orderTimeLabel,
-                style: TextStyle(color: AppColors.grey, fontSize: 10),
+              Text(
+                HomeKeys.orderTimeLabel.tr(),
+                style: TextStyle(color: context.colors.textSecondary, fontSize: 10),
               ),
             ],
           ),

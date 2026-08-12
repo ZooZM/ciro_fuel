@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 
 import '../../../../../core/localization/translation_keys.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -17,11 +19,16 @@ class PendingOrderStatusCard extends StatelessWidget {
     super.key,
   });
 
-  final String orderReference;
+  final String? orderReference;
   final VoidCallback? onCancel;
 
   @override
   Widget build(BuildContext context) {
+    final isAr = context.locale.languageCode == 'ar';
+    final resolvedReference =
+        orderReference ??
+        (isAr ? 'ORD-2024-256 · 9 صفر 1446' : 'ORD-2024-256 · 9 Safar 1446');
+
     return OrderCard(
       title: OrderDetailKeys.orderStatus.tr(),
       subtitle: orderReference,
@@ -43,7 +50,7 @@ class PendingOrderStatusCard extends StatelessWidget {
             child: OutlinedButton(
               onPressed: onCancel ?? () {},
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.itemBorder),
+                side: BorderSide(color: context.colors.borderHairline),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppRadii.tile),
                 ),

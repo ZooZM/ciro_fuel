@@ -1,7 +1,9 @@
 import 'dart:math' as math;
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 
 import '../../../../../core/localization/translation_keys.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -13,6 +15,7 @@ import '../../constants/order_formatting.dart';
 import '../../constants/order_mock_data.dart';
 import '../../view/track_order_screen.dart';
 import 'status_chip.dart';
+import '../../../../../core/theme/theme_context.dart';
 
 /// The order-status card while the delivery is en route: fuel/driver/truck
 /// details beside the ETA gauge, the order-flow stepper, and the
@@ -41,8 +44,12 @@ class InTransitOrderStatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fuelType = this.fuelType ?? FuelKeys.gasoline95.tr();
+    final quantity = this.quantity ?? '20,000 ${CommonKeys.litre.tr()}';
+
     return OrderCard(
       dashed: true,
+      title: OrderDetailKeys.orderStatus.tr(),
       title: OrderDetailKeys.orderStatus.tr(),
       subtitle: orderReference,
       trailing: StatusChip(
@@ -57,7 +64,7 @@ class InTransitOrderStatusCard extends StatelessWidget {
             padding: const EdgeInsets.all(AppSpacing.lg),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(OrderCard.radius),
-              border: Border.all(color: AppColors.itemBorder),
+              border: Border.all(color: context.colors.borderHairline),
             ),
             child: Column(
               children: [
@@ -110,7 +117,7 @@ class InTransitOrderStatusCard extends StatelessWidget {
                       );
                     },
                     style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.blue,
+                      backgroundColor: context.colors.brandBlue,
                       padding: const EdgeInsets.symmetric(
                         horizontal: AppSizes.orderTransitButtonPaddingH,
                       ),
@@ -123,6 +130,8 @@ class InTransitOrderStatusCard extends StatelessWidget {
                       size: AppSizes.icon16,
                       color: Colors.white,
                     ),
+                    label: Text(
+                      OrderDetailKeys.trackOnMap.tr(),
                     label: Text(
                       OrderDetailKeys.trackOnMap.tr(),
                       maxLines: 1,
@@ -144,7 +153,7 @@ class InTransitOrderStatusCard extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: onContactDriver ?? () {},
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppColors.itemBorder),
+                      side: BorderSide(color: context.colors.borderHairline),
                       padding: const EdgeInsets.symmetric(
                         horizontal: AppSizes.orderTransitButtonPaddingH,
                       ),
@@ -152,9 +161,9 @@ class InTransitOrderStatusCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(AppRadii.tile),
                       ),
                     ),
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.phone_outlined,
-                      color: AppColors.navy,
+                      color: context.colors.textPrimary,
                       size: AppSizes.icon16,
                     ),
                     label: Text(
@@ -186,6 +195,11 @@ class _TransitDetailRow extends StatelessWidget {
     required this.value,
     this.icon,
   });
+  const _TransitDetailRow({
+    required this.label,
+    required this.value,
+    this.icon,
+  });
 
   final String label;
   final String value;
@@ -198,7 +212,7 @@ class _TransitDetailRow extends StatelessWidget {
     return Row(
       children: [
         if (icon != null)
-          Icon(icon, color: AppColors.green, size: AppSizes.iconLg)
+          Icon(icon, color: context.colors.brandGreen, size: AppSizes.iconLg)
         else
           const SizedBox(width: AppSizes.iconLg),
         const SizedBox(width: AppSizes.orderTransitIconGap),
@@ -298,7 +312,12 @@ class _EtaGauge extends StatelessWidget {
 }
 
 class _GaugePainter extends CustomPainter {
-  const _GaugePainter({required this.progress, required this.stroke});
+  const _GaugePainter({
+    required this.progress,
+    required this.stroke,
+    required this.color,
+    required this.trackColor,
+  });
 
   final double progress;
   final double stroke;
@@ -326,7 +345,7 @@ class _GaugePainter extends CustomPainter {
       math.pi * 2 * progress,
       false,
       Paint()
-        ..color = AppColors.green
+        ..color = color
         ..style = PaintingStyle.stroke
         ..strokeWidth = stroke
         ..strokeCap = StrokeCap.round,
@@ -335,5 +354,8 @@ class _GaugePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _GaugePainter oldDelegate) =>
-      oldDelegate.progress != progress || oldDelegate.stroke != stroke;
+      oldDelegate.progress != progress ||
+      oldDelegate.stroke != stroke ||
+      oldDelegate.color != color ||
+      oldDelegate.trackColor != trackColor;
 }

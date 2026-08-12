@@ -21,5 +21,7 @@ String failureMessage(Failure failure) => switch (failure) {
 
 /// Shows [failure] as a transient SnackBar using the shared mapping above.
 void presentFailure(BuildContext context, Failure failure) {
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(failureMessage(failure))));
+  ScaffoldMessenger.of(
+    context,
+  ).showSnackBar(SnackBar(content: Text(failureMessage(failure))));
 }

@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -19,6 +20,10 @@ class TrackOrderTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final orderReference =
+        this.orderReference ??
+        TrackOrderKeys.orderReference.tr(namedArgs: {'id': 'ORD-2024-256'});
+
     return Column(
       children: [
         Text(

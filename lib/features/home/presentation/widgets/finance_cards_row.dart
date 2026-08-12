@@ -1,8 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../constants/client_home_strings.dart';
+import '../../../../core/localization/translation_keys.dart';
 import 'finance_card.dart';
 
 /// The pending-invoice and available-balance tiles side by side.
@@ -23,7 +24,7 @@ class FinanceCardsRow extends StatelessWidget {
         // First child renders right-most in RTL.
         Expanded(
           child: FinanceCard(
-            label: ClientHomeStrings.pendingInvoice,
+            label: HomeKeys.pendingInvoice.tr(),
             amount: pendingInvoiceAmount,
             asset: AppAssets.dashboardPendingInvoiceIcon,
           ),
@@ -31,7 +32,7 @@ class FinanceCardsRow extends StatelessWidget {
         const SizedBox(width: AppSpacing.md),
         Expanded(
           child: FinanceCard(
-            label: ClientHomeStrings.availableBalance,
+            label: HomeKeys.availableBalance.tr(),
             amount: availableBalanceAmount,
             asset: AppAssets.dashboardAvailableBalanceIcon,
           ),

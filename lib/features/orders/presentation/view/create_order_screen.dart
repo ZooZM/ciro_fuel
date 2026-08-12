@@ -4,13 +4,13 @@ import 'dart:ui';
 // otherwise shadow the `dart:ui` one this screen sets RTL with.
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
+import '../../../../core/localization/translation_keys.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/injector.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/localization/translation_keys.dart';
 import '../../../../core/router/app_routes.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/enums/fuel_grade.dart';
 import '../../../../shared/enums/fuel_type.dart';
@@ -28,7 +28,9 @@ import '../widgets/create_order/payment_section.dart';
 import '../widgets/create_order/quantity_section.dart';
 import '../widgets/create_order/station_section.dart';
 import '../widgets/order_summary_card.dart';
-import '../widgets/order_top_bar.dart';
+import '../../../../core/widgets/app_calendar.dart';
+import '../../../../core/widgets/app_top_bar.dart';
+import '../../../../core/theme/theme_context.dart';
 
 class CreateOrderScreen extends StatefulWidget {
   const CreateOrderScreen({super.key, this.initialGradeBadge});
@@ -53,9 +55,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   @override
   void initState() {
     super.initState();
-    final initial = _initialGradeIndex();
-    _quantities[initial] = kOrderQuantities.first;
-    _customQuantityControllers[initial] = TextEditingController();
+    _quantities[_initialGradeIndex()] = kOrderQuantities.first;
   }
 
   /// Falls back to بنزين 98 — the grade selected in the design — when the
@@ -67,43 +67,46 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     return index == -1 ? 2 : index;
   }
 
-  @override
-  void dispose() {
-    for (final controller in _customQuantityControllers.values) {
-      controller.dispose();
-    }
-    super.dispose();
-  }
-
-  void _toggleGrade(int index) {
+  /// One grade per order: picking another replaces the current one along
+  /// with the quantity chosen against it. Tapping the selected grade is a
+  /// no-op — the form always has exactly one grade on it.
+  void _selectGrade(int index) {
+    if (_quantities.containsKey(index)) return;
     setState(() {
-      if (_quantities.containsKey(index)) {
-        _quantities.remove(index);
-        _customQuantityControllers.remove(index)?.dispose();
-      } else {
-        _quantities[index] = kOrderQuantities.first;
-        _customQuantityControllers[index] = TextEditingController();
-      }
+      _quantities
+        ..clear()
+        ..[index] = kOrderQuantities.first;
     });
   }
 
-  void _onCustomQuantityChanged(int gradeIndex, String text) {
-    setState(() => _quantities[gradeIndex] = null);
+  /// جدول موعد asks for the day before it counts as chosen. Uses the app's own
+  /// calendar — the same dialog the filter sheets open — not Material's
+  /// `showDatePicker`, whose chrome does not match these screens.
+  Future<void> _pickScheduleDate() async {
+    final today = DateTime.now();
+    final picked = await showAppDatePicker(
+      context,
+      selected: _scheduledDate,
+      // A delivery cannot be scheduled into the past, and a year ahead is as
+      // far as the form allows.
+      firstDate: today,
+      lastDate: today.add(const Duration(days: 365)),
+    );
+    if (picked == null || !mounted) return;
+    setState(() {
+      _scheduledDate = picked;
+      _delivery = DeliveryOption.schedule;
+    });
   }
 
   void _onPresetQuantitySelected(int gradeIndex, int litres) {
-    setState(() {
-      _quantities[gradeIndex] = litres;
-      _customQuantityControllers[gradeIndex]!.clear();
-    });
+    setState(() => _quantities[gradeIndex] = litres);
   }
 
   Future<void> _submit() async {
     if (_quantities.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(CreateOrderKeys.selectAtLeastOneFuelType.tr()),
-        ),
+        SnackBar(content: Text(CreateOrderKeys.selectAtLeastOneFuelType.tr())),
       );
       return;
     }
@@ -146,13 +149,16 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
         quantityLiters: quantity,
         paymentMethod: _paymentMethod,
       );
-      final shouldStop = result.fold((f) {
-        failure = f;
-        return true;
-      }, (order) {
-        createdOrderIds.add(order.id);
-        return false;
-      });
+      final shouldStop = result.fold(
+        (f) {
+          failure = f;
+          return true;
+        },
+        (order) {
+          createdOrderIds.add(order.id);
+          return false;
+        },
+      );
       if (shouldStop) break;
     }
 
@@ -160,9 +166,9 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     setState(() => _submitting = false);
 
     if (failure != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_messageFor(failure!))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(_messageFor(failure!))));
       return;
     }
 
@@ -285,9 +291,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     final firstEntry = _quantities.entries.first;
 
     final grade = FuelGrade.values[firstEntry.key];
-    final controller = _customQuantityControllers[firstEntry.key]!;
-    final quantity =
-        firstEntry.value ?? int.tryParse(controller.text.trim()) ?? 0;
+    final quantity = firstEntry.value;
 
     return OrderSummaryCard(
       fuelType: grade.title,

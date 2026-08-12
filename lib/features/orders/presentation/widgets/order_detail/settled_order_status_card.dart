@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 
 import '../../../../../core/localization/translation_keys.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -8,6 +10,7 @@ import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/widgets/order_card.dart';
 import '../../constants/order_mock_data.dart';
 import 'mock_order_state.dart';
+import '../../../../../core/theme/theme_context.dart';
 
 /// The plain status card carried by every state that already has a
 /// receipt (deferred, paid, delivered). Only delivery adds a follow-up
@@ -32,10 +35,16 @@ class SettledOrderStatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isAr = context.locale.languageCode == 'ar';
+    final resolvedReference =
+        orderReference ??
+        (isAr ? 'ORD-2024-256 · 9 صفر 1446' : 'ORD-2024-256 · 9 Safar 1446');
+
     return OrderCard(
       title: OrderDetailKeys.orderStatus.tr(),
       subtitle: orderReference,
       trailing: Text(
+        _headlineKeys[state]!.tr(),
         _headlineKeys[state]!.tr(),
         style: TextStyle(
           color: state == MockOrderState.deferred
@@ -56,14 +65,14 @@ class SettledOrderStatusCard extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: onOrderAnother ?? () {},
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: AppColors.itemBorder),
+                  side: BorderSide(color: context.colors.borderHairline),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(AppRadii.tile),
                   ),
                 ),
-                icon: const Icon(
+                icon: Icon(
                   Icons.refresh,
-                  color: AppColors.green,
+                  color: context.colors.brandGreen,
                   size: AppSizes.iconMd,
                 ),
                 label: Text(

@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 
 import '../../../../../core/localization/translation_keys.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -9,17 +11,18 @@ import '../../../../../core/widgets/fuel_pump_icon.dart';
 import '../../../../../core/widgets/order_card.dart';
 import '../../../../../shared/enums/fuel_grade.dart';
 
-/// "2. نوع الوقود" — the row of selectable fuel-grade tiles. Any number of
-/// grades may be selected at once, each ordered independently.
+/// "2. نوع الوقود" — the row of selectable fuel-grade tiles. Exactly one
+/// grade is on order at a time; picking another replaces it.
 class GradeSection extends StatelessWidget {
   const GradeSection({
-    required this.selectedIndices,
-    required this.onToggle,
+    required this.selectedIndex,
+    required this.onSelect,
     super.key,
   });
 
-  final Set<int> selectedIndices;
-  final ValueChanged<int> onToggle;
+  /// Index into [FuelGrade.values], or null before anything is chosen.
+  final int? selectedIndex;
+  final ValueChanged<int> onSelect;
 
   @override
   Widget build(BuildContext context) {
@@ -37,9 +40,9 @@ class GradeSection extends StatelessWidget {
                 selected: selectedIndices.contains(index),
                 onTap: () => onToggle(index),
               ),
-            ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -66,10 +69,10 @@ class _GradeTile extends StatelessWidget {
         height: AppSizes.orderGradeTileHeight,
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
         decoration: BoxDecoration(
-          color: selected ? AppColors.light.greenTint : Colors.white,
+          color: selected ? context.colors.greenTint : context.colors.surface,
           borderRadius: BorderRadius.circular(AppRadii.tile),
           border: Border.all(
-            color: selected ? AppColors.green : AppColors.itemBorder,
+            color: selected ? context.colors.brandGreen : context.colors.borderHairline,
             width: selected
                 ? AppSizes.orderTileSelectedBorderWidth
                 : AppSizes.orderTileBorderWidth,

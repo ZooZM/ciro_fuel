@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 
 import '../../../../../core/localization/translation_keys.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -35,6 +37,18 @@ class CreditLimitCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currency = CommonKeys.currencySymbol.tr();
+    final totalLimitText =
+        this.totalLimitText ??
+        OrderDetailKeys.creditOf.tr(
+          namedArgs: {'amount': '200,000.00 $currency'},
+        );
+    final usedText =
+        this.usedText ??
+        OrderDetailKeys.creditUsed.tr(
+          namedArgs: {'amount': '200,000.00 $currency', 'percent': '37.5%'},
+        );
+
     return OrderCard(
       child: Column(
         children: [
@@ -75,7 +89,7 @@ class CreditLimitCard extends StatelessWidget {
                       vertical: AppSpacing.xs,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.light.greenTint,
+                      color: context.colors.greenTint,
                       borderRadius: BorderRadius.circular(
                         AppSizes.orderCreditBadgeRadius,
                       ),
@@ -94,15 +108,18 @@ class CreditLimitCard extends StatelessWidget {
                     padding: const EdgeInsets.all(
                       AppSizes.orderCreditIconPadding,
                     ),
+                    padding: const EdgeInsets.all(
+                      AppSizes.orderCreditIconPadding,
+                    ),
                     decoration: BoxDecoration(
-                      color: AppColors.creditIconBackground,
+                      color: context.colors.orangeTint,
                       borderRadius: BorderRadius.circular(
                         AppSizes.orderCreditIconRadius,
                       ),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.credit_card_outlined,
-                      color: AppColors.warningOrange,
+                      color: context.colors.brandOrange,
                       size: AppSizes.iconLg,
                     ),
                   ),
@@ -221,9 +238,11 @@ class CreditLimitCard extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
             decoration: BoxDecoration(
-              color: AppColors.light.greenTint,
+              color: context.colors.greenTint,
               borderRadius: BorderRadius.circular(AppSizes.orderChipRadius),
             ),
+            child: Text(
+              OrderDetailKeys.creditLimitInBudget.tr(),
             child: Text(
               OrderDetailKeys.creditLimitInBudget.tr(),
               textAlign: TextAlign.center,
@@ -240,7 +259,7 @@ class CreditLimitCard extends StatelessWidget {
             height: AppSizes.orderPrimaryActionHeight,
             child: FilledButton(
               style: FilledButton.styleFrom(
-                backgroundColor: AppColors.warningOrange,
+                backgroundColor: context.colors.brandOrange,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppRadii.tile),
                 ),

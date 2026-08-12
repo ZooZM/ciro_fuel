@@ -87,7 +87,8 @@ class _OrdersListViewState extends State<_OrdersListView> {
                 // wiring it means depending on NotificationsCubit here.
                 child: HomeTopBar(
                   notificationCount: 3,
-                  onNotificationTap: () => context.push(AppRoutes.notifications),
+                  onNotificationTap: () =>
+                      context.push(AppRoutes.notifications),
                 ),
               ),
               Expanded(
@@ -237,9 +238,7 @@ class _OrdersListViewState extends State<_OrdersListView> {
     return GestureDetector(
       onTap: () => setState(() => _selectedFilter = filter),
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(16),
@@ -415,10 +414,7 @@ class _ErrorView extends StatelessWidget {
             style: const TextStyle(color: Color(0xFF718096), fontSize: 14),
           ),
           const SizedBox(height: 12),
-          TextButton(
-            onPressed: onRetry,
-            child: Text(OrdersKeys.retry.tr()),
-          ),
+          TextButton(onPressed: onRetry, child: Text(OrdersKeys.retry.tr())),
         ],
       ),
     );

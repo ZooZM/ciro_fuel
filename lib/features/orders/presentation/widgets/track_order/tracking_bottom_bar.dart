@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../../core/constants/app_assets.dart';
@@ -24,7 +26,7 @@ class TrackingBottomBar extends StatelessWidget {
         AppSpacing.gutter,
         AppSpacing.lg,
       ),
-      color: Colors.white,
+      color: context.colors.surface,
       child: Row(
         children: [
           Expanded(
@@ -34,7 +36,7 @@ class TrackingBottomBar extends StatelessWidget {
               child: FilledButton.icon(
                 onPressed: onReceived ?? () {},
                 style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.blue,
+                  backgroundColor: context.colors.brandBlue,
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSizes.orderTransitButtonPaddingH,
                   ),
@@ -68,7 +70,7 @@ class TrackingBottomBar extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: onContactSupport ?? () {},
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: AppColors.itemBorder),
+                  side: BorderSide(color: context.colors.borderHairline),
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSizes.orderTransitButtonPaddingH,
                   ),

@@ -3,19 +3,22 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../constants/app_assets.dart';
+import 'app_logo.dart';
+import '../theme/app_spacing.dart';
+import '../theme/theme_context.dart';
 import '../router/app_routes.dart';
 
-const _kNavy = Color(0xFF162155);
-const _kSurface = Color(0xFFFFFFFF);
-const _kBadge = Color(0xFFEF3F3F);
-
-/// The header the pushed client screens share: back on the left, the CIRO FUEL
+/// The unified header for all screens: profile or back on the left, the CIRO FUEL
 /// logo centred, and the notification bell with its unread badge on the right.
-///
-/// Laid out left-to-right so the back button keeps the left edge even though
-/// the pages it sits on run right-to-left.
 class AppTopBar extends StatelessWidget {
-  const AppTopBar({super.key, this.notificationCount = 3, this.onBack});
+  const AppTopBar({
+    super.key,
+    this.notificationCount = 3,
+    this.onBack,
+    this.onNotificationTap,
+    this.onProfileTap,
+    this.showProfile = false,
+  });
 
   /// Shown in the bell's badge. Zero hides it.
   final int notificationCount;
@@ -23,54 +26,100 @@ class AppTopBar extends StatelessWidget {
   /// Defaults to popping the current route.
   final VoidCallback? onBack;
 
+  /// Defaults to pushing the notifications route.
+  final VoidCallback? onNotificationTap;
+
+  /// Defaults to pushing the profile route — the same screen the profile card
+  /// on المزيد opens. Only consulted when [showProfile] is true.
+  final VoidCallback? onProfileTap;
+
+  /// If true, shows the profile picture instead of the back button.
+  final bool showProfile;
+
   @override
   Widget build(BuildContext context) {
-    // Left-to-right for the whole bar, not just the Row's layout: the back
-    // chevron is a matchTextDirection icon, so under the page's RTL it would
-    // mirror and point right. This keeps it pointing left, as drawn.
-    return Directionality(
-      textDirection: TextDirection.ltr,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return SizedBox(
+      height: AppSizes.topBarHeight,
+      child: Stack(
+        alignment: Alignment.center,
         children: [
-          _TopBarButton(
-            onTap: onBack ?? () => context.pop(),
-            child: const Icon(Icons.arrow_back_ios_new, size: 20, color: _kNavy),
-          ),
-          SvgPicture.asset(AppAssets.appBarLogo, height: 20),
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              _TopBarButton(
-                onTap: () => context.push(AppRoutes.notifications),
-                child: SvgPicture.asset(
-                  AppAssets.notificationIcon,
-                  width: 20,
-                  height: 20,
-                  colorFilter: const ColorFilter.mode(_kNavy, BlendMode.srcIn),
-                ),
-              ),
-              if (notificationCount > 0)
-                Positioned(
-                  right: -6,
-                  top: -6,
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: const BoxDecoration(
-                      color: _kBadge,
-                      shape: BoxShape.circle,
+          // Leading edge: Profile or Back button
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: showProfile
+                ? GestureDetector(
+                    onTap:
+                        onProfileTap ??
+                        () => context.push(AppRoutes.clientProfile),
+                    child: Image.asset(
+                      AppAssets.dashboardProfileImage,
+                      width: AppSizes.dashboardProfileImageSize,
+                      height: AppSizes.dashboardProfileImageSize,
                     ),
-                    child: Text(
-                      '$notificationCount',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
+                  )
+                : _TopBarButton(
+                    onTap: onBack ?? () => context.pop(),
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.only(end: 2.0),
+                      // No manual swap: arrow_back_ios_new is declared
+                      // `matchTextDirection`, so Flutter already mirrors it —
+                      // '<' under English, '>' under Arabic. Picking
+                      // arrow_forward_ios for RTL on top of that mirrored it
+                      // twice and pointed the back button the wrong way.
+                      child: Icon(
+                        Icons.arrow_back_ios_new,
+                        size: 20,
+                        color: context.colors.textPrimary,
                       ),
                     ),
                   ),
+          ),
+
+          // Centered Logo
+          const AppLogo(),
+
+          // Trailing edge: Notification bell
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                _TopBarButton(
+                  onTap:
+                      onNotificationTap ??
+                      () => context.push(AppRoutes.notifications),
+                  child: SvgPicture.asset(
+                    AppAssets.notificationIcon,
+                    width: 20,
+                    height: 20,
+                    colorFilter: ColorFilter.mode(
+                      context.colors.textPrimary,
+                      BlendMode.srcIn,
+                    ),
+                  ),
                 ),
-            ],
+                if (notificationCount > 0)
+                  Positioned(
+                    right: -6,
+                    top: -6,
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: context.colors.brandRed,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        '$notificationCount',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ],
       ),
@@ -93,7 +142,7 @@ class _TopBarButton extends StatelessWidget {
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: _kSurface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(12),
           boxShadow: const [
             BoxShadow(

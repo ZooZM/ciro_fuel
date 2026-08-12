@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 
 import '../../../../../core/localization/translation_keys.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -13,6 +15,7 @@ class OrderTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+    return Column(
       children: [
         Text(
           CreateOrderKeys.title.tr(),
@@ -23,6 +26,7 @@ class OrderTitle extends StatelessWidget {
             fontWeight: FontWeight.w700,
           ),
         ),
+        const SizedBox(height: AppSpacing.xs),
         const SizedBox(height: AppSpacing.xs),
         Text(
           CreateOrderKeys.subtitle.tr(),

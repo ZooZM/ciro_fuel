@@ -1,8 +1,19 @@
+// `hide TextDirection`: easy_localization re-exports intl, whose
+// `TextDirection` would otherwise shadow the Flutter one used below.
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
+import '../../../../core/localization/translation_keys.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/date_time_row.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/theme_context.dart';
+import '../../../../core/widgets/app_top_bar.dart';
 import '../../../../core/widgets/search_filter_bar.dart';
+import '../../../../shared/models/filter_selection.dart';
+import '../../../../shared/models/station_option.dart';
+import '../../../../core/widgets/app_action_icon.dart';
 
 class ClientInvoicesScreen extends StatefulWidget {
   const ClientInvoicesScreen({super.key});
@@ -14,55 +25,182 @@ class ClientInvoicesScreen extends StatefulWidget {
 class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
   int _selectedTabIndex = 0;
 
-  final List<String> _tabs = ['الكل', 'مؤجلة', 'مدفوعة', 'فشلت'];
+  /// What the filter sheet last returned.
+  FilterSelection _filters = const FilterSelection();
+
+  // Translation keys, in tab order — the switch below keys off the index,
+  // and the tint off the key, so neither depends on the rendered label.
+  static const List<String> _tabKeys = [
+    InvoicesKeys.tabAll,
+    InvoicesKeys.tabDeferred,
+    InvoicesKeys.tabPaid,
+    InvoicesKeys.tabFailed,
+  ];
+
+  /// The tint each tab's label reads in.
+  ///
+  /// These came from the brand foundation, which is tuned for a light ground:
+  /// forest green measured 3.1:1 against the dark surface and error red 3.4:1,
+  /// both under the 4.5:1 needed for body text. The palette's own accents are
+  /// lightened for dark mode and land at 7.9:1 and 6.0:1, so the tints resolve
+  /// per theme rather than being fixed.
+  static Map<String, Color> _tabColors(BuildContext context) => {
+    InvoicesKeys.tabDeferred: context.colors.brandOrange,
+    InvoicesKeys.tabPaid: context.colors.brandGreen,
+    InvoicesKeys.tabFailed: context.colors.brandRed,
+  };
 
   final List<_InvoiceData> _allInvoices = const [
-    _InvoiceData(status: _InvoiceStatus.paid, id: 'ORD-2024-256', location: 'طريق أنس بن مالك، حي الملقا', date: '9 صفر 1446', time: '06.30 صباحاً', amount: '600,120.00 ر.س'),
-    _InvoiceData(status: _InvoiceStatus.pending, id: 'ORD-2024-257', location: 'طريق أنس بن مالك، حي الملقا', date: '9 صفر 1446', time: '06.30 صباحاً', amount: '600,120.00 ر.س'),
-    _InvoiceData(status: _InvoiceStatus.paid, id: 'ORD-2024-258', location: 'طريق أنس بن مالك، حي الملقا', date: '9 صفر 1446', time: '06.30 صباحاً', amount: '600,120.00 ر.س'),
-    _InvoiceData(status: _InvoiceStatus.pending, id: 'ORD-2024-259', location: 'طريق أنس بن مالك، حي الملقا', date: '9 صفر 1446', time: '06.30 صباحاً', amount: '600,120.00 ر.س'),
-    _InvoiceData(status: _InvoiceStatus.failed, id: 'ORD-2024-260', location: 'طريق أنس بن مالك، حي الملقا', date: '9 صفر 1446', time: '06.30 صباحاً', amount: '600,120.00 ر.س'),
-    _InvoiceData(status: _InvoiceStatus.paid, id: 'ORD-2024-261', location: 'طريق أنس بن مالك، حي الملقا', date: '9 صفر 1446', time: '06.30 صباحاً', amount: '600,120.00 ر.س'),
-    _InvoiceData(status: _InvoiceStatus.failed, id: 'ORD-2024-262', location: 'طريق أنس بن مالك، حي الملقا', date: '9 صفر 1446', time: '06.30 صباحاً', amount: '600,120.00 ر.س'),
-    _InvoiceData(status: _InvoiceStatus.pending, id: 'ORD-2024-263', location: 'طريق أنس بن مالك، حي الملقا', date: '9 صفر 1446', time: '06.30 صباحاً', amount: '600,120.00 ر.س'),
+    _InvoiceData(
+      status: _InvoiceStatus.paid,
+      id: 'ORD-2024-256',
+      location: 'طريق أنس بن مالك، حي الملقا',
+      date: '9 صفر 1446',
+      time: '06.30 صباحاً',
+      amount: '600,120.00 ر.س',
+    ),
+    _InvoiceData(
+      status: _InvoiceStatus.pending,
+      id: 'ORD-2024-257',
+      location: 'طريق أنس بن مالك، حي الملقا',
+      date: '9 صفر 1446',
+      time: '06.30 صباحاً',
+      amount: '600,120.00 ر.س',
+    ),
+    _InvoiceData(
+      status: _InvoiceStatus.paid,
+      id: 'ORD-2024-258',
+      location: 'طريق أنس بن مالك، حي الملقا',
+      date: '9 صفر 1446',
+      time: '06.30 صباحاً',
+      amount: '600,120.00 ر.س',
+    ),
+    _InvoiceData(
+      status: _InvoiceStatus.pending,
+      id: 'ORD-2024-259',
+      location: 'طريق أنس بن مالك، حي الملقا',
+      date: '9 صفر 1446',
+      time: '06.30 صباحاً',
+      amount: '600,120.00 ر.س',
+    ),
+    _InvoiceData(
+      status: _InvoiceStatus.failed,
+      id: 'ORD-2024-260',
+      location: 'طريق أنس بن مالك، حي الملقا',
+      date: '9 صفر 1446',
+      time: '06.30 صباحاً',
+      amount: '600,120.00 ر.س',
+    ),
+    _InvoiceData(
+      status: _InvoiceStatus.paid,
+      id: 'ORD-2024-261',
+      location: 'طريق أنس بن مالك، حي الملقا',
+      date: '9 صفر 1446',
+      time: '06.30 صباحاً',
+      amount: '600,120.00 ر.س',
+    ),
+    _InvoiceData(
+      status: _InvoiceStatus.failed,
+      id: 'ORD-2024-262',
+      location: 'طريق أنس بن مالك، حي الملقا',
+      date: '9 صفر 1446',
+      time: '06.30 صباحاً',
+      amount: '600,120.00 ر.س',
+    ),
+    _InvoiceData(
+      status: _InvoiceStatus.pending,
+      id: 'ORD-2024-263',
+      location: 'طريق أنس بن مالك، حي الملقا',
+      date: '9 صفر 1446',
+      time: '06.30 صباحاً',
+      amount: '600,120.00 ر.س',
+    ),
   ];
 
   List<_InvoiceData> get _filteredInvoices {
+    final isAr = context.locale.languageCode == 'ar';
+    final loc = isAr
+        ? 'طريق أنس بن مالك، حي الملقا'
+        : 'Anas Bin Malik Road, Al Malqa District';
+    final dat = isAr ? '9 صفر 1446' : '9 Safar 1446';
+    final tim = isAr ? '06.30 صباحاً' : '06.30 AM';
+    final cur = CommonKeys.currencySymbol.tr();
+    final amountText = '600,120.00 $cur';
+
+    final updatedInvoices = _allInvoices
+        .map(
+          (i) => _InvoiceData(
+            status: i.status,
+            id: i.id,
+            location: loc,
+            date: dat,
+            time: tim,
+            amount: amountText,
+          ),
+        )
+        .toList();
+
     switch (_selectedTabIndex) {
-      case 1: // مؤجلة
-        return _allInvoices.where((i) => i.status == _InvoiceStatus.pending).toList();
-      case 2: // مدفوعة
-        return _allInvoices.where((i) => i.status == _InvoiceStatus.paid).toList();
-      case 3: // فشلت
-        return _allInvoices.where((i) => i.status == _InvoiceStatus.failed).toList();
-      default: // الكل
-        return _allInvoices;
+      case 1: // deferred
+        return updatedInvoices
+            .where((i) => i.status == _InvoiceStatus.pending)
+            .toList();
+      case 2: // paid
+        return updatedInvoices
+            .where((i) => i.status == _InvoiceStatus.paid)
+            .toList();
+      case 3: // failed
+        return updatedInvoices
+            .where((i) => i.status == _InvoiceStatus.failed)
+            .toList();
+      default: // all
+        return updatedInvoices;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final invoices = _filteredInvoices;
+    final colors = context.colors;
     return Scaffold(
-      backgroundColor: AppColors.light.canvas,
+      backgroundColor: colors.canvas,
       body: SafeArea(
         child: Column(
           children: [
             _buildHeader(),
+            // No Directionality override here: the screen follows the app
+            // locale, so it lays out RTL in Arabic and LTR in English. Pinning
+            // it to RTL kept the tab row and the cards mirrored under English.
             Expanded(
-              child: Directionality(
-                textDirection: TextDirection.rtl,
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  children: [
-                    const SizedBox(height: 16),
-                    _buildTitleRow(),
-                    const SizedBox(height: 16),
-                    const SearchFilterBar(),
-                    const SizedBox(height: 16),
-                    _buildTabs(),
-                    const SizedBox(height: 16),
-                    ...invoices.map((invoice) => Padding(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                children: [
+                  const SizedBox(height: 16),
+                  _buildTitleRow(),
+                  const SizedBox(height: 16),
+                  SearchFilterBar(
+                    // No fuel grade or quantity here: these lists are money,
+                    // not consignments. Confirm the exact sections with the
+                    // design before treating this as settled.
+                    sortOptions: const [
+                      SortOption.newestFirst,
+                      SortOption.oldestFirst,
+                      SortOption.highestAmount,
+                      SortOption.lowestAmount,
+                    ],
+                    filterStations: [
+                      for (final s in kStationOptions)
+                        if (s.isActive) s,
+                    ],
+                    showDateFilter: true,
+                    filters: _filters,
+                    onFiltersChanged: (f) => setState(() => _filters = f),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTabs(),
+                  const SizedBox(height: 16),
+                  ...invoices.map(
+                    (invoice) => Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: _buildInvoiceCard(
                         status: invoice.status,
@@ -72,23 +210,23 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
                         time: invoice.time,
                         amount: invoice.amount,
                       ),
-                    )),
-                    if (invoices.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 40),
-                        child: Center(
-                          child: Text(
-                            'لا توجد فواتير',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: AppColors.light.textTertiary,
-                            ),
+                    ),
+                  ),
+                  if (invoices.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 40),
+                      child: Center(
+                        child: Text(
+                          InvoicesKeys.empty.tr(),
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: colors.textTertiary,
                           ),
                         ),
                       ),
-                    const SizedBox(height: 100),
-                  ],
-                ),
+                    ),
+                  const SizedBox(height: 100),
+                ],
               ),
             ),
           ],
@@ -97,7 +235,6 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
     );
   }
 
-  // ── Header (LTR like the rest of the app) ──────────────────────────
   Widget _buildHeader() {
     return Directionality(
       textDirection: TextDirection.ltr,
@@ -170,85 +307,72 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
 
   // ── Title row ──────────────────────────────────────────────────────
   Widget _buildTitleRow() {
+    final colors = context.colors;
     return Row(
       children: [
         // Title + subtitle (RTL start = right)
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'كل الفواتير',
+            Text(
+              InvoicesKeys.title.tr(),
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: AppColors.slateCharcoal,
+                color: context.colors.textPrimary,
               ),
             ),
             const SizedBox(height: 4),
             Text(
-              '8 فاتورة إجمالاً',
-              style: TextStyle(
-                fontSize: 12,
-                color: AppColors.light.textSecondary,
-              ),
+              InvoicesKeys.count.tr(namedArgs: {'count': '8'}),
+              style: TextStyle(fontSize: 12, color: colors.textSecondary),
             ),
           ],
         ),
         const Spacer(),
         // Reload icon button
-        SvgPicture.asset('assets/invoices/reload.svg', width: 32, height: 32),
+        const AppActionIcon.reload(),
         const SizedBox(width: 8),
         // Download icon button
-        SvgPicture.asset('assets/invoices/download.svg', width: 32, height: 32),
+        const AppActionIcon.download(),
       ],
     );
   }
 
   // ── Tabs ────────────────────────────────────────────────────────────
   Widget _buildTabs() {
+    final colors = context.colors;
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children: _tabs.asMap().entries.map((entry) {
+        children: _tabKeys.asMap().entries.map((entry) {
           final index = entry.key;
-          final label = entry.value;
+          final tabKey = entry.value;
           final isSelected = _selectedTabIndex == index;
 
-          Color textColor;
-          if (isSelected) {
-            textColor = Colors.white;
-          } else {
-            switch (label) {
-              case 'مؤجلة':
-                textColor = AppColors.ignitionOrange;
-                break;
-              case 'مدفوعة':
-                textColor = AppColors.forestGreen;
-                break;
-              case 'فشلت':
-                textColor = AppColors.errorRed;
-                break;
-              default:
-                textColor = AppColors.light.textSecondary;
-            }
-          }
+          final textColor = isSelected
+              ? Colors.white
+              : (_tabColors(context)[tabKey] ?? colors.textSecondary);
 
           return GestureDetector(
             onTap: () => setState(() => _selectedTabIndex = index),
             child: Container(
-              margin: EdgeInsets.only(left: index < _tabs.length - 1 ? 8 : 0),
+              // Gap goes *after* each chip except the last, and it has to be
+              // directional: a plain `left` margin leaves the final chip
+              // (Failed) glued to its neighbour and flips wrong in RTL.
+              margin: EdgeInsetsDirectional.only(
+                end: index < _tabKeys.length - 1 ? 8 : 0,
+              ),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.light.brandBlue : Colors.white,
+                color: isSelected ? colors.brandBlue : colors.surface,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: isSelected
-                      ? AppColors.light.brandBlue
-                      : AppColors.light.borderHairline,
+                  color: isSelected ? colors.brandBlue : colors.borderHairline,
                 ),
               ),
               child: Text(
-                label,
+                tabKey.tr(),
                 style: TextStyle(
                   color: textColor,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
@@ -271,6 +395,7 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
     required String time,
     required String amount,
   }) {
+    final colors = context.colors;
     Color statusColor;
     String statusIcon;
     switch (status) {
@@ -287,7 +412,7 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(12),
         boxShadow: AppColors.shadowCard,
       ),
@@ -315,7 +440,7 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
                           Text(
                             id,
                             style: TextStyle(
-                              color: AppColors.light.textTertiary,
+                              color: colors.textTertiary,
                               fontSize: 10,
                             ),
                           ),
@@ -335,10 +460,10 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
                               Expanded(
                                 child: Text(
                                   location,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
-                                    color: AppColors.slateCharcoal,
+                                    color: context.colors.textPrimary,
                                     height: 1.3,
                                   ),
                                 ),
@@ -346,40 +471,25 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
                             ],
                           ),
                           const SizedBox(height: 6),
-                          Row(
-                            children: [
-                              SvgPicture.asset(
-                                'assets/invoices/date.svg',
-                                width: 14,
-                                height: 14,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                date,
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  color: AppColors.slateCharcoal,
-                                ),
-                              ),
-                            ],
+                          // Stacked rather than side by side, as the invoice
+                          // card is drawn — but the same two glyphs as every
+                          // other card, each against its own value.
+                          DateTimeLabel.date(
+                            label: date,
+                            size: 14,
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: context.colors.textPrimary,
+                            ),
                           ),
                           const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              SvgPicture.asset(
-                                'assets/invoices/hour.svg',
-                                width: 14,
-                                height: 14,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                time,
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  color: AppColors.slateCharcoal,
-                                ),
-                              ),
-                            ],
+                          DateTimeLabel.hour(
+                            label: time,
+                            size: 14,
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: context.colors.textPrimary,
+                            ),
                           ),
                         ],
                       ),
@@ -390,17 +500,13 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        SvgPicture.asset(
-                          'assets/invoices/download.svg',
-                          width: 28,
-                          height: 28,
-                        ),
+                        const AppActionIcon.download(size: 28),
                         const SizedBox(height: 16),
                         Text(
-                          'الإجمالي',
+                          CommonKeys.total.tr(),
                           style: TextStyle(
                             fontSize: 10,
-                            color: AppColors.light.textTertiary,
+                            color: colors.textTertiary,
                           ),
                         ),
                         const SizedBox(height: 2),

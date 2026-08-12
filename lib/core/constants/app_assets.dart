@@ -14,13 +14,15 @@
 /// exactly how `assets/Icons/…` and `assets/Logo/…` went unnoticed.
 abstract final class AppAssets {
   static const String _signIn = 'assets/SignIn';
-  static const String _logo = 'assets/logo';
-  static const String _icons = 'assets/icons';
-  static const String _biometric = 'assets/biometric';
-  static const String _social = 'assets/social media';
+  static const String _logo = 'assets/Logo';
+  static const String _icons = 'assets/Icons';
+  static const String _biometric = 'assets/Biometric';
+  static const String _social = 'assets/Social Media';
+  static const String _invoices = 'assets/invoices';
   static const String _homePage = 'assets/HomePage';
   static const String _homeFlow = '$_homePage/flow';
   static const String _order = 'assets/Order';
+  static const String _help = 'assets/Help Screen';
   static const String _more = 'assets/more';
   static const String _help = 'assets/help screen';
 
@@ -29,7 +31,38 @@ abstract final class AppAssets {
   static const String loginWave = '$_signIn/Wave.svg';
 
   // Brand
+  //
+  // Both wordmarks live in `assets/Logo/` — the stacked mark and the one the
+  // top bar draws — and each ships in two cuts. CIRO is drawn in black, which
+  // disappears on a dark canvas, so the dark cut is the same artwork with only
+  // those letterforms redrawn in white; the green accent on the R (#12A150) and
+  // the blue FUEL (#1E5FFF) read on dark already and are identical in both
+  // files. A `colorFilter` cannot do this —
+  // it would flatten every colour into one. Prefer the [AppLogo] and
+  // [AppLogoMark] widgets over naming a constant directly; they pick the cut
+  // for the active theme.
   static const String logo = '$_logo/Logo.svg';
+  static const String logoDark = '$_logo/Logo Dark.svg';
+  static const String appBarLogo = '$_logo/appBar Logo.svg';
+  static const String appBarLogoDark = '$_logo/appBar Logo Dark.svg';
+
+  // Action chips (reload / download / filter)
+  //
+  // Each of these is a whole button rather than a glyph: a tinted chip, a
+  // hairline border and a coloured mark. A `colorFilter` would flatten all
+  // three into one colour, so — as with the wordmark — each ships a dark cut
+  // that remaps every role to its dark-palette counterpart. Reach for
+  // [AppActionIcon] instead of naming a pair directly.
+  static const String filterIcon = '$_icons/filter.svg';
+  static const String filterIconDark = '$_icons/filter_dark.svg';
+  static const String reloadIcon = '$_invoices/reload.svg';
+  static const String reloadIconDark = '$_invoices/reload_dark.svg';
+  static const String downloadIcon = '$_invoices/download.svg';
+  static const String downloadIconDark = '$_invoices/download_dark.svg';
+
+  /// The payments screen draws its reload from a second copy of the artwork.
+  static const String paymentsReloadIcon = '$_icons/reload.svg';
+  static const String paymentsReloadIconDark = '$_icons/reload_dark.svg';
 
   // UI icons
   static const String phoneIcon = '$_icons/phone.svg';
@@ -63,7 +96,6 @@ abstract final class AppAssets {
   static const String translationsPath = 'assets/translations';
 
   // Client home dashboard
-  static const String appBarLogo = '$_homePage/appBar Logo.svg';
   static const String dashboardProfileImage = '$_homePage/profile image.png';
   static const String notificationIcon = '$_icons/notification.svg';
   static const String dashboardStationIcon = '$_homePage/green station.svg';
@@ -120,6 +152,14 @@ abstract final class AppAssets {
   static const String orderStationIcon = '$_order/station_icon.svg';
   static const String orderDateIcon = '$_order/date.svg';
   static const String orderFlashIcon = '$_order/flash.svg';
+  static const String orderCustomQuantityIcon = '$_icons/edit.svg';
+
+  // Help & support
+  //
+  // The nozzle is drawn in two colours — a green body over orange drips — so
+  // it must not be recoloured through a `colorFilter`.
+  static const String supportGasGunIcon = '$_help/gas gun.svg';
+  static const String supportSendIcon = '$_help/send.svg';
 
   // Track-order screen
   static const String orderDriverPhoto = '$_order/driver image.png';

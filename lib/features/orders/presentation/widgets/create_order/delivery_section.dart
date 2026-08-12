@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../../core/constants/app_assets.dart';
@@ -9,17 +11,27 @@ import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/widgets/order_card.dart';
 import 'create_order_data.dart';
+import '../../../../../core/theme/theme_context.dart';
 
 /// "4. موعد التوصيل" — the three delivery-timing tiles.
 class DeliverySection extends StatelessWidget {
   const DeliverySection({
     required this.selected,
     required this.onChanged,
+    required this.onScheduleTap,
+    this.scheduledDate,
     super.key,
   });
 
   final DeliveryOption selected;
   final ValueChanged<DeliveryOption> onChanged;
+
+  /// جدول موعد does not select itself: the screen opens the calendar and only
+  /// then reports the choice, so a dismissed dialog changes nothing.
+  final VoidCallback onScheduleTap;
+
+  /// The day picked for جدول موعد, shown in place of the tile's subtitle.
+  final DateTime? scheduledDate;
 
   @override
   Widget build(BuildContext context) {
@@ -100,9 +112,15 @@ class _DeliveryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final glyphColor = selected ? AppColors.green : AppColors.grey;
-    final titleColor = selected ? AppColors.green : AppColors.navy;
-    final subtitleColor = selected ? AppColors.green : AppColors.grey;
+    final glyphColor = selected
+        ? context.colors.brandGreen
+        : context.colors.textSecondary;
+    final titleColor = selected
+        ? context.colors.brandGreen
+        : context.colors.textPrimary;
+    final subtitleColor = selected
+        ? context.colors.brandGreen
+        : context.colors.textSecondary;
 
     return GestureDetector(
       onTap: onTap,
@@ -111,10 +129,12 @@ class _DeliveryTile extends StatelessWidget {
           minHeight: AppSizes.orderDeliveryTileMinHeight,
         ),
         decoration: BoxDecoration(
-          color: selected ? AppColors.light.greenTint : Colors.white,
+          color: selected ? context.colors.greenTint : context.colors.surface,
           borderRadius: BorderRadius.circular(AppRadii.tile),
           border: Border.all(
-            color: selected ? AppColors.green : AppColors.itemBorder,
+            color: selected
+                ? context.colors.brandGreen
+                : context.colors.borderHairline,
             width: selected
                 ? AppSizes.orderTileSelectedBorderWidth
                 : AppSizes.orderTileBorderWidth,

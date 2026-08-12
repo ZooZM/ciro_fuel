@@ -6,7 +6,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:easy_localization/src/localization.dart';
 import 'package:easy_localization/src/translations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_app/core/constants/app_assets.dart';
 import 'package:mobile_app/core/localization/app_locales.dart';
@@ -15,6 +14,7 @@ import 'package:mobile_app/features/orders/presentation/view/invoice_payment_scr
 import 'package:mobile_app/features/orders/presentation/view/order_detail_screen.dart';
 import 'package:mobile_app/features/orders/presentation/view/track_order_screen.dart';
 
+<<<<<<< HEAD
 import 'support/orders_test_di.dart';
 
 /// Without the real font, text falls back to a fixed-width test face that is
@@ -31,6 +31,9 @@ Future<void> _loadTajawal() async {
   }
   await loader.load();
 }
+=======
+import 'helpers/localized_harness.dart';
+>>>>>>> df7a18f732afd39bbce1817509b7b32640330465
 
 /// Every order screen must lay out on a phone without overflowing. Widget tests
 /// surface overflow as a thrown FlutterError, so simply pumping each one is the
@@ -59,17 +62,15 @@ void main() {
   tearDown(resetOrdersTestDi);
 
   Future<void> pumpPhone(WidgetTester tester, Widget screen) async {
-    await _loadTajawal();
+    await loadTajawal();
     tester.view.physicalSize = const Size(1206, 2622);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
-    await tester.pumpWidget(
-      MaterialApp(
-        theme: ThemeData(fontFamily: 'Tajawal', useMaterial3: true),
-        home: screen,
-      ),
+    await pumpLocalized(
+      tester,
+      screen,
+      theme: ThemeData(fontFamily: 'Tajawal', useMaterial3: true),
     );
-    await tester.pump();
   }
 
   testWidgets('the order form renders', (tester) async {

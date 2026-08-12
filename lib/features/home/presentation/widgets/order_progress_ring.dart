@@ -1,10 +1,11 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../core/constants/app_assets.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../constants/client_home_strings.dart';
+import '../../../../core/localization/translation_keys.dart';
+import '../../../../core/theme/theme_context.dart';
 
 /// The circular delivery-progress indicator at the centre of the current
 /// order card, with the ETA lettered inside it.
@@ -32,8 +33,8 @@ class OrderProgressRing extends StatelessWidget {
             height: AppSizes.dashboardOrderProgressDiameter,
             child: CircularProgressIndicator(
               value: progress,
-              backgroundColor: AppColors.itemBorder,
-              color: AppColors.green,
+              backgroundColor: context.colors.borderHairline,
+              color: context.colors.brandGreen,
               strokeWidth: AppSizes.dashboardOrderProgressStrokeWidth,
             ),
           ),
@@ -44,28 +45,28 @@ class OrderProgressRing extends StatelessWidget {
                 AppAssets.dashboardTruckIcon,
                 width: AppSizes.dashboardOrderTruckIconSize,
                 height: AppSizes.dashboardOrderTruckIconSize,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.navy,
+                colorFilter: ColorFilter.mode(
+                  context.colors.textPrimary,
                   BlendMode.srcIn,
                 ),
               ),
               const SizedBox(height: AppSpacing.xs),
-              const Text(
-                ClientHomeStrings.arrivalIn,
-                style: TextStyle(color: AppColors.grey, fontSize: 8),
+              Text(
+                CommonKeys.arrivalIn.tr(),
+                style: TextStyle(color: context.colors.textSecondary, fontSize: 8),
               ),
               Text(
                 etaMinutes,
-                style: const TextStyle(
-                  color: AppColors.green,
+                style: TextStyle(
+                  color: context.colors.brandGreen,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                   height: 1.0,
                 ),
               ),
-              const Text(
-                ClientHomeStrings.minutes,
-                style: TextStyle(color: AppColors.green, fontSize: 8),
+              Text(
+                CommonKeys.minutes.tr(),
+                style: TextStyle(color: context.colors.brandGreen, fontSize: 8),
               ),
             ],
           ),

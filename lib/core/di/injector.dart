@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../core/theme/theme_cubit.dart';
+
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
 import '../../features/auth/data/datasources/login_preferences_store.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
@@ -67,6 +69,8 @@ void _registerCore() {
   final tokenStore = TokenStore();
   getIt.registerSingleton<TokenStore>(tokenStore);
 
+  getIt.registerLazySingleton(() => ThemeCubit());
+
   final sessionCubit = SessionCubit();
   getIt.registerSingleton<SessionCubit>(sessionCubit);
 
@@ -129,7 +133,7 @@ void _registerOrdersFeature() {
   getIt.registerLazySingleton(() => GetCurrentOtp(getIt()));
   getIt.registerLazySingleton(() => CancelOrder(getIt()));
   getIt.registerLazySingleton(() => Redispatch(getIt()));
-  
+
   getIt.registerFactory(() => OrdersCubit(getOrders: getIt()));
 }
 

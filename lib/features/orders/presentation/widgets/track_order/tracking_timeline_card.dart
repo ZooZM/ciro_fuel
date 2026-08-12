@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 
 import '../../../../../core/localization/translation_keys.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -15,6 +17,7 @@ class TrackingTimelineCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OrderCard(
+    return OrderCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -26,6 +29,8 @@ class TrackingTimelineCard extends StatelessWidget {
               fontWeight: FontWeight.w800,
             ),
           ),
+          const SizedBox(height: AppSpacing.lg),
+          const OrderFlow(),
           const SizedBox(height: AppSpacing.lg),
           const OrderFlow(),
         ],

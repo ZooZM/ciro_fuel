@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -17,6 +18,7 @@ enum OrderFlowStep {
   delivered(OrderFlowKeys.delivered);
 
   const OrderFlowStep(this.labelKey, {this.asset});
+  const OrderFlowStep(this.labelKey, {this.asset});
 
   /// Translation key — resolved at build so the timeline follows the locale.
   final String labelKey;
@@ -26,8 +28,8 @@ enum OrderFlowStep {
   final String? asset;
 }
 
-/// The five-stop delivery timeline: تم قبول الطلب ← جاري التحميل ←
-/// خرجت الشاحنة ← في الطريق ← تم التسليم.
+/// The five-stop delivery timeline: accepted ← loading ← dispatched ←
+/// on the way ← delivered.
 ///
 /// Shared by the home screen's current-order card, the order detail screen and
 /// the tracking screen, which all draw the same journey.
@@ -115,11 +117,20 @@ class _Step extends StatelessWidget {
     );
   }
 
-  Widget _bubbleFor({required bool done, required bool isCurrent, required Color color}) {
+  Widget _bubbleFor(
+    BuildContext context, {
+    required bool done,
+    required bool isCurrent,
+    required Color color,
+  }) {
     // The flow artwork carries its own circle, but only in the completed
     // colourway — anything else is drawn.
     if (done && step.asset != null) {
-      return SvgPicture.asset(step.asset!, width: OrderFlow._bubble, height: OrderFlow._bubble);
+      return SvgPicture.asset(
+        step.asset!,
+        width: OrderFlow._bubble,
+        height: OrderFlow._bubble,
+      );
     }
 
     // A step still ahead is a plain filled disc: no ring, no glyph.
@@ -182,5 +193,6 @@ class _DashedRulePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _DashedRulePainter oldDelegate) => oldDelegate.color != color;
+  bool shouldRepaint(covariant _DashedRulePainter oldDelegate) =>
+      oldDelegate.color != color;
 }

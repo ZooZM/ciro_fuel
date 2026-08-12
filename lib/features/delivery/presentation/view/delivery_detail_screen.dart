@@ -1,7 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/di/injector.dart';
+import '../../../../core/localization/translation_keys.dart';
 import '../../../../shared/enums/order_status.dart';
 import '../cubit/delivery_cubit.dart';
 import '../cubit/delivery_state.dart';
@@ -67,16 +69,18 @@ class _DeliveryDetailViewState extends State<_DeliveryDetailView> {
   String _rejectionMessage(OtpVerifyState state) => switch (state) {
     OtpVerifyThrottled(:final retryAfter) =>
       retryAfter != null
-          ? 'Too many attempts. Try again in ${retryAfter.inMinutes} min.'
-          : 'Too many attempts. Please wait and try again.',
-    OtpVerifyRejected() => 'Incorrect code. Please try again.',
+          ? DriverKeys.throttledIn.tr(
+              namedArgs: {'minutes': '${retryAfter.inMinutes}'},
+            )
+          : DriverKeys.throttled.tr(),
+    OtpVerifyRejected() => DriverKeys.codeRejected.tr(),
     _ => '',
   };
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Delivery')),
+      appBar: AppBar(title: Text(DriverKeys.delivery.tr())),
       body: BlocListener<OtpVerifyCubit, OtpVerifyState>(
         listener: (context, state) {
           switch (state) {
@@ -97,11 +101,11 @@ class _DeliveryDetailViewState extends State<_DeliveryDetailView> {
         },
         child: BlocBuilder<DeliveryCubit, DeliveryState>(
           builder: (context, deliveryState) => switch (deliveryState) {
-            DeliveryNoActiveOrder() => const Center(
-              child: Text('No active delivery'),
+            DeliveryNoActiveOrder() => Center(
+              child: Text(DriverKeys.noActiveDelivery.tr()),
             ),
-            DeliveryFailureState() => const Center(
-              child: Text('Could not load this delivery.'),
+            DeliveryFailureState() => Center(
+              child: Text(DriverKeys.loadFailed.tr()),
             ),
             DeliveryActive(:final order) => Builder(
               builder: (context) {
@@ -121,7 +125,7 @@ class _DeliveryDetailViewState extends State<_DeliveryDetailView> {
         final busy = otpState is OtpVerifying;
 
         if (_step == _OtpStep.done) {
-          return const Center(child: Text('Delivery complete'));
+          return Center(child: Text(DriverKeys.deliveryComplete.tr()));
         }
 
         final isArrival = _step == _OtpStep.arrival;
@@ -136,7 +140,7 @@ class _DeliveryDetailViewState extends State<_DeliveryDetailView> {
                   onPressed: busy
                       ? null
                       : () => context.read<OtpVerifyCubit>().markArrived(),
-                  child: const Text('Arrived'),
+                  child: Text(DriverKeys.arrived.tr()),
                 )
               else
                 FilledButton(
@@ -144,7 +148,7 @@ class _DeliveryDetailViewState extends State<_DeliveryDetailView> {
                       ? null
                       : () =>
                             context.read<OtpVerifyCubit>().requestDeliveryOtp(),
-                  child: const Text('Request delivery code'),
+                  child: Text(DriverKeys.requestDeliveryCode.tr()),
                 ),
               const SizedBox(height: 16),
               TextField(
@@ -152,7 +156,9 @@ class _DeliveryDetailViewState extends State<_DeliveryDetailView> {
                 keyboardType: TextInputType.number,
                 maxLength: 6,
                 decoration: InputDecoration(
-                  labelText: isArrival ? 'Arrival code' : 'Delivery code',
+                  labelText: isArrival
+                      ? DriverKeys.arrivalCode.tr()
+                      : DriverKeys.deliveryCode.tr(),
                 ),
               ),
               FilledButton(
@@ -172,7 +178,7 @@ class _DeliveryDetailViewState extends State<_DeliveryDetailView> {
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text('Verify'),
+                    : Text(DriverKeys.verify.tr()),
               ),
             ],
           ),

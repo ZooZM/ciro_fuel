@@ -1,10 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../../core/localization/translation_keys.dart';
 import '../../../../../core/router/app_routes.dart';
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 
@@ -21,7 +22,7 @@ class SupportFab extends StatelessWidget {
     return Container(
       height: AppSizes.orderPrimaryActionHeight,
       decoration: BoxDecoration(
-        color: AppColors.blue,
+        color: context.colors.brandBlue,
         borderRadius: BorderRadius.circular(AppRadii.tile),
         boxShadow: [
           BoxShadow(
@@ -38,6 +39,8 @@ class SupportFab extends StatelessWidget {
           onTap: () => context.push(AppRoutes.support),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             child: Row(
               children: [
                 Text(
@@ -48,6 +51,8 @@ class SupportFab extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
+                const SizedBox(width: AppSpacing.md),
+                const Icon(
                 const SizedBox(width: AppSpacing.md),
                 const Icon(
                   Icons.headset_mic_outlined,

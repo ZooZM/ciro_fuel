@@ -2,6 +2,7 @@
 // otherwise shadow the `dart:ui` one this screen sets RTL with.
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
+import '../../../../core/localization/translation_keys.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/localization/translation_keys.dart';
@@ -183,7 +184,8 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
             const PendingOrderStatusCard()
           else
             PayableOrderStatusCard(
-              invoicePending: _currentState == MockOrderState.waitingPayment ||
+              invoicePending:
+                  _currentState == MockOrderState.waitingPayment ||
                   _currentState == MockOrderState.failedPayment,
               onDeferPayment: _deferPayment,
             ),

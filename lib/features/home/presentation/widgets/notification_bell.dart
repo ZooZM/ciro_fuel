@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../core/constants/app_assets.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/theme_context.dart';
 
 /// The bell icon with its unread-count badge, top-left of the dashboard
 /// in RTL.
@@ -23,7 +23,7 @@ class NotificationBell extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(AppRadii.tile),
               boxShadow: [
                 BoxShadow(
@@ -37,8 +37,8 @@ class NotificationBell extends StatelessWidget {
               AppAssets.notificationIcon,
               width: AppSizes.dashboardNotificationIconSize,
               height: AppSizes.dashboardNotificationIconSize,
-              colorFilter: const ColorFilter.mode(
-                AppColors.navy,
+              colorFilter: ColorFilter.mode(
+                context.colors.textPrimary,
                 BlendMode.srcIn,
               ),
             ),

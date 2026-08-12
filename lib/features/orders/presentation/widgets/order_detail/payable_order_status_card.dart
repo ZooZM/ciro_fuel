@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 
 import '../../../../../core/localization/translation_keys.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -9,6 +11,7 @@ import '../../../../../core/widgets/order_card.dart';
 import '../../constants/order_mock_data.dart';
 import '../../view/invoice_payment_screen.dart';
 import 'status_chip.dart';
+import '../../../../../core/theme/theme_context.dart';
 
 /// The card the order sits in once it can be paid — identical either side
 /// of the invoice being raised, bar the badge and the pay button's
@@ -24,7 +27,7 @@ class PayableOrderStatusCard extends StatelessWidget {
   });
 
   final bool invoicePending;
-  final String orderReference;
+  final String? orderReference;
 
   /// Pushes the order to the deferred (pay-next-time) receipt.
   final VoidCallback onDeferPayment;
@@ -33,12 +36,18 @@ class PayableOrderStatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isAr = context.locale.languageCode == 'ar';
+    final resolvedReference = orderReference ?? 
+        (isAr ? 'ORD-2024-256 · 9 صفر 1446' : 'ORD-2024-256 · 9 Safar 1446');
+
     return OrderCard(
       dashed: true,
       title: OrderDetailKeys.orderStatus.tr(),
       subtitle: orderReference,
       trailing: StatusChip(
         invoicePending
+            ? OrderDetailKeys.invoicePending.tr()
+            : OrderDetailKeys.confirmed.tr(),
             ? OrderDetailKeys.invoicePending.tr()
             : OrderDetailKeys.confirmed.tr(),
       ),
@@ -60,7 +69,7 @@ class PayableOrderStatusCard extends StatelessWidget {
                       );
                     },
                     style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.blue,
+                      backgroundColor: context.colors.brandBlue,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppRadii.tile),
                       ),
@@ -92,7 +101,7 @@ class PayableOrderStatusCard extends StatelessWidget {
                   child: OutlinedButton(
                     onPressed: onCancel ?? () {},
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppColors.itemBorder),
+                      side: BorderSide(color: context.colors.borderHairline),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppRadii.tile),
                       ),
@@ -117,7 +126,7 @@ class PayableOrderStatusCard extends StatelessWidget {
             child: FilledButton.icon(
               onPressed: onDeferPayment,
               style: FilledButton.styleFrom(
-                backgroundColor: AppColors.green,
+                backgroundColor: context.colors.brandGreen,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppRadii.tile),
                 ),
@@ -141,9 +150,9 @@ class PayableOrderStatusCard extends StatelessWidget {
           Center(
             child: TextButton.icon(
               onPressed: onRequestCreditLimit ?? () {},
-              icon: const Icon(
+              icon: Icon(
                 Icons.credit_card_outlined,
-                color: AppColors.navy,
+                color: context.colors.textPrimary,
                 size: AppSizes.iconMd,
               ),
               label: Text(

@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 
 import '../../../../../core/constants/app_assets.dart';
 import '../../../../../core/localization/translation_keys.dart';
@@ -36,6 +38,9 @@ class DriverCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fuelType = this.fuelType ?? FuelKeys.gasoline95.tr();
+    final quantity = this.quantity ?? '20,000 ${CommonKeys.litre.tr()}';
+
     return OrderCard(
       child: IntrinsicHeight(
         child: Row(
@@ -89,9 +94,12 @@ class DriverCard extends StatelessWidget {
                 children: [
                   _Field(
                     label: TrackOrderKeys.vehicle.tr(),
+                    label: TrackOrderKeys.vehicle.tr(),
                     value: truckPlate,
                     center: true,
                   ),
+                  Text(
+                    TrackOrderKeys.fuelTankerTruck.tr(),
                   Text(
                     TrackOrderKeys.fuelTankerTruck.tr(),
                     maxLines: 1,
@@ -131,15 +139,18 @@ class DriverCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                         vertical: AppSpacing.sm,
                       ),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpacing.sm,
+                      ),
                       decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.itemBorder),
+                        border: Border.all(color: context.colors.borderHairline),
                         borderRadius: BorderRadius.circular(
                           AppSizes.orderCreditIconRadius,
                         ),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.phone_outlined,
-                        color: AppColors.navy,
+                        color: context.colors.textPrimary,
                         size: AppSizes.iconMd,
                       ),
                     ),
@@ -188,6 +199,9 @@ class _Field extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: center
+          ? CrossAxisAlignment.center
+          : CrossAxisAlignment.start,
       crossAxisAlignment: center
           ? CrossAxisAlignment.center
           : CrossAxisAlignment.start,

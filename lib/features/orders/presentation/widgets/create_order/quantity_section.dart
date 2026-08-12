@@ -1,6 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import '../../../../../core/localization/translation_keys.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../../core/localization/translation_keys.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -10,29 +12,45 @@ import '../../../../../core/utils/number_formatting.dart';
 import '../../../../../core/widgets/order_card.dart';
 import '../../../../../shared/enums/fuel_grade.dart';
 import 'create_order_data.dart';
+import '../../../../../core/theme/theme_context.dart';
 
-/// "3. الكمية" — one quantity row per selected grade: a custom-amount
-/// field plus the three preset litre tiles. The grade label only shows
-/// once more than one grade is being ordered at a time.
-class QuantitySection extends StatelessWidget {
+/// "3. الكمية" — one quantity row per selected grade: the لتر box and the
+/// preset litre tiles, with the counter folded away underneath. The grade label
+/// only shows once more than one grade is being ordered at a time.
+class QuantitySection extends StatefulWidget {
   const QuantitySection({
     required this.quantities,
-    required this.controllers,
-    required this.onCustomQuantityChanged,
     required this.onPresetSelected,
     super.key,
   });
 
-  /// Grade index → chosen preset litres, or null while a custom amount is
-  /// being typed.
-  final Map<int, int?> quantities;
-  final Map<int, TextEditingController> controllers;
-  final void Function(int gradeIndex, String text) onCustomQuantityChanged;
+  /// Grade index → chosen litres. Always one of [kOrderCounterQuantities]: the
+  /// row offers no way to enter an amount off that ladder.
+  final Map<int, int> quantities;
   final void Function(int gradeIndex, int litres) onPresetSelected;
 
   @override
+  State<QuantitySection> createState() => _QuantitySectionState();
+}
+
+class _QuantitySectionState extends State<QuantitySection> {
+  /// Grade indices whose counter is open. Which grades those are is a property
+  /// of this row alone — the screen only cares about the litres it settles on —
+  /// so it is kept here rather than pushed up with the quantities.
+  final Set<int> _openCounters = {};
+
+  void _toggleCounter(int gradeIndex) {
+    setState(() {
+      if (!_openCounters.remove(gradeIndex)) _openCounters.add(gradeIndex);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final quantities = widget.quantities;
     if (quantities.isEmpty) {
+      return OrderCard(
+        title: CreateOrderKeys.sectionQuantity.tr(),
       return OrderCard(
         title: CreateOrderKeys.sectionQuantity.tr(),
         child: Text(
@@ -49,13 +67,14 @@ class QuantitySection extends StatelessWidget {
 
     return OrderCard(
       title: CreateOrderKeys.sectionQuantity.tr(),
+      title: CreateOrderKeys.sectionQuantity.tr(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           for (final entry in quantities.entries) ...[
             if (entry.key != firstIndex) ...[
               const SizedBox(height: AppSpacing.md),
-              const Divider(color: AppColors.itemBorder),
+              Divider(color: context.colors.borderHairline),
               const SizedBox(height: AppSpacing.md),
             ],
             if (quantities.length > 1) ...[
@@ -156,10 +175,10 @@ class _QuantityTile extends StatelessWidget {
         alignment: Alignment.center,
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
         decoration: BoxDecoration(
-          color: selected ? AppColors.blueTintAlt : Colors.white,
+          color: selected ? context.colors.blueTint : context.colors.surface,
           borderRadius: BorderRadius.circular(AppRadii.tile),
           border: Border.all(
-            color: selected ? AppColors.blue : AppColors.itemBorder,
+            color: selected ? context.colors.brandBlue : context.colors.borderHairline,
             width: selected
                 ? AppSizes.orderTileSelectedBorderWidth
                 : AppSizes.orderTileBorderWidth,
@@ -202,8 +221,10 @@ class _CustomQuantityField extends StatelessWidget {
     required this.onChanged,
   });
 
-  final TextEditingController controller;
-  final ValueChanged<String> onChanged;
+  /// Whether the counter it opens is currently showing. Tapping again folds it
+  /// away, so the box carries the blue while it is out.
+  final bool open;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {

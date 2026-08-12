@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../../core/constants/app_assets.dart';
@@ -17,6 +19,11 @@ class ConfirmButton extends StatelessWidget {
     required this.onPressed,
     super.key,
   });
+  const ConfirmButton({
+    required this.submitting,
+    required this.onPressed,
+    super.key,
+  });
 
   final bool submitting;
   final VoidCallback? onPressed;
@@ -28,7 +35,7 @@ class ConfirmButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: submitting ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.blue,
+          backgroundColor: context.colors.brandBlue,
           foregroundColor: Colors.white,
           elevation: 0,
           padding: EdgeInsets.zero,
@@ -48,6 +55,7 @@ class ConfirmButton extends StatelessWidget {
             : Stack(
                 fit: StackFit.expand,
                 children: [
+                  Align(
                   Align(
                     alignment: Alignment.center,
                     child: Text(

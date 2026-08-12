@@ -1,13 +1,10 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/localization/translation_keys.dart';
+import '../../../../core/theme/theme_context.dart';
 
 const _kAvatar = 'assets/more/Image.png';
 
-const _kNavy = Color(0xFF162155);
-const _kGrey = Color(0xFF6B7280);
-const _kBlue = Color(0xFF1E5FFF);
-const _kGreen = Color(0xFF12A150);
-const _kGreenTint = Color(0xFFE4F7EC);
-const _kBorder = Color(0xFFE7E9EF);
 
 /// The photo, name, station and verified badge that head both the profile
 /// screen and the phone-change flow.
@@ -48,7 +45,8 @@ class ProfileIdentity extends StatelessWidget {
                 clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: _kBorder),
+                  // No outline: the photo's own white ground already reads as a
+                  // frame, and a hairline on top of it drew a second edge.
                   boxShadow: const [
                     BoxShadow(
                       color: Color(0x14000000),
@@ -72,7 +70,7 @@ class ProfileIdentity extends StatelessWidget {
                       width: 30,
                       height: 30,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.colors.surface,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: const [
                           BoxShadow(
@@ -82,10 +80,10 @@ class ProfileIdentity extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.edit_outlined,
                         size: 15,
-                        color: _kBlue,
+                        color: context.colors.brandBlue,
                       ),
                     ),
                   ),
@@ -96,34 +94,35 @@ class ProfileIdentity extends StatelessWidget {
         const SizedBox(height: 16),
         Text(
           name,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 26,
             fontWeight: FontWeight.w800,
-            color: _kNavy,
+            color: context.colors.textPrimary,
           ),
         ),
         const SizedBox(height: 6),
-        Text(
-          station,
-          style: const TextStyle(fontSize: 16, color: _kGrey),
-        ),
+        Text(station, style: TextStyle(fontSize: 16, color: context.colors.textSecondary)),
         const SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
           decoration: BoxDecoration(
-            color: _kGreenTint,
+            color: context.colors.greenTint,
             borderRadius: BorderRadius.circular(10),
           ),
-          child: const Row(
+          child: Row(
             mainAxisSize: MainAxisSize.min,
             // Shield first so it sits to the right of the label in RTL.
             children: [
-              Icon(Icons.verified_user_outlined, size: 16, color: _kGreen),
-              SizedBox(width: 6),
+              Icon(
+                Icons.verified_user_outlined,
+                size: 16,
+                color: context.colors.brandGreen,
+              ),
+              const SizedBox(width: 6),
               Text(
-                'حساب موثوق',
+                ProfileKeys.verifiedAccount.tr(),
                 style: TextStyle(
-                  color: _kGreen,
+                  color: context.colors.brandGreen,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),

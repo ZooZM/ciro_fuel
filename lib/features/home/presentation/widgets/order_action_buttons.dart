@@ -1,10 +1,11 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../core/constants/app_assets.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../constants/client_home_strings.dart';
+import '../../../../core/localization/translation_keys.dart';
+import '../../../../core/theme/theme_context.dart';
 
 /// The current-order card's two actions: track on map, and contact the
 /// driver.
@@ -31,7 +32,7 @@ class OrderActionButtons extends StatelessWidget {
             child: ElevatedButton(
               onPressed: onTrackOrder,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.blue,
+                backgroundColor: context.colors.brandBlue,
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSizes.dashboardActionButtonPaddingH,
                 ),
@@ -42,9 +43,9 @@ class OrderActionButtons extends StatelessWidget {
                 ),
                 elevation: 0,
               ),
-              child: const _ActionButtonLabel(
+              child: _ActionButtonLabel(
                 asset: AppAssets.dashboardMapIcon,
-                label: ClientHomeStrings.trackOnMap,
+                label: CommonKeys.trackOnMap.tr(),
                 color: Colors.white,
               ),
             ),
@@ -62,13 +63,13 @@ class OrderActionButtons extends StatelessWidget {
                     AppSizes.dashboardActionButtonRadius,
                   ),
                 ),
-                side: const BorderSide(color: AppColors.itemBorder),
+                side: BorderSide(color: context.colors.borderHairline),
               ),
-              child: const _ActionButtonLabel(
+              child: _ActionButtonLabel(
                 asset: AppAssets.phoneIcon,
-                label: ClientHomeStrings.contactDriver,
-                color: AppColors.navy,
-                iconColor: AppColors.grey,
+                label: CommonKeys.contactDriver.tr(),
+                color: context.colors.textPrimary,
+                iconColor: context.colors.textSecondary,
               ),
             ),
           ),

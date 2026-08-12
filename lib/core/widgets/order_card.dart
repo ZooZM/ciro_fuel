@@ -61,10 +61,18 @@ class OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    final titleStyle = TextStyle(
+      color: colors.textPrimary,
+      fontSize: 15,
+      fontWeight: FontWeight.w700,
+    );
+    final subtitleStyle = TextStyle(color: colors.textSecondary, fontSize: 12);
+
     final card = Container(
       padding: const EdgeInsets.all(padding),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(radius),
         border: border == null ? null : Border.all(color: border!),
       ),
@@ -78,7 +86,7 @@ class OrderCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title!, style: _titleStyle),
+                      Text(title!, style: titleStyle),
                       if (subtitle != null) ...[
                         const SizedBox(height: AppSpacing.xs),
                         Text(subtitle!, style: _subtitleStyle),
@@ -99,7 +107,10 @@ class OrderCard extends StatelessWidget {
     );
 
     if (!dashed) return card;
-    return CustomPaint(painter: const DashedCardBorderPainter(), child: card);
+    return CustomPaint(
+      painter: DashedCardBorderPainter(colors.brandBlue),
+      child: card,
+    );
   }
 }
 
@@ -136,5 +147,6 @@ class DashedCardBorderPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant DashedCardBorderPainter oldDelegate) => false;
+  bool shouldRepaint(covariant DashedCardBorderPainter oldDelegate) =>
+      oldDelegate.color != color;
 }

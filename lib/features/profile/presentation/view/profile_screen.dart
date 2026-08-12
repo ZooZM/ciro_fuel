@@ -1,9 +1,14 @@
+// `hide TextDirection`: easy_localization re-exports intl, whose
+// `TextDirection` would otherwise shadow the Flutter one used below.
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
+import '../../../../core/localization/translation_keys.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/theme_context.dart';
 import '../../../../core/widgets/app_top_bar.dart';
 import '../widgets/profile_identity.dart';
 
@@ -15,96 +20,106 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.light.canvas,
+      backgroundColor: context.colors.canvas,
       body: SafeArea(
-        child: Directionality(
-          textDirection: TextDirection.rtl,
-          child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-            children: [
-              const AppTopBar(),
-              const SizedBox(height: 32),
-              const ProfileIdentity(showEditBadge: true),
-              const SizedBox(height: 32),
-              _buildSectionTitle('بيانات التواصل'),
-              const SizedBox(height: 12),
-              _buildCard([
-                _buildContactItem(
-                  text: '5X XXX XXXX',
-                  icon: Icons.call_outlined,
-                  isVerified: true,
-                ),
-                _buildDivider(),
-                _buildContactItem(
-                  text: 'mohamed.ahmed@examlpe.com',
-                  iconPath: 'assets/more/message.svg',
-                ),
-              ]),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildSectionTitle('المحطات المرتبطة بحسابك'),
-                  Text(
-                    '3 محطات',
-                    style: TextStyle(
-                      color: AppColors.light.brandBlue,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
+        child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+          children: [
+            const AppTopBar(),
+            const SizedBox(height: 32),
+            const ProfileIdentity(showEditBadge: true),
+            const SizedBox(height: 32),
+            _buildSectionTitle(context, ProfileKeys.contactInfo.tr()),
+            const SizedBox(height: 12),
+            _buildCard(context, [
+              _buildContactItem(
+                context,
+                text: '5X XXX XXXX',
+                icon: Icons.call_outlined,
+                isVerified: true,
               ),
-              const SizedBox(height: 12),
-              _buildCard([
-                _buildStationItem(
-                  name: 'طريق أنس بن مالك، حي الملقا',
-                  isActive: true,
+              _buildDivider(context),
+              _buildContactItem(
+                context,
+                text: 'mohamed.ahmed@examlpe.com',
+                iconPath: 'assets/more/message.svg',
+              ),
+            ]),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildSectionTitle(context, ProfileKeys.linkedStations.tr()),
+                Text(
+                  ProfileKeys.stationsCount.tr(namedArgs: {'count': '3'}),
+                  style: TextStyle(
+                    color: context.colors.brandBlue,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-                _buildDivider(),
-                _buildStationItem(
-                  name: 'رفح، الخليج الرياض',
-                  isActive: true,
-                ),
-                _buildDivider(),
-                _buildStationItem(
-                  name: 'مزايا فيول مكة البيبان',
-                  isActive: false,
-                ),
-              ]),
-              const SizedBox(height: 24),
-              _buildSectionTitle('معلومات الحساب'),
-              const SizedBox(height: 12),
-              _buildCard([
-                _buildAccountInfoItem('كود الحساب', 'GS-MA-526'),
-                _buildDivider(),
-                _buildAccountInfoItem('تاريخ الإنضمام', '9 ربيع الأول 1446'),
-              ]),
-              const SizedBox(height: 24),
-              _buildChangeMobileButton(context),
-              const SizedBox(height: 40),
-            ],
-          ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            _buildCard(context, [
+              _buildStationItem(
+                context,
+                name: context.locale.languageCode == 'ar' ? 'طريق أنس بن مالك، حي الملقا' : 'Anas Bin Malik Road, Al Malqa District',
+                isActive: true,
+              ),
+              _buildDivider(context),
+              _buildStationItem(
+                context,
+                name: 'رفح، الخليج الرياض',
+                isActive: true,
+              ),
+              _buildDivider(context),
+              _buildStationItem(
+                context,
+                name: 'مزايا فيول مكة البيبان',
+                isActive: false,
+              ),
+            ]),
+            const SizedBox(height: 24),
+            _buildSectionTitle(context, ProfileKeys.accountInfo.tr()),
+            const SizedBox(height: 12),
+            _buildCard(context, [
+              _buildAccountInfoItem(
+                context,
+                ProfileKeys.accountCode.tr(),
+                'GS-MA-526',
+              ),
+              _buildDivider(context),
+              _buildAccountInfoItem(
+                context,
+                ProfileKeys.joinDate.tr(),
+                '9 ربيع الأول 1446',
+              ),
+            ]),
+            const SizedBox(height: 24),
+            _buildChangeMobileButton(context),
+            const SizedBox(height: 40),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle(BuildContext context, String title) {
     return Text(
       title,
       style: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.bold,
-        color: AppColors.light.textTertiary,
+        color: context.colors.textTertiary,
       ),
     );
   }
 
-  Widget _buildCard(List<Widget> children) {
+  Widget _buildCard(BuildContext context, List<Widget> children) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.light.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(14),
         boxShadow: AppColors.shadowCard,
       ),
@@ -112,7 +127,8 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildContactItem({
+  Widget _buildContactItem(
+    BuildContext context, {
     required String text,
     IconData? icon,
     String? iconPath,
@@ -123,17 +139,9 @@ class ProfileScreen extends StatelessWidget {
       child: Row(
         children: [
           if (iconPath != null)
-            SvgPicture.asset(
-              iconPath,
-              width: 20,
-              height: 20,
-            )
+            SvgPicture.asset(iconPath, width: 20, height: 20)
           else if (icon != null)
-            Icon(
-              icon,
-              size: 20,
-              color: AppColors.light.textTertiary,
-            ),
+            Icon(icon, size: 20, color: context.colors.textTertiary),
           const SizedBox(width: 16),
           Expanded(
             child: Directionality(
@@ -145,7 +153,7 @@ class ProfileScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.light.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                 ),
               ),
@@ -153,18 +161,15 @@ class ProfileScreen extends StatelessWidget {
           ),
           if (isVerified) ...[
             const SizedBox(width: 16),
-            Icon(
-              Icons.check,
-              color: AppColors.light.brandGreen,
-              size: 20,
-            ),
+            Icon(Icons.check, color: context.colors.brandGreen, size: 20),
           ],
         ],
       ),
     );
   }
 
-  Widget _buildStationItem({
+  Widget _buildStationItem(
+    BuildContext context, {
     required String name,
     required bool isActive,
   }) {
@@ -177,7 +182,7 @@ class ProfileScreen extends StatelessWidget {
             width: 24,
             height: 24,
             colorFilter: ColorFilter.mode(
-              isActive ? AppColors.light.brandGreen : AppColors.errorRed,
+              isActive ? context.colors.brandGreen : AppColors.errorRed,
               BlendMode.srcIn,
             ),
           ),
@@ -185,25 +190,24 @@ class ProfileScreen extends StatelessWidget {
           Expanded(
             child: Text(
               name,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
-                color: AppColors.slateCharcoal,
+                // Was AppColors.slateCharcoal, which is all but invisible on
+                // the dark surface; this is body text like every other row's.
+                color: context.colors.textPrimary,
               ),
             ),
           ),
           const SizedBox(width: 16),
           Text(
-            'نشطة',
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.light.textTertiary,
-            ),
+            ProfileKeys.active.tr(),
+            style: TextStyle(fontSize: 14, color: context.colors.textTertiary),
           ),
           const SizedBox(width: 6),
           Icon(
             isActive ? Icons.check : Icons.close,
-            color: isActive ? AppColors.light.brandGreen : AppColors.errorRed,
+            color: isActive ? context.colors.brandGreen : AppColors.errorRed,
             size: 18,
           ),
         ],
@@ -211,7 +215,11 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAccountInfoItem(String title, String value) {
+  Widget _buildAccountInfoItem(
+    BuildContext context,
+    String title,
+    String value,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
       child: Row(
@@ -222,26 +230,23 @@ class ProfileScreen extends StatelessWidget {
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.bold,
-              color: AppColors.light.textPrimary,
+              color: context.colors.textPrimary,
             ),
           ),
           Text(
             value,
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.light.textTertiary,
-            ),
+            style: TextStyle(fontSize: 14, color: context.colors.textTertiary),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildDivider() {
+  Widget _buildDivider(BuildContext context) {
     return Divider(
       height: 1,
       thickness: 1,
-      color: AppColors.light.borderHairline,
+      color: context.colors.borderHairline,
     );
   }
 
@@ -256,23 +261,23 @@ class ProfileScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.light.borderHairline),
+          border: Border.all(color: context.colors.borderHairline),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.edit_outlined,
-              color: AppColors.light.brandGreen,
+              color: context.colors.brandGreen,
               size: 20,
             ),
             const SizedBox(width: 8),
             Text(
-              'تغيير رقم الجوال',
+              ProfileKeys.changePhone.tr(),
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: AppColors.light.brandGreen,
+                color: context.colors.brandGreen,
               ),
             ),
           ],

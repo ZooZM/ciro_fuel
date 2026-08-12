@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 
 import '../../../../../core/constants/app_assets.dart';
 import '../../../../../core/localization/translation_keys.dart';
@@ -41,6 +43,8 @@ class PickupCodeCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.xs),
+          Text(
+            TrackOrderKeys.handoverNote.tr(),
           Text(
             TrackOrderKeys.handoverNote.tr(),
             textAlign: TextAlign.center,

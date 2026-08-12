@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../../core/localization/translation_keys.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../../core/constants/app_assets.dart';
@@ -42,15 +44,20 @@ class ReceiptCard extends StatelessWidget {
   final VoidCallback? onShare;
   final VoidCallback? onDownload;
 
-  Color get _accent => deferred ? AppColors.warningOrange : AppColors.green;
+  Color _accent(BuildContext context) =>
+      deferred ? context.colors.brandOrange : context.colors.brandGreen;
 
   @override
   Widget build(BuildContext context) {
+    final isAr = context.locale.languageCode == 'ar';
+    final resolvedDay = day ?? (isAr ? '9 صفر 1446' : '9 Safar 1446');
+    final resolvedHour = hour ?? (isAr ? '06.30 صباحاً' : '06.30 AM');
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(OrderCard.radius),
-        border: Border.all(color: AppColors.itemBorder),
+        border: Border.all(color: context.colors.borderHairline),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -58,7 +65,10 @@ class ReceiptCard extends StatelessWidget {
           // The accent reads across the top edge only. It is a strip rather
           // than a Border side because a rounded box needs one uniform
           // colour.
-          Container(height: AppSizes.orderReceiptAccentHeight, color: _accent),
+          Container(
+            height: AppSizes.orderReceiptAccentHeight,
+            color: _accent(context),
+          ),
           Padding(
             padding: const EdgeInsets.all(AppSpacing.lg),
             child: Column(
@@ -71,9 +81,9 @@ class ReceiptCard extends StatelessWidget {
                       visualDensity: VisualDensity.compact,
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.share_outlined,
-                        color: AppColors.blue,
+                        color: context.colors.brandBlue,
                       ),
                     ),
                   ],
@@ -122,7 +132,7 @@ class ReceiptCard extends StatelessWidget {
                   onPressed: onDownload ?? () {},
                   icon: const Icon(
                     Icons.file_download_outlined,
-                    color: AppColors.blue,
+                    color: context.colors.brandBlue,
                   ),
                   label: Text(
                     OrderDetailKeys.downloadReceipt.tr(),
@@ -227,7 +237,8 @@ class _DashedRingPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _DashedRingPainter oldDelegate) =>
+      oldDelegate.color != color;
 }
 
 /// The animated dashed-ring tick that heads the paid receipt.

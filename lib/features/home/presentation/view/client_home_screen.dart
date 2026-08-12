@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -5,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/di/injector.dart';
 import '../../../../core/router/app_routes.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/number_formatting.dart';
 import '../../../../shared/entities/order.dart';
@@ -22,11 +22,12 @@ import '../constants/client_home_strings.dart';
 import '../widgets/current_order_card.dart';
 import '../widgets/current_station_card.dart';
 import '../widgets/finance_cards_row.dart';
-import '../widgets/home_top_bar.dart';
+import '../../../../core/widgets/app_top_bar.dart';
 import '../widgets/new_request_button.dart';
 import '../widgets/quick_glance_row.dart';
 import '../widgets/quick_request_list.dart';
 import '../widgets/section_header.dart';
+import '../../../../core/theme/theme_context.dart';
 
 /// The client's home dashboard: current station, balances, the active
 /// order and shortcuts to request more fuel.

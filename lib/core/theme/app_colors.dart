@@ -113,8 +113,19 @@ class AppColors {
   static const List<BoxShadow> shadowCard = [
     BoxShadow(color: Color(0x0F000000), offset: Offset(0, 2), blurRadius: 10),
   ];
+
+  /// Cast upwards: the bar sits on the bottom edge, so the only side of it
+  /// that shows is the top. At the 6%/2pt this started as, the bar and the
+  /// screen behind it met with no separation at all — it reads in the same
+  /// family as [shadowSheet], the other shadow this design throws upward.
   static const List<BoxShadow> shadowNav = [
-    BoxShadow(color: Color(0x0F000000), offset: Offset(0, -2), blurRadius: 16),
+    BoxShadow(color: Color(0x1F0F1B2E), offset: Offset(0, -6), blurRadius: 22),
+  ];
+
+  /// [shadowNav] for the dark theme. A navy tint over a #121316 canvas is not
+  /// there at all, so the same shape is cast in black, and far deeper.
+  static const List<BoxShadow> shadowNavDark = [
+    BoxShadow(color: Color(0x99000000), offset: Offset(0, -6), blurRadius: 22),
   ];
   static const List<BoxShadow> shadowFloating = [
     BoxShadow(color: Color(0x401E5FFF), offset: Offset(0, 8), blurRadius: 24),

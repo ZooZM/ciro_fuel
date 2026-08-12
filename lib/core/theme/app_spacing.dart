@@ -43,6 +43,13 @@ abstract final class AppSpacing {
   /// floating support FAB instead of running under it.
   static const double orderScreenBottomPadding = 100;
 
+  /// Inset the list screens — my orders, invoices, payments — wrap
+  /// [AppTopBar] in. Named so the three headers measure the same instead of
+  /// each screen picking its own vertical padding, which is how they drifted
+  /// apart in the first place.
+  static const double topBarInsetH = 16;
+  static const double topBarInsetV = 8;
+
   /// The same idea for the settings list, which is a tab and so sits behind
   /// the nav bar — but shorter than [dashboardNavBarClearance], because it
   /// ends in a bordered button rather than a card that must clear fully.
@@ -138,7 +145,14 @@ abstract final class AppSizes {
   // ---------------------------------------------------------------------
   // Client home dashboard
   // ---------------------------------------------------------------------
-  static const double dashboardProfileImageSize = 48;
+  /// The avatar in the top bar. Larger than the 44 the bell tile beside it
+  /// runs at — a circle reads smaller than a rounded square of the same size,
+  /// so matching them left the avatar looking undersized.
+  static const double dashboardProfileImageSize = 58;
+
+  /// The top bar is as tall as its tallest element — the avatar — so nothing
+  /// bleeds past its box.
+  static const double topBarHeight = dashboardProfileImageSize;
   static const double appBarLogoHeight = 20;
   static const double dashboardNotificationIconSize = 20;
   static const double dashboardNotificationBadgePadding = 6;
@@ -225,11 +239,30 @@ abstract final class AppSizes {
   static const double orderSectionGap = 20;
   static const double orderGradeTileHeight = 92;
   static const double orderFieldHeight = 62;
+
+  /// The favourite-station, grade, quantity and delivery rows scroll
+  /// horizontally rather than dividing the card between their tiles:
+  /// sharing the width squeezed the labels down to an ellipsis
+  /// ("As soon …"), so each tile is given the width its longest label needs
+  /// and the row scrolls when they overflow.
+  static const double orderFavouriteChipWidth = 130;
+  static const double orderGradeTileWidth = 90;
+  static const double orderQuantityFieldWidth = 118;
+  static const double orderQuantityTileWidth = 86;
+  static const double orderDeliveryTileWidth = 150;
   static const double orderStationArtSize = 64;
   static const double orderFavouriteChipRadius = 10;
   static const double orderConfirmButtonHeight = 56;
 
   static const double orderCodeBannerIconGap = 6;
+
+  /// The `−`/`+` squares on the quantity counter, at the smallest reliable
+  /// touch target.
+  static const double orderQuantityStepperButtonSide = 44;
+
+  /// The problem field on the support screen's report panel, and the square
+  /// send button beside it — one constant so the two always match.
+  static const double supportProblemFieldHeight = 56;
 
   /// Narrowest a quantity tile may get before the row rewraps. Four tiles
   /// across only reads on a normal phone; below this the section folds to

@@ -129,20 +129,25 @@ Map<String, String> _assetPathsUsedInLib() {
   for (final match in declaration.allMatches(
     File(appAssetsPath).readAsStringSync(),
   )) {
-    final resolved = match.group(2)!.replaceAllMapped(
-      RegExp(r'\$(\w+)'),
-      (reference) => constants[reference.group(1)] ?? '',
-    );
+    final resolved = match
+        .group(2)!
+        .replaceAllMapped(
+          RegExp(r'\$(\w+)'),
+          (reference) => constants[reference.group(1)] ?? '',
+        );
     constants[match.group(1)!] = resolved;
     if (resolved.startsWith('assets/') && resolved.contains('.')) {
       used[resolved] = 'AppAssets.${match.group(1)}';
     }
   }
 
-  for (final file in Directory('lib')
-      .listSync(recursive: true)
-      .whereType<File>()
-      .where((f) => f.path.endsWith('.dart') && !f.path.endsWith(appAssetsPath))) {
+  for (final file
+      in Directory('lib')
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where(
+            (f) => f.path.endsWith('.dart') && !f.path.endsWith(appAssetsPath),
+          )) {
     for (final match in literal.allMatches(file.readAsStringSync())) {
       used[match.group(1)!] = file.path;
     }

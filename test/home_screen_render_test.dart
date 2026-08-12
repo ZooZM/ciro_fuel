@@ -6,14 +6,18 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:easy_localization/src/localization.dart';
 import 'package:easy_localization/src/translations.dart';
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+=======
+>>>>>>> df7a18f732afd39bbce1817509b7b32640330465
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_app/core/constants/app_assets.dart';
 import 'package:mobile_app/core/localization/app_locales.dart';
 import 'package:mobile_app/features/auth/presentation/cubit/session_cubit.dart';
 import 'package:mobile_app/features/home/presentation/view/client_home_screen.dart';
 
+<<<<<<< HEAD
 import 'support/orders_test_di.dart';
 
 /// Without the real font, text falls back to a fixed-width test face that is
@@ -30,6 +34,9 @@ Future<void> _loadTajawal() async {
   }
   await loader.load();
 }
+=======
+import 'helpers/localized_harness.dart';
+>>>>>>> df7a18f732afd39bbce1817509b7b32640330465
 
 void main() {
   setUpAll(() async {
@@ -54,11 +61,12 @@ void main() {
   });
 
   testWidgets('lays out on a phone screen without overflowing', (tester) async {
-    await _loadTajawal();
+    await loadTajawal();
     tester.view.physicalSize = const Size(1206, 2400);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
 
+<<<<<<< HEAD
     await tester.pumpWidget(
       MaterialApp(
         theme: ThemeData(fontFamily: 'Tajawal', useMaterial3: true),
@@ -69,14 +77,25 @@ void main() {
           child: const ClientHomeScreen(),
         ),
       ),
+=======
+    await pumpLocalized(
+      tester,
+      const ClientHomeScreen(),
+      theme: ThemeData(fontFamily: 'Tajawal', useMaterial3: true),
+>>>>>>> df7a18f732afd39bbce1817509b7b32640330465
     );
-    await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
 
+<<<<<<< HEAD
     // Station card (now sourced from the authenticated session, spec 004
     // FR-009/T088 — no longer a hardcoded placeholder), the نظرة سريعة
     // counters, and the order card.
+=======
+    // Station card, the at-a-glance counters, and the order card. The station
+    // name and driver are placeholder data, so they stay Arabic in both
+    // locales; the labels around them come from the catalogue.
+>>>>>>> df7a18f732afd39bbce1817509b7b32640330465
     expect(find.text('محطة الرحاب'), findsOneWidget);
     expect(find.text('تغيير المحطة'), findsOneWidget);
     expect(find.text('نظرة سريعة'), findsOneWidget);
@@ -93,5 +112,30 @@ void main() {
     // T086) — no more '—' placeholder for the order that has both.
     expect(find.text('محمد العتيبي'), findsWidgets);
     expect(find.text('ABC-1234'), findsWidgets);
+  });
+
+  testWidgets('renders English copy and flips to LTR under the en locale', (
+    tester,
+  ) async {
+    await loadTajawal();
+    tester.view.physicalSize = const Size(1206, 2400);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+
+    await pumpLocalized(
+      tester,
+      const ClientHomeScreen(),
+      locale: const Locale('en'),
+      theme: ThemeData(fontFamily: 'Tajawal', useMaterial3: true),
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Change station'), findsOneWidget);
+    expect(find.text('At a glance'), findsOneWidget);
+    // No screen forces its own direction any more, so the locale decides.
+    expect(
+      Directionality.of(tester.element(find.byType(ClientHomeScreen))),
+      TextDirection.ltr,
+    );
   });
 }
