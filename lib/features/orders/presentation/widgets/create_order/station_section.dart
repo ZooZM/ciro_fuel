@@ -1,22 +1,15 @@
 // `hide TextDirection`: easy_localization re-exports intl, whose
 // `TextDirection` would otherwise shadow the Flutter one.
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
-// `easy_localization` re-exports intl, whose own `TextDirection` would
-// otherwise shadow the `dart:ui` one this file lays the chevron out with.
-import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
 import '../../../../../core/localization/translation_keys.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../../core/constants/app_assets.dart';
-import '../../../../../core/localization/translation_keys.dart';
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
-import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/widgets/order_card.dart';
 import '../../../../../core/widgets/station_picker.dart';
 import '../../../../../shared/models/station_option.dart';
-import '../../constants/order_mock_data.dart';
 import 'create_order_data.dart';
 import '../../../../../core/theme/theme_context.dart';
 
@@ -28,8 +21,6 @@ class StationSection extends StatefulWidget {
   const StationSection({
     this.stationName,
     this.stationAddress,
-    this.stationName = OrderMockData.stationName,
-    this.stationAddress = OrderMockData.stationAddress,
     this.favouriteStations = kFavouriteStations,
     this.onChangeStation,
     this.stations = kStationOptions,
@@ -84,7 +75,6 @@ class _StationSectionState extends State<StationSection> {
 
     return OrderCard(
       title: CreateOrderKeys.sectionStation.tr(),
-      title: CreateOrderKeys.sectionStation.tr(),
       child: Column(
         children: [
           Row(
@@ -97,12 +87,6 @@ class _StationSectionState extends State<StationSection> {
               Icon(
                 Icons.arrow_back_ios,
                 color: context.colors.textPrimary,
-                size: AppSizes.icon16,
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              const Icon(
-                Icons.arrow_back_ios,
-                color: AppColors.navy,
                 size: AppSizes.icon16,
               ),
               const SizedBox(width: AppSpacing.sm),
@@ -137,19 +121,9 @@ class _StationSectionState extends State<StationSection> {
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
                             ),
-                        Flexible(
-                          child: Text(
-                            CreateOrderKeys.currentStation.tr(),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: AppColors.green,
-                              fontSize: AppFontSizes.body,
-                              fontWeight: FontWeight.w700,
-                            ),
                           ),
                         ),
-                        const SizedBox(width: AppSpacing.xs),
+                        const SizedBox(width: 6),
                         SvgPicture.asset(
                           AppAssets.orderPinIcon,
                           width: AppSizes.iconMd,
@@ -167,13 +141,6 @@ class _StationSectionState extends State<StationSection> {
                       style: TextStyle(
                         color: context.colors.textPrimary,
                         fontSize: 18,
-                      stationName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.end,
-                      style: const TextStyle(
-                        color: AppColors.navy,
-                        fontSize: AppFontSizes.titleLarge,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -183,13 +150,6 @@ class _StationSectionState extends State<StationSection> {
                       style: TextStyle(
                         color: context.colors.textSecondary,
                         fontSize: 12,
-                      ),
-                      stationAddress,
-                      maxLines: 2,
-                      textAlign: TextAlign.end,
-                      style: const TextStyle(
-                        color: AppColors.grey,
-                        fontSize: AppFontSizes.footnote,
                       ),
                     ),
                   ],
@@ -201,10 +161,6 @@ class _StationSectionState extends State<StationSection> {
           Divider(
             height: AppSizes.dividerThickness,
             color: context.colors.borderHairline,
-          ),
-          const Divider(
-            height: AppSizes.dividerThickness,
-            color: AppColors.itemBorder,
           ),
           const SizedBox(height: AppSpacing.md),
           if (_expanded)
@@ -263,43 +219,9 @@ class _StationSectionState extends State<StationSection> {
               ),
             ),
           ],
-          Row(
-            children: [
-              const Icon(
-                Icons.star_border_rounded,
-                size: AppSizes.iconMd,
-                color: AppColors.grey,
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              Text(
-                CreateOrderKeys.favouriteStations.tr(),
-                style: const TextStyle(
-                  color: AppColors.grey,
-                  fontSize: AppFontSizes.body,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          // Sharing the width rather than scrolling, so the third station
-          // is never clipped off the edge.
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (final (index, station) in favouriteStations.indexed) ...[
-                  if (index > 0) const SizedBox(width: AppSpacing.sm),
-                  Expanded(child: _FavouriteStationChip(station: station)),
-                ],
-              ],
-            ),
-          ),
           const SizedBox(height: AppSpacing.md),
           GestureDetector(
             onTap: _toggle,
-            child: Row(
-            onTap: onChangeStation,
-            behavior: HitTestBehavior.opaque,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -308,10 +230,6 @@ class _StationSectionState extends State<StationSection> {
                   style: TextStyle(
                     color: context.colors.brandGreen,
                     fontSize: 14,
-                  CreateOrderKeys.changeStation.tr(),
-                  style: const TextStyle(
-                    color: AppColors.green,
-                    fontSize: AppFontSizes.bodyLarge,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -320,14 +238,6 @@ class _StationSectionState extends State<StationSection> {
                   Icons.arrow_forward_ios,
                   size: AppSizes.iconSm,
                   color: context.colors.brandGreen,
-                const SizedBox(width: AppSpacing.xs),
-                const Directionality(
-                  textDirection: TextDirection.ltr,
-                  child: Icon(
-                    Icons.arrow_back_ios,
-                    size: AppSizes.iconSm,
-                    color: AppColors.green,
-                  ),
                 ),
               ],
             ),
@@ -346,16 +256,14 @@ class _FavouriteStationChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.sm,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: context.colors.surface,
         borderRadius: BorderRadius.circular(AppSizes.orderFavouriteChipRadius),
         border: Border.all(color: context.colors.borderHairline),
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Expanded(
             child: Column(
@@ -369,9 +277,6 @@ class _FavouriteStationChip extends StatelessWidget {
                   style: TextStyle(
                     color: context.colors.textPrimary,
                     fontSize: 11,
-                  style: const TextStyle(
-                    color: AppColors.navy,
-                    fontSize: AppFontSizes.caption,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -383,20 +288,11 @@ class _FavouriteStationChip extends StatelessWidget {
                     color: context.colors.textSecondary,
                     fontSize: 9,
                   ),
-                  style: const TextStyle(
-                    color: AppColors.grey,
-                    fontSize: AppFontSizes.micro,
-                  ),
                 ),
               ],
             ),
           ),
           const SizedBox(width: AppSpacing.xs),
-          SvgPicture.asset(
-            AppAssets.orderBarePinIcon,
-            width: AppSizes.iconSm,
-            height: AppSizes.iconSm,
-          ),
           SvgPicture.asset(
             AppAssets.orderBarePinIcon,
             width: AppSizes.iconSm,

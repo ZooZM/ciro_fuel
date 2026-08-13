@@ -25,6 +25,9 @@ class _ClientMoreScreenState extends State<ClientMoreScreen> {
   bool _isNotificationsEnabled = true;
   bool _isLanguageExpanded = false;
 
+  /// True while a sign-out is in flight, so a second tap cannot fire another.
+  bool _isSigningOut = false;
+
   /// How the app is unlocked. Mock state for now, like the rest of this
   /// screen's switches — nothing is persisted yet.
   AppLockMethod _appLock = AppLockMethod.fingerprint;
@@ -41,15 +44,83 @@ class _ClientMoreScreenState extends State<ClientMoreScreen> {
     if (picked != null) setState(() => _appLock = picked);
   }
 
-  /// Drops the stored token, then the session, then lands on the login screen.
-  /// The navigation is explicit because the router's redirect currently lets
-  /// `SessionUnauthenticated` stay put — leaving it to the redirect would keep
-  /// the user on this screen with no session behind it.
-  Future<void> _signOut() async {
-    await getIt<SignOut>()();
-    if (!mounted) return;
-    context.read<SessionCubit>().signOut();
-    context.go(AppRoutes.login);
+  /// Signing out is easy to mis-tap on a dense settings list and drops the
+  /// session for real (the tokens are gone — the next launch lands on the
+  /// login screen), so it asks first.
+  Future<void> _confirmAndSignOut() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: context.colors.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          MoreKeys.signOut.tr(),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: context.colors.textPrimary,
+          ),
+        ),
+        content: Text(
+          MoreKeys.signOutConfirmation.tr(),
+          style: TextStyle(fontSize: 14, color: context.colors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(
+              CommonKeys.cancel.tr(),
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: context.colors.textSecondary,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(
+              MoreKeys.signOut.tr(),
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: AppColors.errorRed,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    // `showDialog` also resolves to null on a barrier tap / back gesture.
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _isSigningOut = true);
+    try {
+      // Ordered deliberately: clear the persisted tokens FIRST, then drop the
+      // session — otherwise there is a window where the app looks signed out
+      // while the Keychain/Keystore still holds a usable refresh token.
+      await getIt<SignOut>()();
+    } catch (_) {
+      // Swallowed on purpose. Secure-storage deletion can fail (a locked
+      // Keychain, for instance): the user asked to sign out, the session ends
+      // either way below, and the next launch's `RestoreSession` re-validates
+      // whatever is left against `/auth/me`. Rethrowing would only surface an
+      // unhandled async error from a fire-and-forget tap handler.
+    } finally {
+      // In a `finally` so the guarantee is structural: however the attempt
+      // above ended, the session ends. Being signed out with a stale token on
+      // disk is strictly safer than being trapped in an authenticated UI.
+      //
+      // Resolved from getIt, not this widget's tree, so the sign-out still
+      // lands if the screen went away mid-await.
+      getIt<SessionCubit>().signOut();
+    }
+
+    // The navigation is explicit because the router's redirect currently lets
+    // `SessionUnauthenticated` stay put — leaving it to the redirect would
+    // keep the user on this screen with no session behind it.
+    if (mounted) context.go(AppRoutes.login);
   }
 
   @override
@@ -135,9 +206,7 @@ class _ClientMoreScreenState extends State<ClientMoreScreen> {
               _buildLanguageItem(),
               _buildDivider(),
               _buildListItem(
-                title: context.locale.languageCode == 'ar'
-                    ? 'سمة الألوان'
-                    : 'Color Theme',
+                title: MoreKeys.colorTheme.tr(),
                 iconPath: 'assets/more/theme_icon.svg',
                 iconColor: context.colors.textSecondary,
                 trailingWidget: BlocBuilder<ThemeCubit, ThemeMode>(
@@ -192,7 +261,7 @@ class _ClientMoreScreenState extends State<ClientMoreScreen> {
                 title: MoreKeys.aboutUs.tr(),
                 iconPath: 'assets/more/info-circle.svg',
                 iconColor: context.colors.textSecondary,
-                trailingText: 'v1.0.0',
+                trailingText: MoreKeys.appVersion.tr(),
                 onTap: () {},
               ),
             ]),
@@ -212,7 +281,7 @@ class _ClientMoreScreenState extends State<ClientMoreScreen> {
       decoration: BoxDecoration(
         color: colors.greenTint,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colors.brandGreen.withOpacity(0.3)),
+        border: Border.all(color: colors.brandGreen.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -261,7 +330,7 @@ class _ClientMoreScreenState extends State<ClientMoreScreen> {
                     color: colors.surface,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: colors.brandGreen.withOpacity(0.3),
+                      color: colors.brandGreen.withValues(alpha: 0.3),
                     ),
                   ),
                   child: const Text(
@@ -288,8 +357,8 @@ class _ClientMoreScreenState extends State<ClientMoreScreen> {
     );
   }
 
-  Widget _buildAppCard() {
-    return MoreCard(
+  Widget _buildLanguageItem() {
+    return Column(
       children: [
         InkWell(
           onTap: () {
@@ -536,7 +605,10 @@ class _ClientMoreScreenState extends State<ClientMoreScreen> {
 
   Widget _buildLogoutButton() {
     return InkWell(
-      onTap: _signOut,
+      // Disabled (null) rather than a no-op while a sign-out is in flight, so
+      // the row also loses its ripple — a tap that does nothing but still
+      // splashes reads as "didn't register, tap again".
+      onTap: _isSigningOut ? null : _confirmAndSignOut,
       borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -548,7 +620,17 @@ class _ClientMoreScreenState extends State<ClientMoreScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.logout, color: AppColors.errorRed, size: 20),
+            if (_isSigningOut)
+              const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation(AppColors.errorRed),
+                ),
+              )
+            else
+              const Icon(Icons.logout, color: AppColors.errorRed, size: 20),
             const SizedBox(width: 8),
             Text(
               MoreKeys.signOut.tr(),

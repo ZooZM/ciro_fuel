@@ -6,9 +6,7 @@ import '../../../../core/localization/translation_keys.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 // Only NumberFormat: intl also exports a TextDirection that would shadow the
 // one this file lays out with.
-import 'package:intl/intl.dart' show NumberFormat;
 
-import '../../../../core/localization/translation_keys.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../core/widgets/app_top_bar.dart';
@@ -35,7 +33,11 @@ class ClientCreditLimitScreen extends StatefulWidget {
 }
 
 class _ClientCreditLimitScreenState extends State<ClientCreditLimitScreen> {
-  double _amount = CreditLimitConstants.initialAmount;
+  // Latin digits and grouping, as in the design — an Arabic locale would print
+  // Arabic-Indic numerals instead.
+  static final NumberFormat _amountFormat = NumberFormat('#,##0.00', 'en_US');
+
+  double _amount = 200000;
   bool _firstAcknowledged = true;
   bool _secondAcknowledged = true;
 
@@ -49,10 +51,7 @@ class _ClientCreditLimitScreenState extends State<ClientCreditLimitScreen> {
 
   void _changeAmount(double delta) {
     setState(() {
-      _amount = (_amount + delta).clamp(
-        CreditLimitConstants.minAmount,
-        double.maxFinite,
-      );
+      _amount = (_amount + delta).clamp(_kMinAmount, double.maxFinite);
     });
   }
 

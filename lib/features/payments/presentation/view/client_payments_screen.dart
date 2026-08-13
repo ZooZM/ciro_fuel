@@ -4,9 +4,7 @@ import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
 import '../../../../core/localization/translation_keys.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
-import '../../../../core/constants/app_assets.dart';
-import '../../../../core/router/app_routes.dart';
+import '../../../../core/widgets/date_time_row.dart';
 import '../../../../core/widgets/search_filter_bar.dart';
 import '../../../../shared/models/filter_selection.dart';
 import '../../../../shared/models/station_option.dart';
@@ -115,36 +113,19 @@ class _ClientPaymentsScreenState extends State<ClientPaymentsScreen> {
   }
 
   Widget _buildAppBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          ClipOval(
-            child: Image.asset(
-              'assets/more/Image.png',
-              width: 44,
-              height: 44,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
-                width: 44,
-                height: 44,
-                color: Colors.grey[200],
-                child: const Icon(Icons.person, color: Colors.grey),
-              ),
-            ),
-          ),
-          SvgPicture.asset(AppAssets.appBarLogo, height: 20),
-          GestureDetector(
-            onTap: () => context.push(AppRoutes.notifications),
-            child: SvgPicture.asset(
-              AppAssets.notificationBadgeIcon,
-              width: 62,
-              height: 63,
-            ),
-          ),
-        ],
+    // Was a hand-rolled copy of [AppTopBar] whose bell came from
+    // `notification_badge.svg` — a composite that wraps the tile, glyph and
+    // count in a `<g filter="url(#…)">` drop shadow. flutter_svg does not
+    // implement that filter and drops the whole group, so nothing drew; the
+    // artwork also baked in a white tile and navy glyph, which would have
+    // been wrong on a dark canvas either way. The shared bar draws the same
+    // three pieces from the palette.
+    return const Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: AppSpacing.topBarInsetH,
+        vertical: AppSpacing.topBarInsetV,
       ),
+      child: AppTopBar(showProfile: true, notificationCount: 3),
     );
   }
 
@@ -178,7 +159,7 @@ class _ClientPaymentsScreenState extends State<ClientPaymentsScreen> {
               ),
             ],
           ),
-          SvgPicture.asset(AppAssets.reloadIcon, width: 32, height: 32),
+          const AppActionIcon.paymentsReload(),
         ],
       ),
     );
@@ -288,32 +269,12 @@ class _PaymentCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 // Row 4: Date & Time
-                Row(
-                  children: [
-                    SvgPicture.asset(AppAssets.dateIcon, width: 16, height: 16),
-                    const SizedBox(width: 4),
-                    Text(
-                      payment.date,
-                      style: const TextStyle(
-                        color: Color(0xFF0F1B2E),
-                        fontSize: 12,
-                      ),
-                    ),
-                    const Spacer(),
-                    const Icon(
-                      Icons.access_time,
-                      color: Color(0xFF17A34A),
-                      size: 16,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      payment.time,
-                      style: const TextStyle(
-                        color: Color(0xFF0F1B2E),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
+                DateTimeRow(
+                  date: payment.date,
+                  time: payment.time,
+                  iconSize: 16,
+                  fontSize: 12,
+                  textColor: context.colors.textPrimary,
                 ),
               ],
             ),

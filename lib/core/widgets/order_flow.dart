@@ -1,26 +1,22 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../constants/app_assets.dart';
 import '../localization/translation_keys.dart';
-import '../theme/app_colors.dart';
-import '../theme/app_spacing.dart';
-import '../theme/app_text_styles.dart';
+import '../theme/theme_context.dart';
 
 /// A stop on the delivery journey, in order.
 enum OrderFlowStep {
   accepted(OrderFlowKeys.accepted),
-  loading(OrderFlowKeys.loading, asset: AppAssets.orderFlowDropIcon),
-  dispatched(OrderFlowKeys.dispatched, asset: AppAssets.orderFlowTruckIcon),
+  loading(OrderFlowKeys.loading, asset: 'assets/HomePage/flow/drop.svg'),
+  dispatched(OrderFlowKeys.dispatched, asset: 'assets/HomePage/flow/truck.svg'),
   onTheWay(OrderFlowKeys.onTheWay),
   delivered(OrderFlowKeys.delivered);
 
   const OrderFlowStep(this.labelKey, {this.asset});
-  const OrderFlowStep(this.labelKey, {this.asset});
 
-  /// Translation key — resolved at build so the timeline follows the locale.
+  /// Translation key for the step's caption — `.tr()` at the point of use so
+  /// the timeline re-reads on a locale switch.
   final String labelKey;
 
   /// Artwork that stands in for the whole bubble once the step is behind us —
@@ -41,11 +37,7 @@ class OrderFlow extends StatelessWidget {
   final OrderFlowStep current;
 
   static const _bubble = 24.0;
-  static const _glyph = 14.0;
-
-  /// How much of the bubble's ink tints its fill, so the drawn steps match
-  /// the asset-backed ones.
-  static const _bubbleTintOpacity = 0.1;
+  static const _truckIcon = 'assets/HomePage/truck.svg';
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +57,7 @@ class OrderFlow extends StatelessWidget {
                 child: CustomPaint(
                   size: const Size(double.infinity, 1),
                   painter: _DashedRulePainter(
-                    index < current.index ? AppColors.green : AppColors.track,
+                    index < current.index ? context.colors.brandGreen : context.colors.borderHairline,
                   ),
                 ),
               ),
@@ -90,27 +82,23 @@ class _Step extends StatelessWidget {
     final done = step.index < current.index;
     final isCurrent = step == current;
     final color = isCurrent
-        ? AppColors.blue
-        : (done ? AppColors.green : AppColors.grey);
+        ? context.colors.brandBlue
+        : (done ? context.colors.brandGreen : context.colors.textSecondary);
 
     return Column(
       children: [
-        _bubbleFor(done: done, isCurrent: isCurrent, color: color),
-        const SizedBox(height: AppSpacing.sm),
-        // Scales rather than spilling into its neighbours: five labels
-        // share the card's width and Arabic runs long.
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            step.labelKey.tr(),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            softWrap: false,
-            style: TextStyle(
-              color: done || isCurrent ? color : AppColors.grey,
-              fontSize: AppFontSizes.nano,
-              fontWeight: done || isCurrent ? FontWeight.w600 : FontWeight.w400,
-            ),
+        _bubbleFor(context, done: done, isCurrent: isCurrent, color: color),
+        const SizedBox(height: 8),
+        Text(
+          step.labelKey.tr(),
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          softWrap: false,
+          overflow: TextOverflow.visible,
+          style: TextStyle(
+            color: done || isCurrent ? color : context.colors.textSecondary,
+            fontSize: 8,
+            fontWeight: done || isCurrent ? FontWeight.w600 : FontWeight.w400,
           ),
         ),
       ],
@@ -138,9 +126,9 @@ class _Step extends StatelessWidget {
       return Container(
         width: OrderFlow._bubble,
         height: OrderFlow._bubble,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: AppColors.track,
+          color: context.colors.borderHairline,
         ),
       );
     }
@@ -153,17 +141,17 @@ class _Step extends StatelessWidget {
         border: Border.all(color: color),
         // Tinted to match the flow artwork's own bubbles, so the drawn steps
         // and the asset-backed ones read as one row.
-        color: color.withValues(alpha: OrderFlow._bubbleTintOpacity),
+        color: color.withValues(alpha: 0.1),
       ),
       child: Center(
         child: isCurrent
             ? SvgPicture.asset(
-                AppAssets.dashboardTruckIcon,
-                width: OrderFlow._glyph,
-                height: OrderFlow._glyph,
+                OrderFlow._truckIcon,
+                width: 14,
+                height: 14,
                 colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
               )
-            : Icon(Icons.check, size: OrderFlow._glyph, color: color),
+            : Icon(Icons.check, size: 14, color: color),
       ),
     );
   }

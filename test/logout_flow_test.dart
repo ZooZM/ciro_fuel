@@ -11,7 +11,11 @@ import 'package:easy_localization/src/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_app/core/constants/app_assets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mobile_app/core/di/injector.dart';
+import 'package:mobile_app/core/router/app_routes.dart';
+import 'package:mobile_app/core/theme/theme_cubit.dart';
 import 'package:mobile_app/core/localization/app_locales.dart';
 import 'package:mobile_app/core/network/token_store.dart';
 import 'package:mobile_app/core/realtime/tracking_socket.dart';
@@ -30,6 +34,8 @@ import 'package:mobile_app/shared/entities/auth_user.dart';
 import 'package:mobile_app/shared/enums/notification_type.dart';
 import 'package:mobile_app/shared/enums/user_role.dart';
 import 'package:mocktail/mocktail.dart';
+
+import 'helpers/localized_harness.dart';
 
 class _MockAuthRepository extends Mock implements AuthRepository {}
 
@@ -84,14 +90,39 @@ void main() {
   });
 
   Future<void> pumpMoreScreen(WidgetTester tester) async {
+    final themeCubit = ThemeCubit();
+    addTearDown(themeCubit.close);
+
     // Tall view: the logout button sits at the bottom of a long settings list,
     // and `tester.tap` refuses to hit an off-screen widget.
     tester.view.physicalSize = const Size(1206, 4000);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(const MaterialApp(home: ClientMoreScreen()));
-    await tester.pumpAndSettle();
+    // Pumped through a router, not a bare MaterialApp: the screen reads
+    // `context.locale` (which needs a real EasyLocalization ancestor, not just
+    // a seeded catalogue) and calls `context.go` once the sign-out lands.
+    final router = GoRouter(
+      initialLocation: AppRoutes.clientMore,
+      routes: [
+        GoRoute(
+          path: AppRoutes.clientMore,
+          // The screen's theme toggle reads ThemeCubit from an ancestor
+          // provider, as app.dart supplies in production.
+          builder: (_, _) => BlocProvider<ThemeCubit>.value(
+            value: themeCubit,
+            child: const ClientMoreScreen(),
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.login,
+          builder: (_, _) => const Scaffold(body: Text('login')),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await pumpLocalizedRouter(tester, router);
   }
 
   Finder logoutButton() => find.widgetWithText(InkWell, 'تسجيل الخروج');

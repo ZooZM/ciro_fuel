@@ -1,11 +1,16 @@
-import 'package:easy_localization/easy_localization.dart';
+// `hide TextDirection`: easy_localization re-exports intl, whose
+// TextDirection would shadow the one this screen lays out with.
+import 'package:easy_localization/easy_localization.dart'
+    hide TextDirection;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/di/injector.dart';
+import '../../../../core/localization/translation_keys.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/number_formatting.dart';
 import '../../../../shared/entities/order.dart';
@@ -18,7 +23,6 @@ import '../../../orders/presentation/constants/order_formatting.dart';
 import '../../../orders/presentation/constants/order_presentation.dart';
 import '../../../orders/presentation/cubit/orders_cubit.dart';
 import '../../../orders/presentation/cubit/orders_state.dart';
-import '../constants/client_home_strings.dart';
 import '../widgets/current_order_card.dart';
 import '../widgets/current_station_card.dart';
 import '../widgets/finance_cards_row.dart';
@@ -27,7 +31,6 @@ import '../widgets/new_request_button.dart';
 import '../widgets/quick_glance_row.dart';
 import '../widgets/quick_request_list.dart';
 import '../widgets/section_header.dart';
-import '../../../../core/theme/theme_context.dart';
 
 /// The client's home dashboard: current station, balances, the active
 /// order and shortcuts to request more fuel.
@@ -71,28 +74,28 @@ class _ClientHomeView extends StatelessWidget {
     int count(bool Function(Order) test) => orders.where(test).length;
     return [
       OrderCountStat(
-        label: ClientHomeStrings.statCancelled,
+        labelKey: HomeKeys.statCancelled,
         count:
             '${count((o) => o.status == OrderStatus.cancelled || o.status == OrderStatus.rejected)}',
         color: AppColors.red,
         icon: Icons.highlight_off,
       ),
       OrderCountStat(
-        label: ClientHomeStrings.statInPreparation,
+        labelKey: HomeKeys.statInPreparation,
         count:
             '${count((o) => o.status == OrderStatus.pendingApproval || o.status == OrderStatus.approved || o.status == OrderStatus.pendingPayment)}',
         color: AppColors.amber,
         icon: Icons.hourglass_empty,
       ),
       OrderCountStat(
-        label: ClientHomeStrings.statInDelivery,
+        labelKey: HomeKeys.statInDelivery,
         count:
             '${count((o) => o.status == OrderStatus.assignedToDriver || o.status == OrderStatus.inTransit || o.status == OrderStatus.unloading)}',
         color: AppColors.blue,
         icon: Icons.access_time,
       ),
       OrderCountStat(
-        label: ClientHomeStrings.statDelivered,
+        labelKey: HomeKeys.statDelivered,
         count: '${count((o) => o.status == OrderStatus.delivered)}',
         color: AppColors.green,
         // Uses the truck artwork, so it has no Material fallback.
@@ -143,7 +146,8 @@ class _ClientHomeView extends StatelessWidget {
                 children: [
                   // TODO: the unread count is still the design's placeholder —
                   // wiring it means depending on NotificationsCubit here.
-                  HomeTopBar(
+                  AppTopBar(
+                    showProfile: true,
                     notificationCount: 3,
                     onNotificationTap: () =>
                         context.push(AppRoutes.notifications),
@@ -178,7 +182,7 @@ class _ClientHomeView extends StatelessWidget {
                     onPressed: () => context.push(AppRoutes.clientCreateOrder),
                   ),
                   const SizedBox(height: AppSpacing.xxl),
-                  const SectionHeader(ClientHomeStrings.currentOrderSection),
+                  SectionHeader(HomeKeys.currentOrderSection.tr()),
                   const SizedBox(height: AppSpacing.md),
                   BlocBuilder<OrdersCubit, OrdersState>(
                     builder: (context, state) => switch (state) {
@@ -186,8 +190,8 @@ class _ClientHomeView extends StatelessWidget {
                         padding: EdgeInsets.symmetric(vertical: AppSpacing.xl),
                         child: Center(child: CircularProgressIndicator()),
                       ),
-                      OrdersLoadFailure() => const _HomeMessage(
-                        ClientHomeStrings.currentOrderSection,
+                      OrdersLoadFailure() => _HomeMessage(
+                        OrdersKeys.loadFailed.tr(),
                       ),
                       OrdersLoaded(:final orders) => _buildCurrentOrder(
                         context,
@@ -196,17 +200,17 @@ class _ClientHomeView extends StatelessWidget {
                     },
                   ),
                   const SizedBox(height: AppSpacing.xxl),
-                  const SectionHeader(ClientHomeStrings.quickRequestSection),
+                  SectionHeader(HomeKeys.quickRequestSection.tr()),
                   const SizedBox(height: AppSpacing.md),
                   const QuickRequestList(),
                   const SizedBox(height: AppSpacing.xxl),
-                  const SectionHeader(ClientHomeStrings.quickGlanceSection),
+                  SectionHeader(HomeKeys.quickGlanceSection.tr()),
                   const SizedBox(height: AppSpacing.md),
                   BlocBuilder<OrdersCubit, OrdersState>(
                     builder: (context, state) => QuickGlanceRow(
                       stats: switch (state) {
                         OrdersLoaded(:final orders) => _stats(orders),
-                        _ => defaultOrderCountStats,
+                        _ => defaultOrderCountStats(context),
                       },
                     ),
                   ),
@@ -225,8 +229,8 @@ class _ClientHomeView extends StatelessWidget {
       _ => null,
     };
     return CurrentStationCard(
-      name: station?.name ?? ClientHomeStrings.stationNameUnavailable,
-      address: station?.addressText ?? ClientHomeStrings.stationNameUnavailable,
+      name: station?.name ?? HomeKeys.stationNameUnavailable.tr(),
+      address: station?.addressText ?? HomeKeys.stationNameUnavailable.tr(),
       onChangeStation: () {},
     );
   }
@@ -234,7 +238,7 @@ class _ClientHomeView extends StatelessWidget {
   Widget _buildCurrentOrder(BuildContext context, List<Order> orders) {
     final order = _activeOrder(orders);
     if (order == null) {
-      return const _HomeMessage('لا يوجد طلب نشط حالياً');
+      return _HomeMessage(HomeKeys.noActiveOrder.tr());
     }
     return CurrentOrderCard(
       order: _summary(order),

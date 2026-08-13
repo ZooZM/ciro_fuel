@@ -15,11 +15,8 @@ import 'package:mobile_app/features/auth/presentation/cubit/session_cubit.dart';
 import 'package:mobile_app/features/home/presentation/view/client_home_screen.dart';
 import 'package:mobile_app/features/orders/presentation/view/create_order_screen.dart';
 
-<<<<<<< HEAD
-import 'support/orders_test_di.dart';
-=======
 import 'helpers/localized_harness.dart';
->>>>>>> df7a18f732afd39bbce1817509b7b32640330465
+import 'support/orders_test_di.dart';
 
 void main() {
   setUpAll(() async {
@@ -54,7 +51,17 @@ void main() {
     final router = GoRouter(
       initialLocation: '/client',
       routes: [
-        GoRoute(path: '/client', builder: (_, _) => const ClientHomeScreen()),
+        GoRoute(
+          path: '/client',
+          // ClientHomeScreen reads SessionCubit from an ancestor provider in
+          // production (app.dart's app-root MultiBlocProvider) — mirrored
+          // here, inside the route so the router's own MaterialApp still
+          // sits above it.
+          builder: (_, _) => BlocProvider<SessionCubit>.value(
+            value: sampleAuthenticatedSessionCubit(),
+            child: const ClientHomeScreen(),
+          ),
+        ),
         GoRoute(
           path: '/client/orders/new',
           builder: (_, state) =>
@@ -64,19 +71,7 @@ void main() {
     );
     addTearDown(router.dispose);
 
-<<<<<<< HEAD
-    await tester.pumpWidget(
-      // ClientHomeScreen reads SessionCubit from an ancestor provider in
-      // production (app.dart's app-root MultiBlocProvider) — mirrored here.
-      BlocProvider<SessionCubit>.value(
-        value: sampleAuthenticatedSessionCubit(),
-        child: MaterialApp.router(routerConfig: router),
-      ),
-    );
-    await tester.pumpAndSettle();
-=======
     await pumpLocalizedRouter(tester, router);
->>>>>>> df7a18f732afd39bbce1817509b7b32640330465
 
     expect(find.byType(CreateOrderScreen), findsNothing);
 

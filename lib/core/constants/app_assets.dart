@@ -14,15 +14,14 @@
 /// exactly how `assets/Icons/…` and `assets/Logo/…` went unnoticed.
 abstract final class AppAssets {
   static const String _signIn = 'assets/SignIn';
-  static const String _logo = 'assets/Logo';
-  static const String _icons = 'assets/Icons';
-  static const String _biometric = 'assets/Biometric';
-  static const String _social = 'assets/Social Media';
+  static const String _logo = 'assets/logo';
+  static const String _icons = 'assets/icons';
+  static const String _biometric = 'assets/biometric';
+  static const String _social = 'assets/social media';
   static const String _invoices = 'assets/invoices';
   static const String _homePage = 'assets/HomePage';
   static const String _homeFlow = '$_homePage/flow';
   static const String _order = 'assets/Order';
-  static const String _help = 'assets/Help Screen';
   static const String _more = 'assets/more';
   static const String _help = 'assets/help screen';
 
@@ -69,11 +68,9 @@ abstract final class AppAssets {
   static const String lockIcon = '$_icons/locked.svg';
   static const String shieldIcon = '$_icons/protection.svg';
   static const String supportIcon = '$_icons/customer service.svg';
-  static const String filterIcon = '$_icons/filter.svg';
 
   /// The list screens' refresh glyph. Distinct from [orderMapReloadIcon],
   /// which is the map control from the Order folder.
-  static const String reloadIcon = '$_icons/reload.svg';
 
   /// The bell's unread dot, drawn as its own artwork on the screens that do
   /// not compose the badge from a [Container].

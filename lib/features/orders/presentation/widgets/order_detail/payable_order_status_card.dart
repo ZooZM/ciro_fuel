@@ -1,14 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/localization/translation_keys.dart';
 
-import '../../../../../core/localization/translation_keys.dart';
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
-import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/widgets/order_card.dart';
-import '../../constants/order_mock_data.dart';
 import '../../view/invoice_payment_screen.dart';
 import 'status_chip.dart';
 import '../../../../../core/theme/theme_context.dart';
@@ -20,7 +15,7 @@ class PayableOrderStatusCard extends StatelessWidget {
   const PayableOrderStatusCard({
     required this.invoicePending,
     required this.onDeferPayment,
-    this.orderReference = OrderMockData.orderReference,
+    this.orderReference,
     this.onCancel,
     this.onRequestCreditLimit,
     super.key,
@@ -43,11 +38,9 @@ class PayableOrderStatusCard extends StatelessWidget {
     return OrderCard(
       dashed: true,
       title: OrderDetailKeys.orderStatus.tr(),
-      subtitle: orderReference,
+      subtitle: resolvedReference,
       trailing: StatusChip(
         invoicePending
-            ? OrderDetailKeys.invoicePending.tr()
-            : OrderDetailKeys.confirmed.tr(),
             ? OrderDetailKeys.invoicePending.tr()
             : OrderDetailKeys.confirmed.tr(),
       ),
@@ -83,10 +76,8 @@ class PayableOrderStatusCard extends StatelessWidget {
                       invoicePending
                           ? OrderDetailKeys.completePayment.tr()
                           : OrderDetailKeys.pay.tr(),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontSize: AppFontSizes.bodyLarge,
+                        fontSize: 14,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
                       ),
@@ -107,10 +98,10 @@ class PayableOrderStatusCard extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      OrderDetailKeys.cancel.tr(),
-                      style: const TextStyle(
-                        color: AppColors.blue,
-                        fontSize: AppFontSizes.bodyLarge,
+                      CommonKeys.cancel.tr(),
+                      style: TextStyle(
+                        color: context.colors.brandBlue,
+                        fontSize: 14,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -139,7 +130,7 @@ class PayableOrderStatusCard extends StatelessWidget {
               label: Text(
                 OrderDetailKeys.payNextTime.tr(),
                 style: const TextStyle(
-                  fontSize: AppFontSizes.bodyLarge,
+                  fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
                 ),
@@ -157,9 +148,9 @@ class PayableOrderStatusCard extends StatelessWidget {
               ),
               label: Text(
                 OrderDetailKeys.requestCreditLimit.tr(),
-                style: const TextStyle(
-                  color: AppColors.navy,
-                  fontSize: AppFontSizes.body,
+                style: TextStyle(
+                  color: context.colors.textPrimary,
+                  fontSize: 13,
                   fontWeight: FontWeight.w700,
                 ),
               ),

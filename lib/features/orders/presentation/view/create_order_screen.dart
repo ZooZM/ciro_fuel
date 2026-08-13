@@ -1,23 +1,16 @@
+import 'dart:async';
 import 'dart:ui';
 
-// `easy_localization` re-exports intl, whose own `TextDirection` would
-// otherwise shadow the `dart:ui` one this screen sets RTL with.
-import 'package:easy_localization/easy_localization.dart' hide TextDirection;
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/localization/translation_keys.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/di/injector.dart';
-import '../../../../core/error/failure.dart';
-import '../../../../core/localization/translation_keys.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/utils/number_formatting.dart';
 import '../../../../shared/enums/fuel_grade.dart';
 import '../../../../shared/enums/fuel_type.dart';
-import '../../../../shared/enums/payment_method.dart';
-import '../../domain/usecases/create_order.dart';
-import '../constants/order_formatting.dart';
-import '../constants/order_mock_data.dart';
 import '../widgets/create_order/confirm_button.dart';
 import '../widgets/create_order/create_order_data.dart';
 import '../widgets/create_order/delivery_section.dart';
@@ -44,12 +37,15 @@ class CreateOrderScreen extends StatefulWidget {
 }
 
 class _CreateOrderScreenState extends State<CreateOrderScreen> {
-  final Map<int, TextEditingController> _customQuantityControllers = {};
-  final Map<int, int?> _quantities = {};
-  final CreateOrder _createOrder = getIt<CreateOrder>();
+  /// Grade index → litres on order. Every value comes from
+  /// [kOrderCounterQuantities]: the quantity row is tiles and a counter, with
+  /// no free-typed amount.
+  final Map<int, int> _quantities = {};
 
   DeliveryOption _delivery = DeliveryOption.fastest;
-  PaymentMethod _paymentMethod = PaymentMethod.direct;
+
+  /// Set only by the calendar behind جدول موعد; null until a day is picked.
+  DateTime? _scheduledDate;
   bool _submitting = false;
 
   @override
@@ -111,176 +107,114 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
       return;
     }
 
-    final orderPayloads = <(FuelType, int)>[];
-    for (final entry in _quantities.entries) {
-      final grade = FuelGrade.values[entry.key];
-      final controller = _customQuantityControllers[entry.key]!;
-      final quantity = entry.value ?? int.tryParse(controller.text.trim());
-
-      if (quantity == null || quantity <= 0) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              CreateOrderKeys.enterValidQuantityFor.tr(
-                namedArgs: {'grade': grade.title},
-              ),
-            ),
-          ),
-        );
-        return;
-      }
-
-      final type = grade.type ?? FuelType.gasoline91;
-
-      orderPayloads.add((type, quantity));
-    }
+    // Every quantity comes off [kOrderCounterQuantities], so there is no amount
+    // left to validate — a grade having been picked is the only condition.
+    final orderPayloads = <(FuelType, int)>[
+      for (final entry in _quantities.entries)
+        (FuelGrade.values[entry.key].type ?? FuelType.gasoline91, entry.value),
+    ];
 
     setState(() => _submitting = true);
 
-    // Selecting several grades places one order per grade (the backend's
-    // `POST /orders` is single-fuel-type, spec 004's routing/billing all
-    // operate per order) — sequential, so a mid-batch failure still leaves
-    // every order placed before it intact rather than raced against each other.
-    final createdOrderIds = <String>[];
-    Failure? failure;
-    for (final (fuelType, quantity) in orderPayloads) {
-      final result = await _createOrder(
-        fuelType: fuelType,
-        quantityLiters: quantity,
-        paymentMethod: _paymentMethod,
-      );
-      final shouldStop = result.fold(
-        (f) {
-          failure = f;
-          return true;
-        },
-        (order) {
-          createdOrderIds.add(order.id);
-          return false;
-        },
-      );
-      if (shouldStop) break;
-    }
+    // Simulating network delay for static UI
+    await Future<void>.delayed(const Duration(seconds: 1));
 
     if (!mounted) return;
     setState(() => _submitting = false);
 
-    if (failure != null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(_messageFor(failure!))));
-      return;
+    // Mock order IDs for static navigation
+    final orderIds = <String>[];
+    for (var i = 0; i < orderPayloads.length; i++) {
+      orderIds.add('mock-order-${DateTime.now().millisecondsSinceEpoch}-$i');
     }
 
-    if (createdOrderIds.isNotEmpty) {
-      if (createdOrderIds.length == 1) {
-        context.push(AppRoutes.clientOrderDetail(createdOrderIds.first));
+    if (orderIds.isNotEmpty) {
+      if (orderIds.length == 1) {
+        unawaited(context.push(AppRoutes.clientOrderDetail(orderIds.first)));
       } else {
         context.go(AppRoutes.clientOrders);
       }
     }
   }
 
-  /// A [ValidationFailure] already carries a specific, human-readable
-  /// backend message (e.g. a credit shortfall naming the amount, FR-025) —
-  /// surfaced directly rather than replaced with a generic string. Every
-  /// other failure kind is deliberately generic (Constitution Principle III:
-  /// no internal detail reaches the UI).
-  String _messageFor(Failure failure) => switch (failure) {
-    ValidationFailure(:final message) => message,
-    _ => CreateOrderKeys.orderFailed.tr(),
-  };
-
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: AppColors.screenBackground,
-        body: SafeArea(
-          child: Stack(
-            children: [
-              ListView(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.gutter,
-                  AppSpacing.lg,
-                  AppSpacing.gutter,
-                  AppSpacing.orderScreenBottomPadding,
-                ),
-                children: [
-                  OrderTopBar(
-                    notificationCount: OrderMockData.notificationCount,
-                    onNotificationTap: () =>
-                        context.push(AppRoutes.notifications),
-                    onBack: () => context.canPop()
-                        ? context.pop()
-                        : context.go(AppRoutes.clientHome),
-                  ),
-                  const SizedBox(height: AppSizes.orderSectionGap),
-                  const OrderTitle(),
-                  const SizedBox(height: AppSizes.orderSectionGap),
-                  const StationSection(),
-                  const SizedBox(height: AppSpacing.lg),
-                  GradeSection(
-                    selectedIndices: _quantities.keys.toSet(),
-                    onToggle: _toggleGrade,
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  QuantitySection(
-                    quantities: _quantities,
-                    controllers: _customQuantityControllers,
-                    onCustomQuantityChanged: _onCustomQuantityChanged,
-                    onPresetSelected: _onPresetQuantitySelected,
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  DeliverySection(
-                    selected: _delivery,
-                    onChanged: (value) => setState(() => _delivery = value),
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  PaymentSection(
-                    selected: _paymentMethod,
-                    onChanged: (value) =>
-                        setState(() => _paymentMethod = value),
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  _buildOrderSummarySection(),
-                  const SizedBox(height: AppSpacing.lg),
-                  const NotesSection(),
-                ],
+    return Scaffold(
+      backgroundColor: context.colors.canvas,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            ListView(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.gutter,
+                AppSpacing.lg,
+                AppSpacing.gutter,
+                AppSpacing.orderScreenBottomPadding,
               ),
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: ClipRect(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(
-                      sigmaX: AppSizes.orderActionBarBlur,
-                      sigmaY: AppSizes.orderActionBarBlur,
+              children: [
+                AppTopBar(
+                  notificationCount: 3,
+                  onNotificationTap: () =>
+                      context.push(AppRoutes.notifications),
+                  onBack: () => context.canPop()
+                      ? context.pop()
+                      : context.go(AppRoutes.clientHome),
+                ),
+                const SizedBox(height: AppSizes.orderSectionGap),
+                const OrderTitle(),
+                const SizedBox(height: AppSizes.orderSectionGap),
+                const StationSection(),
+                const SizedBox(height: AppSpacing.lg),
+                GradeSection(
+                  selectedIndex: _quantities.keys.firstOrNull,
+                  onSelect: _selectGrade,
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                QuantitySection(
+                  quantities: _quantities,
+                  onPresetSelected: _onPresetQuantitySelected,
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                DeliverySection(
+                  selected: _delivery,
+                  scheduledDate: _scheduledDate,
+                  onChanged: (value) => setState(() => _delivery = value),
+                  onScheduleTap: _pickScheduleDate,
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                const PaymentSection(),
+                const SizedBox(height: AppSpacing.lg),
+                _buildOrderSummarySection(),
+                const SizedBox(height: AppSpacing.lg),
+                const NotesSection(),
+              ],
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.gutter,
+                      AppSpacing.lg,
+                      AppSpacing.gutter,
+                      AppSpacing.lg,
                     ),
-                    child: Container(
-                      padding: const EdgeInsets.fromLTRB(
-                        AppSpacing.gutter,
-                        AppSpacing.lg,
-                        AppSpacing.gutter,
-                        AppSpacing.lg,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(
-                          alpha: AppSizes.orderActionBarOpacity,
-                        ),
-                      ),
-                      child: ConfirmButton(
-                        submitting: _submitting,
-                        onPressed: _submit,
-                      ),
+                    decoration: BoxDecoration(
+                      color: context.colors.surface.withValues(alpha: 0.8),
+                    ),
+                    child: ConfirmButton(
+                      submitting: _submitting,
+                      onPressed: _submit,
                     ),
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -293,16 +227,23 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     final grade = FuelGrade.values[firstEntry.key];
     final quantity = firstEntry.value;
 
+    const pricePerLiter = 2.33;
+    final fuelTotal = quantity * pricePerLiter;
+    const transportFees = 1200.00;
+    const vatMock = 6000.00;
+    const finalTotal = 46600.00;
+
+    final currency = CommonKeys.riyal.tr();
+
     return OrderSummaryCard(
-      fuelType: grade.title,
-      quantity: OrderFormatting.litres(quantity),
-      pricePerLiter: OrderFormatting.moneyLong(OrderMockData.pricePerLitre),
-      totalWithTax: OrderFormatting.moneyLong(
-        quantity * OrderMockData.pricePerLitre,
-      ),
-      transportFees: OrderFormatting.moneyLong(OrderMockData.transportFees),
-      vat: OrderFormatting.moneyLong(OrderMockData.vat),
-      finalTotal: OrderFormatting.moneyLong(OrderMockData.summaryTotal),
+      fuelType: grade.titleKey.tr(),
+      quantity:
+          '${NumberFormatting.thousands(quantity)} ${CommonKeys.litre.tr()}',
+      pricePerLiter: '${pricePerLiter.toStringAsFixed(2)} $currency',
+      totalWithTax: '${NumberFormatting.currency(fuelTotal)} $currency',
+      transportFees: '${NumberFormatting.currency(transportFees)} $currency',
+      vat: '${NumberFormatting.currency(vatMock)} $currency',
+      finalTotal: '${NumberFormatting.currency(finalTotal)} $currency',
     );
   }
 }

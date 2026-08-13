@@ -1,15 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/localization/translation_keys.dart';
 
-import '../../../../../core/localization/translation_keys.dart';
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
-import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/widgets/fuel_pump_icon.dart';
 import '../../../../../core/widgets/order_card.dart';
 import '../../../../../shared/enums/fuel_grade.dart';
+import '../../../../../core/theme/theme_context.dart';
 
 /// "2. نوع الوقود" — the row of selectable fuel-grade tiles. Exactly one
 /// grade is on order at a time; picking another replaces it.
@@ -30,15 +27,22 @@ class GradeSection extends StatelessWidget {
 
     return OrderCard(
       title: CreateOrderKeys.sectionGrade.tr(),
-      child: Row(
-        children: [
-          for (final (index, grade) in grades.indexed) ...[
-            if (index > 0) const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: _GradeTile(
-                grade: grade,
-                selected: selectedIndices.contains(index),
-                onTap: () => onToggle(index),
+      // Five grades share this row; splitting the card between them left the
+      // names ellipsized, so each tile keeps its own width and the row
+      // scrolls.
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            for (final (index, grade) in grades.indexed) ...[
+              if (index > 0) const SizedBox(width: AppSpacing.sm),
+              SizedBox(
+                width: AppSizes.orderGradeTileWidth,
+                child: _GradeTile(
+                  grade: grade,
+                  selected: selectedIndex == index,
+                  onTap: () => onSelect(index),
+                ),
               ),
             ],
           ],
@@ -59,7 +63,7 @@ class _GradeTile extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
-  static const _checkOffset = -4.0;
+  static const _pumpIconSize = 38.0;
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +71,6 @@ class _GradeTile extends StatelessWidget {
       onTap: onTap,
       child: Container(
         height: AppSizes.orderGradeTileHeight,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
         decoration: BoxDecoration(
           color: selected ? context.colors.greenTint : context.colors.surface,
           borderRadius: BorderRadius.circular(AppRadii.tile),
@@ -78,53 +81,54 @@ class _GradeTile extends StatelessWidget {
                 : AppSizes.orderTileBorderWidth,
           ),
         ),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Stack(
-                clipBehavior: Clip.none,
+        child: Stack(
+          children: [
+            Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  FuelPumpIcon(
-                    grade: grade.badge,
-                    color: grade.color,
-                    size: AppSizes.orderGradePumpIconSize,
-                  ),
-                  if (selected)
-                    const Positioned(
-                      top: _checkOffset,
-                      right: _checkOffset,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white,
-                        ),
-                        child: Icon(
-                          Icons.check_circle,
-                          size: AppSizes.iconMd,
-                          color: AppColors.green,
-                        ),
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      FuelPumpIcon(
+                        grade: grade.badge,
+                        color: grade.color,
+                        size: _pumpIconSize,
                       ),
+                      if (selected)
+                        Positioned(
+                          top: -4,
+                          right: -4,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: context.colors.surface,
+                            ),
+                            child: Icon(
+                              Icons.check_circle,
+                              size: AppSizes.iconMd,
+                              color: context.colors.brandGreen,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  // No ellipsis: the tile spells the grade out, wrapping to a
+                  // second line inside the tile's height if it has to.
+                  Text(
+                    grade.titleKey.tr(),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: context.colors.textPrimary,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
                     ),
+                  ),
                 ],
               ),
-              const SizedBox(height: AppSpacing.sm),
-              // Five grades across a phone leave ~60pt each; scaling the
-              // label keeps "بنزين 95" whole instead of ellipsising it.
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  grade.title,
-                  maxLines: 1,
-                  style: const TextStyle(
-                    color: AppColors.navy,
-                    fontSize: AppFontSizes.caption,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

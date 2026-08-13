@@ -73,9 +73,9 @@ void main() {
       tester,
       stations: activeStations,
       showFuelType: true,
-      initial: FilterSelection(
+      initial: const FilterSelection(
         sort: SortOption.newestFirst,
-        stationIds: const {'rehab', 'safa'},
+        stationIds: {'rehab', 'safa'},
         grade: FuelGrade.gasoline98,
       ),
     );

@@ -1,47 +1,16 @@
-import 'package:easy_localization/easy_localization.dart';
-// `Localization` and `Translations` are what `.tr()` reads from, but
-// easy_localization only re-exports the widget that populates them. Seeding
-// them directly is the only way to translate a tree the EasyLocalization
-// widget is not wrapped around.
-import 'package:easy_localization/src/localization.dart';
-import 'package:easy_localization/src/translations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobile_app/core/constants/app_assets.dart';
-import 'package:mobile_app/core/localization/app_locales.dart';
 import 'package:mobile_app/features/more/presentation/view/client_credit_limit_screen.dart';
 import 'package:mobile_app/features/more/presentation/view/client_terms_screen.dart';
 import 'package:mobile_app/features/stations/presentation/view/client_stations_screen.dart';
 import 'package:mobile_app/features/support/presentation/view/support_screen.dart';
 
-/// Without the real font, text falls back to a fixed-width test face that is
-/// far wider than Tajawal, which reports overflows the app would never hit.
-Future<void> _loadTajawal() async {
-  final loader = FontLoader('Tajawal');
-  for (final font in const [
-    'assets/fonts/Tajawal-Regular.ttf',
-    'assets/fonts/Tajawal-Medium.ttf',
-    'assets/fonts/Tajawal-Bold.ttf',
-    'assets/fonts/Tajawal-ExtraBold.ttf',
-  ]) {
-    loader.addFont(rootBundle.load(font));
-  }
-  await loader.load();
-}
+import 'helpers/localized_harness.dart';
 
 void main() {
   setUpAll(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
-    await _loadTajawal();
-    // Every one of these screens draws its copy from
-    // `assets/translations/*.json` — without it they would render raw keys,
-    // whose Latin text lays out nothing like the Arabic it stands in for.
-    final arabic = await const RootBundleAssetLoader().load(
-      AppAssets.translationsPath,
-      AppLocales.arabic,
-    );
-    Localization.load(AppLocales.arabic, translations: Translations(arabic));
+    await loadTajawal();
   });
 
   /// A tall viewport: these are long scrolling pages, and an overflow only
@@ -51,13 +20,13 @@ void main() {
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(
-      MaterialApp(
-        theme: ThemeData(fontFamily: 'Tajawal', useMaterial3: true),
-        home: screen,
-      ),
+    // Through the harness, not a bare MaterialApp: these screens read
+    // `context.locale`, which needs a real EasyLocalization ancestor.
+    await pumpLocalized(
+      tester,
+      screen,
+      theme: ThemeData(fontFamily: 'Tajawal', useMaterial3: true),
     );
-    await tester.pumpAndSettle();
 
     // Catches the RenderFlex overflows and missing-asset errors a layout
     // refactor is most likely to introduce.

@@ -4,10 +4,6 @@ import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
 import '../../../../core/localization/translation_keys.dart';
 
-import '../../../../core/localization/translation_keys.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_top_bar.dart';
 import '../../../../core/widgets/scroll_top_button.dart';
 import '../../../../core/theme/theme_context.dart';
@@ -141,11 +137,7 @@ class _ClientTermsScreenState extends State<ClientTermsScreen> {
         children: [
           for (final (index, clause) in _clauses.indexed) ...[
             if (index > 0)
-              Divider(
-                height: 1,
-                thickness: 1,
-                color: context.colors.borderHairline,
-              ),
+              Divider(height: 1, thickness: 1, color: context.colors.borderHairline),
             InkWell(
               onTap: () => _scrollToClause(index),
               child: Padding(
@@ -182,6 +174,7 @@ class _ClientTermsScreenState extends State<ClientTermsScreen> {
       ),
     );
   }
+
 }
 
 /// A single clause: its number badge and title, then the text itself.
@@ -213,9 +206,7 @@ class _ClauseCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: context.colors.blueTint,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: context.colors.brandBlue.withValues(alpha: 0.4),
-                  ),
+                  border: Border.all(color: context.colors.brandBlue.withValues(alpha: 0.4)),
                 ),
                 child: Text(
                   clause.number,
@@ -243,11 +234,7 @@ class _ClauseCard extends StatelessWidget {
           Text(
             clause.bodyKey.tr(),
             textAlign: TextAlign.justify,
-            style: TextStyle(
-              fontSize: 13,
-              height: 1.9,
-              color: context.colors.textSecondary,
-            ),
+            style: TextStyle(fontSize: 13, height: 1.9, color: context.colors.textSecondary),
           ),
         ],
       ),

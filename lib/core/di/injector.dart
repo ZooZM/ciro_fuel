@@ -69,7 +69,7 @@ void _registerCore() {
   final tokenStore = TokenStore();
   getIt.registerSingleton<TokenStore>(tokenStore);
 
-  getIt.registerLazySingleton(() => ThemeCubit());
+  getIt.registerLazySingleton(ThemeCubit.new);
 
   final sessionCubit = SessionCubit();
   getIt.registerSingleton<SessionCubit>(sessionCubit);

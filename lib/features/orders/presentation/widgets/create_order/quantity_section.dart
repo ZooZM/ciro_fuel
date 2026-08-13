@@ -1,13 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/localization/translation_keys.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../../../../core/localization/translation_keys.dart';
-import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/constants/app_assets.dart';
 import '../../../../../core/theme/app_spacing.dart';
-import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/utils/number_formatting.dart';
 import '../../../../../core/widgets/order_card.dart';
 import '../../../../../shared/enums/fuel_grade.dart';
@@ -51,14 +48,9 @@ class _QuantitySectionState extends State<QuantitySection> {
     if (quantities.isEmpty) {
       return OrderCard(
         title: CreateOrderKeys.sectionQuantity.tr(),
-      return OrderCard(
-        title: CreateOrderKeys.sectionQuantity.tr(),
         child: Text(
           CreateOrderKeys.chooseFuelTypeFirst.tr(),
-          style: const TextStyle(
-            color: AppColors.grey,
-            fontSize: AppFontSizes.body,
-          ),
+          style: TextStyle(color: context.colors.textSecondary, fontSize: 13),
         ),
       );
     }
@@ -66,7 +58,6 @@ class _QuantitySectionState extends State<QuantitySection> {
     final firstIndex = quantities.keys.first;
 
     return OrderCard(
-      title: CreateOrderKeys.sectionQuantity.tr(),
       title: CreateOrderKeys.sectionQuantity.tr(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -79,30 +70,51 @@ class _QuantitySectionState extends State<QuantitySection> {
             ],
             if (quantities.length > 1) ...[
               Text(
-                FuelGrade.values[entry.key].title,
-                style: const TextStyle(
-                  color: AppColors.navy,
-                  fontSize: AppFontSizes.body,
+                FuelGrade.values[entry.key].titleKey.tr(),
+                style: TextStyle(
+                  color: context.colors.textPrimary,
+                  fontSize: 13,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: AppSpacing.sm),
             ],
-            _QuantityTileGrid(
-              tiles: [
-                _CustomQuantityField(
-                  controller: controllers[entry.key]!,
-                  onChanged: (text) =>
-                      onCustomQuantityChanged(entry.key, text),
-                ),
-                for (final litres in kOrderQuantities.reversed)
-                  _QuantityTile(
-                    litres: litres,
-                    selected: entry.value == litres,
-                    onTap: () => onPresetSelected(entry.key, litres),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: AppSizes.orderQuantityFieldWidth,
+                    child: _CustomQuantityTile(
+                      open: _openCounters.contains(entry.key),
+                      onTap: () => _toggleCounter(entry.key),
+                    ),
                   ),
-              ],
+                  for (final litres in kOrderQuantities.reversed) ...[
+                    const SizedBox(width: AppSpacing.sm),
+                    SizedBox(
+                      width: AppSizes.orderQuantityTileWidth,
+                      child: _QuantityTile(
+                        litres: litres,
+                        selected: entry.value == litres,
+                        onTap: () =>
+                            widget.onPresetSelected(entry.key, litres),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
+            // The counter is how the sizes without a tile are reached, so it
+            // stays folded away until the لتر box asks for it.
+            if (_openCounters.contains(entry.key)) ...[
+              const SizedBox(height: AppSpacing.sm),
+              _QuantityCounter(
+                litres: entry.value,
+                onChanged: (litres) =>
+                    widget.onPresetSelected(entry.key, litres),
+              ),
+            ],
           ],
         ],
       ),
@@ -110,45 +122,111 @@ class _QuantitySectionState extends State<QuantitySection> {
   }
 }
 
-/// Lays the four tiles out on one row where they fit, and folds to two rows
-/// of two where they don't — on a narrow phone four across leaves under
-/// 70pt each, which clips "33,000" to an ellipsis.
-class _QuantityTileGrid extends StatelessWidget {
-  const _QuantityTileGrid({required this.tiles});
+/// The counter from the design: the litres in the middle, `−` and `+` on
+/// either side. The buttons walk [kOrderCounterQuantities] rather than adding a
+/// free amount, so every order lands on a size the fleet carries. This is the
+/// only way to reach the sizes the row has no tile for.
+class _QuantityCounter extends StatelessWidget {
+  const _QuantityCounter({required this.litres, required this.onChanged});
 
-  final List<Widget> tiles;
+  final int litres;
+  final ValueChanged<int> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final gaps = tiles.length - 1;
-        final singleRowTileWidth =
-            (constraints.maxWidth - gaps * AppSpacing.sm) / tiles.length;
-        final perRow = singleRowTileWidth >= AppSizes.orderQuantityTileMinWidth
-            ? tiles.length
-            : 2;
+    final colors = context.colors;
 
-        return Column(
-          children: [
-            for (var start = 0; start < tiles.length; start += perRow) ...[
-              if (start > 0) const SizedBox(height: AppSpacing.sm),
-              Row(
-                children: [
-                  for (var i = start; i < start + perRow; i++) ...[
-                    if (i > start) const SizedBox(width: AppSpacing.sm),
-                    // The last row of a folded layout can be short; an empty
-                    // Expanded keeps its tiles the same width as the rest.
-                    Expanded(
-                      child: i < tiles.length ? tiles[i] : const SizedBox(),
-                    ),
-                  ],
-                ],
-              ),
-            ],
-          ],
-        );
-      },
+    // -1 for a quantity off the ladder, which leaves both buttons disabled
+    // rather than jumping to an arbitrary end of it.
+    final index = kOrderCounterQuantities.indexOf(litres);
+    final previous = index > 0 ? kOrderCounterQuantities[index - 1] : null;
+    final next = index >= 0 && index < kOrderCounterQuantities.length - 1
+        ? kOrderCounterQuantities[index + 1]
+        : null;
+
+    return Container(
+      height: AppSizes.orderFieldHeight,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(AppRadii.field),
+        // Blue, matching the لتر box that opened it.
+        border: Border.all(
+          color: colors.brandBlue,
+          width: AppSizes.orderTileSelectedBorderWidth,
+        ),
+      ),
+      // `−` sits at the start and `+` at the end, so the pair mirrors with the
+      // locale — plus on the left under Arabic, as the design has it.
+      child: Row(
+        children: [
+          _StepperButton(
+            icon: Icons.remove,
+            onTap: previous == null ? null : () => onChanged(previous),
+          ),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  NumberFormatting.thousands(litres),
+                  maxLines: 1,
+                  style: TextStyle(
+                    color: colors.textPrimary,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                Text(
+                  // "وحدة", as the design labels the counter — the tiles and
+                  // the لتر box are the ones that spell out the unit.
+                  CommonKeys.unit.tr(),
+                  maxLines: 1,
+                  style: TextStyle(color: colors.textSecondary, fontSize: 11),
+                ),
+              ],
+            ),
+          ),
+          _StepperButton(
+            icon: Icons.add,
+            onTap: next == null ? null : () => onChanged(next),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StepperButton extends StatelessWidget {
+  const _StepperButton({required this.icon, required this.onTap});
+
+  final IconData icon;
+
+  /// Null at either end of [kOrderQuantities] — the button greys out instead
+  /// of disappearing, so the counter keeps its shape.
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final enabled = onTap != null;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: AppSizes.orderQuantityStepperButtonSide,
+        height: AppSizes.orderQuantityStepperButtonSide,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: colors.surface2,
+          borderRadius: BorderRadius.circular(AppRadii.tile),
+        ),
+        child: Icon(
+          icon,
+          size: AppSizes.iconXl,
+          color: enabled ? colors.brandBlue : colors.textTertiary,
+        ),
+      ),
     );
   }
 }
@@ -166,14 +244,11 @@ class _QuantityTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? AppColors.blue : AppColors.navy;
-
     return GestureDetector(
       onTap: onTap,
       child: Container(
         height: AppSizes.orderFieldHeight,
         alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
         decoration: BoxDecoration(
           color: selected ? context.colors.blueTint : context.colors.surface,
           borderRadius: BorderRadius.circular(AppRadii.tile),
@@ -187,24 +262,20 @@ class _QuantityTile extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Scales rather than truncates: the amount is the whole point of
-            // the tile, so it has to stay readable at any tile width.
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                NumberFormatting.thousands(litres),
-                maxLines: 1,
-                style: TextStyle(
-                  color: color,
-                  fontSize: AppFontSizes.bodyLarge,
-                  fontWeight: FontWeight.w700,
-                ),
+            Text(
+              NumberFormatting.thousands(litres),
+              style: TextStyle(
+                color: selected ? context.colors.brandBlue : context.colors.textPrimary,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
               ),
             ),
             Text(
-              OrdersKeys.litreUnit.tr(),
-              maxLines: 1,
-              style: TextStyle(color: color, fontSize: AppFontSizes.caption),
+              CommonKeys.litre.tr(),
+              style: TextStyle(
+                color: selected ? context.colors.brandBlue : context.colors.textPrimary,
+                fontSize: 11,
+              ),
             ),
           ],
         ),
@@ -213,13 +284,11 @@ class _QuantityTile extends StatelessWidget {
   }
 }
 
-/// The "type your own amount" tile. Built to the same silhouette as
-/// [_QuantityTile] — value over unit — so the four read as one row.
-class _CustomQuantityField extends StatelessWidget {
-  const _CustomQuantityField({
-    required this.controller,
-    required this.onChanged,
-  });
+/// The لتر box at the head of the quantity row: the handle that opens the
+/// counter. A label and the pencil glyph, not a field — quantities are chosen
+/// from the tiles and the counter, so there is no typed amount to hold.
+class _CustomQuantityTile extends StatelessWidget {
+  const _CustomQuantityTile({required this.open, required this.onTap});
 
   /// Whether the counter it opens is currently showing. Tapping again folds it
   /// away, so the box carries the blue while it is out.
@@ -228,62 +297,44 @@ class _CustomQuantityField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: AppSizes.orderFieldHeight,
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppRadii.tile),
-        border: Border.all(color: AppColors.itemBorder),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          TextField(
-            controller: controller,
-            onChanged: onChanged,
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: AppColors.navy,
-              fontSize: AppFontSizes.bodyLarge,
-              fontWeight: FontWeight.w700,
-            ),
-            decoration: InputDecoration(
-              isDense: true,
-              contentPadding: EdgeInsets.zero,
-              border: InputBorder.none,
-              hintText: CreateOrderKeys.customQuantity.tr(),
-              hintStyle: const TextStyle(
-                color: AppColors.grey,
-                fontSize: AppFontSizes.footnote,
-              ),
-            ),
+    final colors = context.colors;
+    final ink = open ? colors.brandBlue : colors.textSecondary;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: AppSizes.orderFieldHeight,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        decoration: BoxDecoration(
+          color: colors.surface,
+          borderRadius: BorderRadius.circular(AppRadii.tile),
+          border: Border.all(
+            color: open ? colors.brandBlue : colors.borderHairline,
+            width: open
+                ? AppSizes.orderTileSelectedBorderWidth
+                : AppSizes.orderTileBorderWidth,
           ),
-          // The pencil sits on the unit line rather than beside the input:
-          // it is what marks this tile as the editable one, and inline it
-          // stole a fifth of an already narrow field.
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.edit_outlined,
-                size: AppSizes.iconXs,
-                color: AppColors.grey,
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              Text(
-                OrdersKeys.litreUnit.tr(),
-                maxLines: 1,
-                style: const TextStyle(
-                  color: AppColors.grey,
-                  fontSize: AppFontSizes.caption,
-                ),
-              ),
-            ],
-          ),
-        ],
+        ),
+        // Glyph first so the pair mirrors with the locale — pencil on the
+        // right under Arabic, as the design has it.
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              AppAssets.orderCustomQuantityIcon,
+              width: AppSizes.iconLg,
+              height: AppSizes.iconLg,
+              // The file carries the design's grey inline; recolouring keeps
+              // it legible on the dark theme too.
+              colorFilter: ColorFilter.mode(ink, BlendMode.srcIn),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Text(
+              CommonKeys.litre.tr(),
+              style: TextStyle(color: ink, fontSize: 13),
+            ),
+          ],
+        ),
       ),
     );
   }

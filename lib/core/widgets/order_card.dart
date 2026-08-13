@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
-import '../theme/app_spacing.dart';
-import '../theme/app_text_styles.dart';
+import '../theme/theme_context.dart';
 
-/// The white card every step of the order flow sits in.
+/// The card every step of the order flow sits in.
 ///
 /// The order form set the house style — 16pt padding, a 16pt radius, and 14pt
 /// between a heading and its content — so the detail and tracking screens draw
@@ -45,19 +43,9 @@ class OrderCard extends StatelessWidget {
   /// Hairline around the card, for the few that carry one.
   final Color? border;
 
-  static const double padding = AppSpacing.lg;
-  static const double radius = AppRadii.dashboardCard;
+  static const double padding = 16;
+  static const double radius = 16;
   static const double titleGapDefault = 14;
-
-  static const _titleStyle = TextStyle(
-    color: AppColors.navy,
-    fontSize: AppFontSizes.subtitle,
-    fontWeight: FontWeight.w700,
-  );
-  static const _subtitleStyle = TextStyle(
-    color: AppColors.grey,
-    fontSize: AppFontSizes.footnote,
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -88,15 +76,15 @@ class OrderCard extends StatelessWidget {
                     children: [
                       Text(title!, style: titleStyle),
                       if (subtitle != null) ...[
-                        const SizedBox(height: AppSpacing.xs),
-                        Text(subtitle!, style: _subtitleStyle),
+                        const SizedBox(height: 4),
+                        Text(subtitle!, style: subtitleStyle),
                       ],
                     ],
                   ),
                 ),
                 // Centres against the whole heading block, not just its first
                 // line, so the pill sits level with a title+reference pair.
-                if (trailing != null) trailing!,
+                ?trailing,
               ],
             ),
             SizedBox(height: titleGap),
@@ -116,17 +104,16 @@ class OrderCard extends StatelessWidget {
 
 /// The dashed blue outline traced around an [OrderCard] at [OrderCard.radius].
 class DashedCardBorderPainter extends CustomPainter {
-  const DashedCardBorderPainter();
+  const DashedCardBorderPainter(this.color);
 
-  static const _strokeWidth = 1.2;
-  static const _dash = 6.0;
-  static const _dashPitch = 10.0;
+  /// Handed in from the widget above — a painter has no [BuildContext].
+  final Color color;
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppColors.blue
-      ..strokeWidth = _strokeWidth
+      ..color = color
+      ..strokeWidth = 1.2
       ..style = PaintingStyle.stroke;
 
     final path = Path()
@@ -140,8 +127,8 @@ class DashedCardBorderPainter extends CustomPainter {
     for (final metric in path.computeMetrics()) {
       var distance = 0.0;
       while (distance < metric.length) {
-        canvas.drawPath(metric.extractPath(distance, distance + _dash), paint);
-        distance += _dashPitch;
+        canvas.drawPath(metric.extractPath(distance, distance + 6), paint);
+        distance += 10;
       }
     }
   }

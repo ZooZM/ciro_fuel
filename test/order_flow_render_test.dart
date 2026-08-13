@@ -14,26 +14,8 @@ import 'package:mobile_app/features/orders/presentation/view/invoice_payment_scr
 import 'package:mobile_app/features/orders/presentation/view/order_detail_screen.dart';
 import 'package:mobile_app/features/orders/presentation/view/track_order_screen.dart';
 
-<<<<<<< HEAD
-import 'support/orders_test_di.dart';
-
-/// Without the real font, text falls back to a fixed-width test face that is
-/// far wider than Tajawal, which reports overflows the app would never hit.
-Future<void> _loadTajawal() async {
-  final loader = FontLoader('Tajawal');
-  for (final font in const [
-    'assets/fonts/Tajawal-Regular.ttf',
-    'assets/fonts/Tajawal-Medium.ttf',
-    'assets/fonts/Tajawal-Bold.ttf',
-    'assets/fonts/Tajawal-ExtraBold.ttf',
-  ]) {
-    loader.addFont(rootBundle.load(font));
-  }
-  await loader.load();
-}
-=======
 import 'helpers/localized_harness.dart';
->>>>>>> df7a18f732afd39bbce1817509b7b32640330465
+import 'support/orders_test_di.dart';
 
 /// Every order screen must lay out on a phone without overflowing. Widget tests
 /// surface overflow as a thrown FlutterError, so simply pumping each one is the

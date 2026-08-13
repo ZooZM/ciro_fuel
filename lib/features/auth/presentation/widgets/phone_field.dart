@@ -146,7 +146,7 @@ class _CountrySelector extends StatelessWidget {
   final ValueChanged<CountryDialCode> onChanged;
 
   void _showCountryPicker(BuildContext context) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       backgroundColor: context.colors.canvas,
       shape: const RoundedRectangleBorder(
@@ -180,7 +180,7 @@ class _CountrySelector extends StatelessWidget {
                 child: ListView.separated(
                   shrinkWrap: true,
                   itemCount: CountryDialCode.values.length,
-                  separatorBuilder: (_, __) => Divider(
+                  separatorBuilder: (_, _) => Divider(
                     height: 1,
                     thickness: 1,
                     color: colors.borderHairline,

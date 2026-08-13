@@ -163,11 +163,3 @@ class DeliveryTimeCard extends StatelessWidget {
     );
   }
 }
-
-class _StationArt extends StatelessWidget {
-  const _StationArt();
-
-  @override
-  Widget build(BuildContext context) =>
-      SvgPicture.asset(DeliveryTimeCard._art, fit: BoxFit.fitHeight);
-}

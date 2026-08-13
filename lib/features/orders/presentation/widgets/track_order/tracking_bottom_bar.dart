@@ -1,14 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/localization/translation_keys.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../../core/constants/app_assets.dart';
-import '../../../../../core/localization/translation_keys.dart';
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
-import '../../../../../core/theme/app_text_styles.dart';
+import '../../../../../core/theme/theme_context.dart';
 
 /// The sticky "تم الاستلام" / "تواصل مع الدعم" action row.
 class TrackingBottomBar extends StatelessWidget {
@@ -16,6 +13,8 @@ class TrackingBottomBar extends StatelessWidget {
 
   final VoidCallback? onReceived;
   final VoidCallback? onContactSupport;
+
+  static const _supportIconSize = 16.0;
 
   @override
   Widget build(BuildContext context) {
@@ -51,10 +50,8 @@ class TrackingBottomBar extends StatelessWidget {
                 ),
                 label: Text(
                   TrackOrderKeys.received.tr(),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontSize: AppFontSizes.bodyLarge,
+                    fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
                   ),
@@ -80,20 +77,19 @@ class TrackingBottomBar extends StatelessWidget {
                 ),
                 icon: SvgPicture.asset(
                   AppAssets.supportIcon,
-                  width: AppSizes.icon16,
-                  height: AppSizes.icon16,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.blue,
+                  width: _supportIconSize,
+                  height: _supportIconSize,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.brandBlue,
                     BlendMode.srcIn,
                   ),
                 ),
                 label: Text(
-                  TrackOrderKeys.contactSupport.tr(),
+                  CommonKeys.contactSupport.tr(),
                   maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.blue,
-                    fontSize: AppFontSizes.micro,
+                  style: TextStyle(
+                    color: context.colors.brandBlue,
+                    fontSize: 10.5,
                     fontWeight: FontWeight.w700,
                   ),
                 ),

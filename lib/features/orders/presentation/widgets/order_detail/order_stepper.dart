@@ -1,12 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/localization/translation_keys.dart';
 
-import '../../../../../core/localization/translation_keys.dart';
-import '../../../../../core/theme/app_colors.dart';
-import '../../../../../core/theme/app_spacing.dart';
-import '../../../../../core/theme/app_text_styles.dart';
 import 'mock_order_state.dart';
 import '../../../../../core/theme/theme_context.dart';
 
@@ -21,25 +16,20 @@ enum _StepInk { green, blue, orange, red }
 /// track at radius 4, a 3x3 dot 8 above it — with real text for the label.
 enum _StepStatus {
   /// Bar filled end to end.
-  finished(AppColors.successGreen, filled: true),
   finished(_StepInk.green, filled: true),
 
   /// Bar filled to the halfway point.
-  onProgress(AppColors.blue),
   onProgress(_StepInk.blue),
 
   /// Half-filled like [onProgress], in the alert colour.
-  warning(AppColors.warningOrange),
   warning(_StepInk.orange),
 
   /// Filled end to end, in the error colour. No screen in the current
   /// designs reaches it, but it completes the artwork's set.
   // ignore: unused_field
-  failed(AppColors.red, filled: true),
   failed(_StepInk.red, filled: true),
 
   /// Track only; the dot still shows the journey ahead.
-  notFinished(AppColors.blue, fraction: 0);
   notFinished(_StepInk.blue, fraction: 0);
 
   const _StepStatus(this.ink, {bool filled = false, double? fraction})
@@ -65,11 +55,6 @@ class OrderStepper extends StatelessWidget {
 
   final MockOrderState currentState;
 
-  static const _titleKeys = [
-    OrderDetailKeys.stepConfirmOrder,
-    OrderDetailKeys.stepPayment,
-    OrderDetailKeys.stepDelivery,
-    OrderDetailKeys.stepHandover,
   // Keys, not copy: the list stays `const` and each caption is translated
   // where it is drawn, so the stepper follows a locale switch.
   static const _titleKeys = [
@@ -117,12 +102,9 @@ class OrderStepper extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         for (var i = 0; i < _titleKeys.length; i++) ...[
-          if (i > 0) const SizedBox(width: AppSpacing.sm),
-        for (var i = 0; i < _titleKeys.length; i++) ...[
           if (i > 0) const SizedBox(width: 8),
           Expanded(
             flex: _flexes[i],
-            child: _Step(title: _titleKeys[i].tr(), status: statuses[i]),
             child: _Step(title: _titleKeys[i].tr(), status: statuses[i]),
           ),
         ],
@@ -142,20 +124,6 @@ class _Step extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Scales rather than clipping: the three narrow steps only just fit
-        // their labels, and a longer translation must not run into its
-        // neighbour.
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            title,
-            maxLines: 1,
-            softWrap: false,
-            style: const TextStyle(
-              color: AppColors.mutedLabel,
-              fontSize: AppFontSizes.micro,
-            ),
-          ),
         Text(
           title,
           maxLines: 1,
@@ -163,14 +131,8 @@ class _Step extends StatelessWidget {
           overflow: TextOverflow.visible,
           style: TextStyle(color: context.colors.textSecondary, fontSize: 10),
         ),
-        const SizedBox(height: AppSpacing.xs),
+        const SizedBox(height: 6),
         Container(
-          width: AppSizes.orderStepDotSize,
-          height: AppSizes.orderStepDotSize,
-          decoration: BoxDecoration(
-            color: status.color,
-            shape: BoxShape.circle,
-          ),
           width: 3,
           height: 3,
           decoration: BoxDecoration(
@@ -178,19 +140,15 @@ class _Step extends StatelessWidget {
             shape: BoxShape.circle,
           ),
         ),
-        const SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: 8),
         // The Column hands out loose constraints, so without this the bar
         // would shrink-wrap its fill: the track would never show and the
         // fill would sit centred instead of against the leading edge.
         SizedBox(
           width: double.infinity,
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(
-              AppSizes.orderStepTrackRadius,
-            ),
+            borderRadius: BorderRadius.circular(4),
             child: Container(
-              height: AppSizes.orderStepTrackHeight,
-              color: AppColors.track,
               height: 8,
               color: context.colors.borderHairline,
               // Fills from the leading (right) edge under RTL, as the

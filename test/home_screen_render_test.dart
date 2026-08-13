@@ -1,4 +1,7 @@
-import 'package:easy_localization/easy_localization.dart';
+// `hide TextDirection`: easy_localization re-exports intl, whose
+// TextDirection would shadow the one this test asserts on.
+import 'package:easy_localization/easy_localization.dart'
+    hide TextDirection;
 // `Localization` and `Translations` are what `.tr()` reads from, but
 // easy_localization only re-exports the widget that populates them. Seeding
 // them directly is the only way to translate a tree the EasyLocalization
@@ -6,37 +9,15 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:easy_localization/src/localization.dart';
 import 'package:easy_localization/src/translations.dart';
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-=======
->>>>>>> df7a18f732afd39bbce1817509b7b32640330465
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_app/core/constants/app_assets.dart';
 import 'package:mobile_app/core/localization/app_locales.dart';
 import 'package:mobile_app/features/auth/presentation/cubit/session_cubit.dart';
 import 'package:mobile_app/features/home/presentation/view/client_home_screen.dart';
 
-<<<<<<< HEAD
-import 'support/orders_test_di.dart';
-
-/// Without the real font, text falls back to a fixed-width test face that is
-/// far wider than Tajawal, which reports overflows the app would never hit.
-Future<void> _loadTajawal() async {
-  final loader = FontLoader('Tajawal');
-  for (final font in const [
-    'assets/fonts/Tajawal-Regular.ttf',
-    'assets/fonts/Tajawal-Medium.ttf',
-    'assets/fonts/Tajawal-Bold.ttf',
-    'assets/fonts/Tajawal-ExtraBold.ttf',
-  ]) {
-    loader.addFont(rootBundle.load(font));
-  }
-  await loader.load();
-}
-=======
 import 'helpers/localized_harness.dart';
->>>>>>> df7a18f732afd39bbce1817509b7b32640330465
+import 'support/orders_test_di.dart';
 
 void main() {
   setUpAll(() async {
@@ -66,36 +47,24 @@ void main() {
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
 
-<<<<<<< HEAD
-    await tester.pumpWidget(
-      MaterialApp(
-        theme: ThemeData(fontFamily: 'Tajawal', useMaterial3: true),
-        // ClientHomeScreen reads SessionCubit from an ancestor provider in
-        // production (app.dart's app-root MultiBlocProvider) — mirrored here.
-        home: BlocProvider<SessionCubit>.value(
-          value: sampleAuthenticatedSessionCubit(),
-          child: const ClientHomeScreen(),
-        ),
-      ),
-=======
     await pumpLocalized(
       tester,
-      const ClientHomeScreen(),
+      // ClientHomeScreen reads SessionCubit from an ancestor provider in
+      // production (app.dart's app-root MultiBlocProvider) — mirrored here.
+      BlocProvider<SessionCubit>.value(
+        value: sampleAuthenticatedSessionCubit(),
+        child: const ClientHomeScreen(),
+      ),
       theme: ThemeData(fontFamily: 'Tajawal', useMaterial3: true),
->>>>>>> df7a18f732afd39bbce1817509b7b32640330465
     );
 
     expect(tester.takeException(), isNull);
 
-<<<<<<< HEAD
-    // Station card (now sourced from the authenticated session, spec 004
+    // Station card (sourced from the authenticated session, spec 004
     // FR-009/T088 — no longer a hardcoded placeholder), the نظرة سريعة
-    // counters, and the order card.
-=======
-    // Station card, the at-a-glance counters, and the order card. The station
-    // name and driver are placeholder data, so they stay Arabic in both
-    // locales; the labels around them come from the catalogue.
->>>>>>> df7a18f732afd39bbce1817509b7b32640330465
+    // counters, and the order card. The station name and driver are sample
+    // data, so they stay Arabic in both locales; the labels around them come
+    // from the catalogue.
     expect(find.text('محطة الرحاب'), findsOneWidget);
     expect(find.text('تغيير المحطة'), findsOneWidget);
     expect(find.text('نظرة سريعة'), findsOneWidget);
@@ -124,7 +93,10 @@ void main() {
 
     await pumpLocalized(
       tester,
-      const ClientHomeScreen(),
+      BlocProvider<SessionCubit>.value(
+        value: sampleAuthenticatedSessionCubit(),
+        child: const ClientHomeScreen(),
+      ),
       locale: const Locale('en'),
       theme: ThemeData(fontFamily: 'Tajawal', useMaterial3: true),
     );

@@ -6,13 +6,10 @@ import '../../../../core/localization/translation_keys.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/localization/translation_keys.dart';
 import '../../../../core/router/app_routes.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../home/presentation/widgets/current_order_card.dart';
 import '../../../home/presentation/widgets/current_station_card.dart';
 import '../../../home/presentation/widgets/new_request_button.dart';
+import '../../../home/presentation/widgets/current_order_card.dart';
 import '../../../home/presentation/widgets/quick_glance_row.dart';
 import '../../../home/presentation/widgets/section_header.dart';
 import '../../../../core/theme/theme_context.dart';
@@ -22,6 +19,7 @@ import '../../../../core/widgets/date_time_row.dart';
 const _kProfileImage = 'assets/more/Image.png';
 
 const _kStationIcon = 'assets/HomePage/green station.svg';
+
 
 class ClientStationsScreen extends StatefulWidget {
   const ClientStationsScreen({super.key});
@@ -207,10 +205,7 @@ class _ClientStationsScreenState extends State<ClientStationsScreen> {
                     const SizedBox(width: 8),
                     Text(
                       'ORD-2024-256',
-                      style: TextStyle(
-                        color: context.colors.textSecondary,
-                        fontSize: 12,
-                      ),
+                      style: TextStyle(color: context.colors.textSecondary, fontSize: 12),
                     ),
                   ],
                 ),
@@ -238,19 +233,14 @@ class _ClientStationsScreenState extends State<ClientStationsScreen> {
                         StationsKeys.deliveredDeferredInvoice.tr(),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: context.colors.textSecondary,
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: context.colors.textSecondary, fontSize: 12),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  context.locale.languageCode == 'ar'
-                      ? 'طريق أنس بن مالك، حي الملقا'
-                      : 'Anas Bin Malik Road, Al Malqa District',
+                  context.locale.languageCode == 'ar' ? 'طريق أنس بن مالك، حي الملقا' : 'Anas Bin Malik Road, Al Malqa District',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(

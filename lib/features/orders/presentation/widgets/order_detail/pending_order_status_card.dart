@@ -1,20 +1,16 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/localization/translation_keys.dart';
 
-import '../../../../../core/localization/translation_keys.dart';
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
-import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/widgets/order_card.dart';
-import '../../constants/order_mock_data.dart';
+import '../../../../../core/theme/theme_context.dart';
 
 /// The order-status card while the order is still awaiting review — just
 /// a headline and a cancel action.
 class PendingOrderStatusCard extends StatelessWidget {
   const PendingOrderStatusCard({
-    this.orderReference = OrderMockData.orderReference,
+    this.orderReference,
     this.onCancel,
     super.key,
   });
@@ -25,18 +21,17 @@ class PendingOrderStatusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isAr = context.locale.languageCode == 'ar';
-    final resolvedReference =
-        orderReference ??
+    final resolvedReference = orderReference ?? 
         (isAr ? 'ORD-2024-256 · 9 صفر 1446' : 'ORD-2024-256 · 9 Safar 1446');
 
     return OrderCard(
       title: OrderDetailKeys.orderStatus.tr(),
-      subtitle: orderReference,
+      subtitle: resolvedReference,
       trailing: Text(
         OrderDetailKeys.pendingReview.tr(),
-        style: const TextStyle(
-          color: AppColors.blue,
-          fontSize: AppFontSizes.subtitle,
+        style: TextStyle(
+          color: context.colors.brandBlue,
+          fontSize: 15,
           fontWeight: FontWeight.w800,
         ),
       ),
@@ -56,10 +51,10 @@ class PendingOrderStatusCard extends StatelessWidget {
                 ),
               ),
               child: Text(
-                OrderDetailKeys.cancel.tr(),
-                style: const TextStyle(
-                  color: AppColors.blue,
-                  fontSize: AppFontSizes.bodyLarge,
+                CommonKeys.cancel.tr(),
+                style: TextStyle(
+                  color: context.colors.brandBlue,
+                  fontSize: 14,
                   fontWeight: FontWeight.w700,
                 ),
               ),

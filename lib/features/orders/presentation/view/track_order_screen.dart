@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_spacing.dart';
-import '../constants/order_mock_data.dart';
-import '../widgets/order_top_bar.dart';
+import '../../../../core/widgets/app_top_bar.dart';
 import '../widgets/track_order/driver_card.dart';
 import '../widgets/track_order/pickup_code_card.dart';
 import '../widgets/track_order/track_order_title.dart';
@@ -17,46 +16,46 @@ class TrackOrderScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: AppColors.screenBackground,
-        body: SafeArea(
-          child: Column(
-            children: [
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.only(
-                    top: AppSpacing.lg,
-                    bottom: AppSpacing.xl,
-                  ),
-                  children: [
-                    _inset(
-                      OrderTopBar(
-                        notificationCount: OrderMockData.notificationCount,
-                        onBack: () => Navigator.of(context).pop(),
-                      ),
-                    ),
-                    const SizedBox(height: AppSizes.orderSectionGap),
-                    _inset(const TrackOrderTitle()),
-                    const SizedBox(height: AppSpacing.lg),
-                    _inset(const TrackingStatsCard()),
-                    const SizedBox(height: AppSpacing.lg),
-                    // Full-bleed: the map is the only thing that touches the
-                    // screen edges.
-                    const TrackingMap(),
-                    const SizedBox(height: AppSpacing.lg),
-                    _inset(const DriverCard()),
-                    const SizedBox(height: AppSpacing.lg),
-                    _inset(const PickupCodeCard()),
-                    const SizedBox(height: AppSpacing.lg),
-                    _inset(const TrackingTimelineCard()),
-                  ],
+    return Scaffold(
+      backgroundColor: context.colors.canvas,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.only(
+                  top: AppSpacing.lg,
+                  bottom: AppSpacing.xl,
                 ),
+                children: [
+                  _inset(
+                    // The bell keeps the bar's default target, the
+                    // notifications screen; an empty callback here left it
+                    // dead.
+                    AppTopBar(
+                      notificationCount: 3,
+                      onBack: () => Navigator.of(context).pop(),
+                    ),
+                  ),
+                  const SizedBox(height: AppSizes.orderSectionGap),
+                  _inset(const TrackOrderTitle()),
+                  const SizedBox(height: AppSpacing.lg),
+                  _inset(const TrackingStatsCard()),
+                  const SizedBox(height: AppSpacing.lg),
+                  // Full-bleed: the map is the only thing that touches the
+                  // screen edges.
+                  const TrackingMap(),
+                  const SizedBox(height: AppSpacing.lg),
+                  _inset(const DriverCard()),
+                  const SizedBox(height: AppSpacing.lg),
+                  _inset(const PickupCodeCard()),
+                  const SizedBox(height: AppSpacing.lg),
+                  _inset(const TrackingTimelineCard()),
+                ],
               ),
-              const TrackingBottomBar(),
-            ],
-          ),
+            ),
+            const TrackingBottomBar(),
+          ],
         ),
       ),
     );

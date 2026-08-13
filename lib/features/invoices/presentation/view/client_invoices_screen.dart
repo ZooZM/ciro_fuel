@@ -4,7 +4,6 @@ import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
 import '../../../../core/localization/translation_keys.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/date_time_row.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -236,71 +235,15 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
   }
 
   Widget _buildHeader() {
-    return Directionality(
-      textDirection: TextDirection.ltr,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // Back button
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: AppColors.light.surface,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: AppColors.shadowCard,
-              ),
-              child: const Icon(
-                Icons.arrow_back_ios_new,
-                color: AppColors.slateCharcoal,
-                size: 20,
-              ),
-            ),
-            // Logo
-            SvgPicture.asset(AppAssets.appBarLogo, height: 24),
-            // Notification bell
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: AppColors.light.surface,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: AppColors.shadowCard,
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  const Icon(
-                    Icons.notifications_none,
-                    color: AppColors.slateCharcoal,
-                    size: 24,
-                  ),
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: AppColors.errorRed,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Text(
-                        '3',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+    return const Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: AppSpacing.topBarInsetH,
+        vertical: AppSpacing.topBarInsetV,
+      ),
+      child: AppTopBar(
+        showProfile: true,
+        notificationCount: 3,
+        // Optional: onNotificationTap if needed, otherwise it defaults to AppRoutes.notifications
       ),
     );
   }

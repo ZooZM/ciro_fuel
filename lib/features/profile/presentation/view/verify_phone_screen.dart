@@ -254,7 +254,7 @@ class _CodeBox extends StatelessWidget {
     final filled = controller.text.isNotEmpty;
 
     return GestureDetector(
-      onTap: () => focusNode.requestFocus(),
+      onTap: focusNode.requestFocus,
       behavior: HitTestBehavior.opaque,
       child: Container(
         height: 62,
