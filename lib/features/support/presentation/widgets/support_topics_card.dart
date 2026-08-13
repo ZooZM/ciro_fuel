@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/theme_context.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../constants/support_topics.dart';
 import 'support_topic_item.dart';
@@ -16,17 +16,17 @@ class SupportTopicsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(AppRadii.tile),
-        border: Border.all(color: AppColors.itemBorder),
+        border: Border.all(color: context.colors.borderHairline),
       ),
       child: Column(
         children: [
           for (final (index, topic) in supportTopics.indexed) ...[
             if (index > 0)
-              const Divider(
+              Divider(
                 height: AppSizes.dividerThickness,
-                color: AppColors.itemBorder,
+                color: context.colors.borderHairline,
               ),
             SupportTopicItem(topic: topic, onTap: () => onTopicTap(topic)),
           ],

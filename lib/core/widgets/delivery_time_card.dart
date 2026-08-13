@@ -54,7 +54,7 @@ class DeliveryTimeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isAr = context.locale.languageCode == 'ar';
-    final resolvedDate = date ?? (isAr ? '9 صفر 1446' : '9 Safar 1446');
+    final resolvedDate = date ?? (isAr ? '9 أغسطس 2024' : '9 August 2024');
     final resolvedTime = time ?? (isAr ? '06.30 صباحاً' : '06.30 AM');
     final resolvedStation =
         station ??

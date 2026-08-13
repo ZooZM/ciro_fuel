@@ -11,6 +11,7 @@ import '../../../../core/di/injector.dart';
 import '../../../../core/localization/translation_keys.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/theme_context.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/number_formatting.dart';
 import '../../../../shared/entities/order.dart';
@@ -120,9 +121,11 @@ class _ClientHomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Directionality(
-      textDirection: TextDirection.rtl,
+      textDirection: context.locale.languageCode == 'ar'
+          ? TextDirection.rtl
+          : TextDirection.ltr,
       child: Scaffold(
-        backgroundColor: AppColors.screenBackground,
+        backgroundColor: context.colors.canvas,
         body: SafeArea(
           child: RefreshIndicator(
             onRefresh: () => Future.wait([
@@ -261,7 +264,7 @@ class _HomeMessage extends StatelessWidget {
         child: Text(
           message,
           textAlign: TextAlign.center,
-          style: const TextStyle(color: AppColors.grey, fontSize: 14),
+          style: TextStyle(color: context.colors.textSecondary, fontSize: 14),
         ),
       ),
     );

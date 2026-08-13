@@ -4,9 +4,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/localization/translation_keys.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/theme/theme_context.dart';
 
 /// The three messaging channels offered under the call button.
 ///
@@ -21,10 +21,10 @@ class SupportChannelsRow extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          SupportKeys.orVia.tr(),
-          style: const TextStyle(
+          context.locale.languageCode == 'ar' ? 'او من خلال' : SupportKeys.orVia.tr(),
+          style: TextStyle(
             fontSize: AppFontSizes.bodyLarge,
-            color: AppColors.green,
+            color: context.colors.brandGreen,
             fontWeight: FontWeight.w500,
           ),
         ),

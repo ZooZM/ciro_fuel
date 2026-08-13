@@ -68,6 +68,8 @@ abstract final class AppAssets {
   static const String lockIcon = '$_icons/locked.svg';
   static const String shieldIcon = '$_icons/protection.svg';
   static const String supportIcon = '$_icons/customer service.svg';
+  static const String requestCreditLimitIcon = '$_icons/request_credit_limit.svg';
+  static const String payCardIcon = '$_icons/pay_card.svg';
 
   /// The list screens' refresh glyph. Distinct from [orderMapReloadIcon],
   /// which is the map control from the Order folder.

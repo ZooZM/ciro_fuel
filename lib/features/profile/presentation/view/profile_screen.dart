@@ -93,7 +93,7 @@ class ProfileScreen extends StatelessWidget {
               _buildAccountInfoItem(
                 context,
                 ProfileKeys.joinDate.tr(),
-                '9 ربيع الأول 1446',
+                '9 سبتمبر 2024',
               ),
             ]),
             const SizedBox(height: 24),

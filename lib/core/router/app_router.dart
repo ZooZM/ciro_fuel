@@ -185,13 +185,19 @@ class AppRouter {
     // Help & support is reachable from the login screen, so it must stay
     // accessible before a session exists (contracts/ui-state-contract.md).
     final atSupport = state.matchedLocation == AppRoutes.support;
+    // Dev shortcut paired with `initialLocation: AppRoutes.clientHome` above:
+    // lets an unauthenticated session sit on the client dashboard instead of
+    // being bounced to login. Restore to atLogin || atSupport before release.
+    final atClientRoute = state.matchedLocation.startsWith(AppRoutes.clientHome);
+    final atNotifications = state.matchedLocation == AppRoutes.notifications;
 
     return switch (session) {
       // Splash/launch: stay on the current route while session restore runs.
       SessionUnknown() => null,
       // Signed out (or the session was revoked mid-use): the only reachable
       // destinations are the login screen itself and help & support.
-      SessionUnauthenticated() => atLogin || atSupport ? null : AppRoutes.login,
+      SessionUnauthenticated() =>
+        atLogin || atSupport || atClientRoute || atNotifications ? null : AppRoutes.login,
       SessionAuthenticated(:final user) => _redirectAuthenticated(
         user.role,
         state.matchedLocation,

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/localization/translation_keys.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/theme_context.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_top_bar.dart';
@@ -13,6 +14,7 @@ import '../widgets/support_brand_header.dart';
 import '../widgets/support_call_button.dart';
 import '../widgets/support_channels_row.dart';
 import '../widgets/support_topics_card.dart';
+import '../widgets/support_order_problem_card.dart';
 
 /// الدعم و المساعدة — how to reach a human, and the answers most people are
 /// looking for.
@@ -30,9 +32,9 @@ class SupportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Directionality(
-      textDirection: TextDirection.rtl,
+      textDirection: context.locale.languageCode == 'ar' ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
-        backgroundColor: AppColors.screenBackground,
+        backgroundColor: context.colors.canvas,
         appBar: showTopBar ? null : _buildSignedOutAppBar(context),
         body: SafeArea(
           child: SingleChildScrollView(
@@ -58,6 +60,8 @@ class SupportScreen extends StatelessWidget {
                 const SizedBox(height: AppSpacing.xl),
                 const SupportChannelsRow(),
                 const SizedBox(height: AppSpacing.space48),
+                const SupportOrderProblemCard(),
+                const SizedBox(height: AppSpacing.space48),
                 _SectionTitle(SupportKeys.topTopics.tr()),
                 const SizedBox(height: AppSpacing.lg),
                 SupportTopicsCard(onTopicTap: (_) {}),
@@ -65,9 +69,9 @@ class SupportScreen extends StatelessWidget {
                 Center(
                   child: Text(
                     SupportKeys.availability.tr(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: AppFontSizes.footnote,
-                      color: AppColors.grey,
+                      color: context.colors.textSecondary,
                     ),
                   ),
                 ),
@@ -87,7 +91,7 @@ class SupportScreen extends StatelessWidget {
       backgroundColor: Colors.transparent,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios, color: AppColors.slateCharcoal),
+        icon: Icon(Icons.arrow_back_ios, color: context.colors.textPrimary),
         onPressed: () => context.pop(),
       ),
     );
@@ -105,10 +109,10 @@ class _SectionTitle extends StatelessWidget {
     return Text(
       title,
       textAlign: TextAlign.start,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: AppFontSizes.title,
         fontWeight: FontWeight.w700,
-        color: AppColors.navy,
+        color: AppColors.of(context).textPrimary,
       ),
     );
   }

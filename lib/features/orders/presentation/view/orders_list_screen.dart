@@ -75,7 +75,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
       statusProgress: _statusDone,
       address: 'طريق أنس بن مالك، حي الملقا',
       time: '06.30 صباحاً',
-      date: '9 صفر 1446',
+      date: '9 أغسطس 2024',
       mockState: MockOrderState.confirmed,
     ),
     _MockOrder(
@@ -85,7 +85,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
       statusProgress: _statusUnderway,
       address: 'طريق أنس بن مالك، حي الملقا',
       time: '06.30 صباحاً',
-      date: '9 صفر 1446',
+      date: '9 أغسطس 2024',
       mockState: MockOrderState.waitingPayment,
     ),
     _MockOrder(
@@ -95,7 +95,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
       statusProgress: _statusUnderway,
       address: 'طريق أنس بن مالك، حي الملقا',
       time: '06.30 صباحاً',
-      date: '9 صفر 1446',
+      date: '9 أغسطس 2024',
       mockState: MockOrderState.failedPayment,
     ),
     _MockOrder(
@@ -105,7 +105,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
       statusProgress: _statusDone,
       address: 'طريق أنس بن مالك، حي الملقا',
       time: '06.30 صباحاً',
-      date: '9 صفر 1446',
+      date: '9 أغسطس 2024',
       mockState: MockOrderState.paid,
     ),
     _MockOrder(
@@ -115,7 +115,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
       statusProgress: _statusUnderway,
       address: 'طريق أنس بن مالك، حي الملقا',
       time: '06.30 صباحاً',
-      date: '9 صفر 1446',
+      date: '9 أغسطس 2024',
       mockState: MockOrderState.inTransit,
     ),
   ];
@@ -124,7 +124,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
     final loc = isAr
         ? 'طريق أنس بن مالك، حي الملقا'
         : 'Anas Bin Malik Road, Al Malqa District';
-    final dat = isAr ? '9 صفر 1446' : '9 Safar 1446';
+    final dat = isAr ? '9 أغسطس 2024' : '9 August 2024';
     final tim = isAr ? '06.30 صباحاً' : '06.30 AM';
 
     return _ordersFor(context)

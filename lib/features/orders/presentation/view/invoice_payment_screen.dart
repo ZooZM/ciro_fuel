@@ -138,93 +138,56 @@ class InvoicePaymentScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    InvoicePaymentKeys.invoiceNumber.tr(),
-                    style: TextStyle(
-                      color: context.colors.textSecondary,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                    ),
+          Center(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  InvoicePaymentKeys.invoiceNumber.tr(),
+                  style: TextStyle(
+                    color: context.colors.textSecondary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
                   ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: context.colors.blueTint,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          '40521',
-                          style: TextStyle(
-                            color: context.colors.textPrimary,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
                       ),
-                      const SizedBox(width: 8),
-                      SvgPicture.asset(
-                        AppAssets.copyIcon,
-                        width: 18,
-                        height: 18,
-                        colorFilter: ColorFilter.mode(
-                          context.colors.brandGreen,
-                          BlendMode.srcIn,
-                        ),
+                      decoration: BoxDecoration(
+                        color: context.colors.blueTint,
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                    ],
-                  ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    InvoicePaymentKeys.orgNumber.tr(),
-                    style: TextStyle(
-                      color: context.colors.textSecondary,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Text(
-                        '889241035',
+                      child: Text(
+                        '405213578926401',
                         style: TextStyle(
                           color: context.colors.textPrimary,
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      SvgPicture.asset(
-                        AppAssets.copyIcon,
-                        width: 18,
-                        height: 18,
-                        colorFilter: ColorFilter.mode(
-                          context.colors.brandGreen,
-                          BlendMode.srcIn,
-                        ),
+                    ),
+                    const SizedBox(width: 8),
+                    SvgPicture.asset(
+                      AppAssets.copyIcon,
+                      width: 18,
+                      height: 18,
+                      colorFilter: ColorFilter.mode(
+                        context.colors.brandGreen,
+                        BlendMode.srcIn,
                       ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
+
           const SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

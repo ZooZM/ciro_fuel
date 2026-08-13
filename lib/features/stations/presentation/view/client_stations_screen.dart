@@ -252,8 +252,8 @@ class _ClientStationsScreenState extends State<ClientStationsScreen> {
                 const SizedBox(height: 10),
                 DateTimeRow(
                   date: context.locale.languageCode == 'ar'
-                      ? '9 صفر 1446'
-                      : '9 Safar 1446',
+                      ? '9 أغسطس 2024'
+                      : '9 August 2024',
                   time: context.locale.languageCode == 'ar'
                       ? '06.30 صباحاً'
                       : '06.30 AM',

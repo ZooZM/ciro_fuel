@@ -54,7 +54,7 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
       status: _InvoiceStatus.paid,
       id: 'ORD-2024-256',
       location: 'طريق أنس بن مالك، حي الملقا',
-      date: '9 صفر 1446',
+      date: '9 أغسطس 2024',
       time: '06.30 صباحاً',
       amount: '600,120.00 ر.س',
     ),
@@ -62,7 +62,7 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
       status: _InvoiceStatus.pending,
       id: 'ORD-2024-257',
       location: 'طريق أنس بن مالك، حي الملقا',
-      date: '9 صفر 1446',
+      date: '9 أغسطس 2024',
       time: '06.30 صباحاً',
       amount: '600,120.00 ر.س',
     ),
@@ -70,7 +70,7 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
       status: _InvoiceStatus.paid,
       id: 'ORD-2024-258',
       location: 'طريق أنس بن مالك، حي الملقا',
-      date: '9 صفر 1446',
+      date: '9 أغسطس 2024',
       time: '06.30 صباحاً',
       amount: '600,120.00 ر.س',
     ),
@@ -78,7 +78,7 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
       status: _InvoiceStatus.pending,
       id: 'ORD-2024-259',
       location: 'طريق أنس بن مالك، حي الملقا',
-      date: '9 صفر 1446',
+      date: '9 أغسطس 2024',
       time: '06.30 صباحاً',
       amount: '600,120.00 ر.س',
     ),
@@ -86,7 +86,7 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
       status: _InvoiceStatus.failed,
       id: 'ORD-2024-260',
       location: 'طريق أنس بن مالك، حي الملقا',
-      date: '9 صفر 1446',
+      date: '9 أغسطس 2024',
       time: '06.30 صباحاً',
       amount: '600,120.00 ر.س',
     ),
@@ -94,7 +94,7 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
       status: _InvoiceStatus.paid,
       id: 'ORD-2024-261',
       location: 'طريق أنس بن مالك، حي الملقا',
-      date: '9 صفر 1446',
+      date: '9 أغسطس 2024',
       time: '06.30 صباحاً',
       amount: '600,120.00 ر.س',
     ),
@@ -102,7 +102,7 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
       status: _InvoiceStatus.failed,
       id: 'ORD-2024-262',
       location: 'طريق أنس بن مالك، حي الملقا',
-      date: '9 صفر 1446',
+      date: '9 أغسطس 2024',
       time: '06.30 صباحاً',
       amount: '600,120.00 ر.س',
     ),
@@ -110,7 +110,7 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
       status: _InvoiceStatus.pending,
       id: 'ORD-2024-263',
       location: 'طريق أنس بن مالك، حي الملقا',
-      date: '9 صفر 1446',
+      date: '9 أغسطس 2024',
       time: '06.30 صباحاً',
       amount: '600,120.00 ر.س',
     ),
@@ -121,7 +121,7 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
     final loc = isAr
         ? 'طريق أنس بن مالك، حي الملقا'
         : 'Anas Bin Malik Road, Al Malqa District';
-    final dat = isAr ? '9 صفر 1446' : '9 Safar 1446';
+    final dat = isAr ? '9 أغسطس 2024' : '9 August 2024';
     final tim = isAr ? '06.30 صباحاً' : '06.30 AM';
     final cur = CommonKeys.currencySymbol.tr();
     final amountText = '600,120.00 $cur';

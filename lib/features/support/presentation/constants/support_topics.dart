@@ -26,10 +26,10 @@ const List<SupportTopic> supportTopics = [
   ),
   SupportTopic(
     titleKey: SupportKeys.topicPaymentMethods,
-    icon: AppAssets.supportPaymentIcon,
+    icon: AppAssets.supportAccountIcon,
   ),
   SupportTopic(
     titleKey: SupportKeys.topicAccountLogin,
-    icon: AppAssets.supportAccountIcon,
+    icon: AppAssets.supportPaymentIcon,
   ),
 ];

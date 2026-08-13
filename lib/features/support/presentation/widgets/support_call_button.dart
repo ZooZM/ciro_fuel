@@ -4,7 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/localization/translation_keys.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/theme_context.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
@@ -26,7 +26,7 @@ class SupportCallButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
         decoration: BoxDecoration(
-          color: AppColors.callButtonTint,
+          color: context.colors.blueTint,
           borderRadius: BorderRadius.circular(AppRadii.small),
         ),
         child: Stack(
@@ -34,10 +34,10 @@ class SupportCallButton extends StatelessWidget {
           children: [
             Text(
               SupportKeys.directCall.tr(),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: AppFontSizes.title,
                 fontWeight: FontWeight.w600,
-                color: AppColors.blue,
+                color: context.colors.brandBlue,
               ),
             ),
             PositionedDirectional(
@@ -46,8 +46,8 @@ class SupportCallButton extends StatelessWidget {
                 AppAssets.phoneIcon,
                 width: AppSizes.iconLg,
                 height: AppSizes.iconLg,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.blue,
+                colorFilter: ColorFilter.mode(
+                  context.colors.brandBlue,
                   BlendMode.srcIn,
                 ),
               ),

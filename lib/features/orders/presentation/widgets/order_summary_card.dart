@@ -1,7 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/localization/translation_keys.dart';
 
+import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/order_card.dart';
 import '../../../../core/theme/theme_context.dart';
@@ -54,10 +56,14 @@ class OrderSummaryCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
-                Icons.description_outlined,
-                color: context.colors.textPrimary,
-                size: AppSizes.iconLg,
+              SvgPicture.asset(
+                AppAssets.moreInvoiceIcon,
+                width: AppSizes.iconLg,
+                height: AppSizes.iconLg,
+                colorFilter: ColorFilter.mode(
+                  context.colors.textPrimary,
+                  BlendMode.srcIn,
+                ),
               ),
               const SizedBox(width: AppSpacing.sm),
               Text(

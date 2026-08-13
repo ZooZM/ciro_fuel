@@ -29,7 +29,7 @@ class _ClientPaymentsScreenState extends State<ClientPaymentsScreen> {
     final loc = isAr
         ? 'طريق أنس بن مالك، حي الملقا'
         : 'Anas Bin Malik Road, Al Malqa District';
-    final dat = isAr ? '9 صفر 1446' : '9 Safar 1446';
+    final dat = isAr ? '9 أغسطس 2024' : '9 August 2024';
     final tim = isAr ? '06.30 صباحاً' : '06.30 AM';
     return [
       _MockPayment(

@@ -21,10 +21,10 @@ abstract final class OrderMockData {
   static const double pricePerLitre = 2.33;
 
   // --- Schedule ---------------------------------------------------------
-  static const String deliveryDate = '9 صفر 1446';
+  static const String deliveryDate = '9 أغسطس 2024';
   static const String deliveryHour = '06.30 صباحاً';
   static const String invoiceValidUntil = 'اليوم 06:30 صباحاً';
-  static const String creditValidUntil = '9 صفر 1446';
+  static const String creditValidUntil = '9 أغسطس 2024';
 
   // --- Stations ---------------------------------------------------------
   static const String stationName = 'محطة الرحاب';

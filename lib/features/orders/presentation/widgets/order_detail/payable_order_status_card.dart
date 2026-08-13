@@ -1,7 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../../core/localization/translation_keys.dart';
 
+import '../../../../../core/constants/app_assets.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/order_card.dart';
 import '../../view/invoice_payment_screen.dart';
@@ -33,7 +35,7 @@ class PayableOrderStatusCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isAr = context.locale.languageCode == 'ar';
     final resolvedReference = orderReference ?? 
-        (isAr ? 'ORD-2024-256 · 9 صفر 1446' : 'ORD-2024-256 · 9 Safar 1446');
+        (isAr ? 'ORD-2024-256 · 9 أغسطس 2024' : 'ORD-2024-256 · 9 August 2024');
 
     return OrderCard(
       dashed: true,
@@ -67,10 +69,17 @@ class PayableOrderStatusCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(AppRadii.tile),
                       ),
                     ),
-                    icon: const Icon(
-                      Icons.credit_card,
-                      size: AppSizes.iconMd,
-                      color: Colors.white,
+                    icon: Transform.translate(
+                      offset: const Offset(0, -2),
+                      child: SvgPicture.asset(
+                        AppAssets.payCardIcon,
+                        width: AppSizes.iconMd,
+                        height: AppSizes.iconMd,
+                        colorFilter: const ColorFilter.mode(
+                          Colors.white,
+                          BlendMode.srcIn,
+                        ),
+                      ),
                     ),
                     label: Text(
                       invoicePending
@@ -122,10 +131,13 @@ class PayableOrderStatusCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(AppRadii.tile),
                 ),
               ),
-              icon: const Icon(
-                Icons.bookmark_outline,
-                size: AppSizes.iconMd,
-                color: Colors.white,
+              icon: Transform.translate(
+                offset: const Offset(0, -2),
+                child: const Icon(
+                  Icons.bookmark_outline,
+                  size: AppSizes.iconMd,
+                  color: Colors.white,
+                ),
               ),
               label: Text(
                 OrderDetailKeys.payNextTime.tr(),
@@ -141,10 +153,17 @@ class PayableOrderStatusCard extends StatelessWidget {
           Center(
             child: TextButton.icon(
               onPressed: onRequestCreditLimit ?? () {},
-              icon: Icon(
-                Icons.credit_card_outlined,
-                color: context.colors.textPrimary,
-                size: AppSizes.iconMd,
+              icon: Transform.translate(
+                offset: const Offset(0, -2),
+                child: SvgPicture.asset(
+                  AppAssets.requestCreditLimitIcon,
+                  width: AppSizes.iconMd,
+                  height: AppSizes.iconMd,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.textPrimary,
+                    BlendMode.srcIn,
+                  ),
+                ),
               ),
               label: Text(
                 OrderDetailKeys.requestCreditLimit.tr(),

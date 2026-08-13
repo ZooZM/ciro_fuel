@@ -43,7 +43,7 @@ class ReceiptCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isAr = context.locale.languageCode == 'ar';
-    final resolvedDay = day ?? (isAr ? '9 صفر 1446' : '9 Safar 1446');
+    final resolvedDay = day ?? (isAr ? '9 أغسطس 2024' : '9 August 2024');
     final resolvedHour = hour ?? (isAr ? '06.30 صباحاً' : '06.30 AM');
 
     return Container(

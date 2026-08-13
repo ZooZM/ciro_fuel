@@ -32,7 +32,7 @@ class SettledOrderStatusCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isAr = context.locale.languageCode == 'ar';
     final resolvedReference = orderReference ?? 
-        (isAr ? 'ORD-2024-256 · 9 صفر 1446' : 'ORD-2024-256 · 9 Safar 1446');
+        (isAr ? 'ORD-2024-256 · 9 أغسطس 2024' : 'ORD-2024-256 · 9 August 2024');
 
     return OrderCard(
       title: OrderDetailKeys.orderStatus.tr(),
