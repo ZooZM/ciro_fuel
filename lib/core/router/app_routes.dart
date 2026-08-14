@@ -2,6 +2,7 @@
 /// route path literals appear (Principle I).
 abstract final class AppRoutes {
   static const String login = '/login';
+  static const String roleSelection = '/role-selection';
   static const String support = '/support';
   static const String forgotPassword = '/forgot-password';
   static const String clientPayments = '/client/payments';
@@ -21,6 +22,13 @@ abstract final class AppRoutes {
   static String clientOrderDetail(String orderId) => '/client/orders/$orderId';
 
   static const String driverHome = '/driver';
+  static const String driverOrders = '/driver/orders';
+  static const String driverNotifications = '/driver/notifications';
+  static const String driverProfile = '/driver/profile';
+  static const String driverProfileDetails = '/driver/profile/details';
+  static const String driverChangePhone = '/driver/profile/change-phone';
+  static const String driverVerifyPhone = '/driver/profile/verify-phone';
+  static const String driverMore = '/driver/more';
   static const String driverOrderDetailPattern = '/driver/orders/:id';
   static String driverOrderDetail(String orderId) => '/driver/orders/$orderId';
 

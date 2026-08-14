@@ -42,6 +42,8 @@ abstract final class NavKeys {
   static const String home = 'nav.home';
   static const String invoices = 'nav.invoices';
   static const String more = 'nav.more';
+  static const String profile = 'nav.profile';
+  static const String notifications = 'nav.notifications';
 }
 
 abstract final class FuelKeys {

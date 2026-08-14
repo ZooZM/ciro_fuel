@@ -19,6 +19,7 @@ void main() {
       EasyLocalization(
         supportedLocales: AppLocales.supported,
         fallbackLocale: AppLocales.fallback,
+        startLocale: AppLocales.arabic,
         path: AppAssets.translationsPath,
         child: const App(),
       ),

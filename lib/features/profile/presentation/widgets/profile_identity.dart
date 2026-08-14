@@ -1,9 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/localization/translation_keys.dart';
 import '../../../../core/theme/theme_context.dart';
 
-const _kAvatar = 'assets/more/Image.png';
+const _kAvatar = 'assets/driverHomePage/driver.jpg';
 
 
 /// The photo, name, station and verified badge that head both the profile
@@ -62,16 +63,13 @@ class ProfileIdentity extends StatelessWidget {
                 // badge sits on the picture, with only its left edge hanging
                 // off, rather than standing clear of it.
                 Positioned(
-                  left: 2,
-                  bottom: 8,
+                  left: -15,
+                  bottom: -15,
                   child: GestureDetector(
                     onTap: onEdit,
                     child: Container(
-                      width: 30,
-                      height: 30,
                       decoration: BoxDecoration(
-                        color: context.colors.surface,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(5.6),
                         boxShadow: const [
                           BoxShadow(
                             color: Color(0x14000000),
@@ -80,10 +78,10 @@ class ProfileIdentity extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: Icon(
-                        Icons.edit_outlined,
-                        size: 15,
-                        color: context.colors.brandBlue,
+                      child: SvgPicture.asset(
+                        'assets/driverHomePage/edit_profile_badge.svg',
+                        width: 32,
+                        height: 32,
                       ),
                     ),
                   ),

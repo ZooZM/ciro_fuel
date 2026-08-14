@@ -128,6 +128,9 @@ flutter:
     - assets/Notification Page/
     - assets/Order/
     - assets/OrdersPage/
+    - assets/driverHomePage/
+    - assets/driverOrderPage/
+    - assets/driverOrderPage/status/
     # Asset directories are not recursive, so nested folders need their own
     # entry. `assets/Order/status/` is deliberately absent — those SVGs bake a
     # placeholder label into the artwork and are unused (see order_stepper.dart).

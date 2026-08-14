@@ -64,19 +64,19 @@ class ProfileScreen extends StatelessWidget {
             _buildCard(context, [
               _buildStationItem(
                 context,
-                name: context.locale.languageCode == 'ar' ? 'طريق أنس بن مالك، حي الملقا' : 'Anas Bin Malik Road, Al Malqa District',
+                name: context.locale.languageCode == 'ar' ? 'driver_mock_profile.anas_road'.tr() : 'Anas Bin Malik Road, Al Malqa District',
                 isActive: true,
               ),
               _buildDivider(context),
               _buildStationItem(
                 context,
-                name: 'رفح، الخليج الرياض',
+                name: 'driver_mock_profile.rafah'.tr(),
                 isActive: true,
               ),
               _buildDivider(context),
               _buildStationItem(
                 context,
-                name: 'مزايا فيول مكة البيبان',
+                name: 'driver_mock_profile.mazaya'.tr(),
                 isActive: false,
               ),
             ]),
@@ -93,7 +93,7 @@ class ProfileScreen extends StatelessWidget {
               _buildAccountInfoItem(
                 context,
                 ProfileKeys.joinDate.tr(),
-                '9 سبتمبر 2024',
+                'driver_mock_profile.date_sept_9'.tr(),
               ),
             ]),
             const SizedBox(height: 24),

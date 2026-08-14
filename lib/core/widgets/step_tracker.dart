@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../theme/theme_context.dart';
 
@@ -24,36 +25,27 @@ class StepTracker extends StatelessWidget {
 
   final List<StepItem> steps;
 
-  static const double _dot = 32;
-
   @override
   Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (final (index, step) in steps.indexed) ...[
-          if (index > 0)
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(top: _dot / 2),
-                child: Divider(
-                  height: 1,
-                  thickness: 1,
-                  color: context.colors.borderHairline,
-                ),
-              ),
-            ),
-          _Step(step),
-        ],
-      ],
+      children: steps.indexed.map((e) => Expanded(
+        child: _Step(
+          step: e.$2,
+          index: e.$1,
+          totalSteps: steps.length,
+        ),
+      )).toList(),
     );
   }
 }
 
 class _Step extends StatelessWidget {
-  const _Step(this.step);
+  const _Step({required this.step, required this.index, required this.totalSteps});
 
   final StepItem step;
+  final int index;
+  final int totalSteps;
 
   @override
   Widget build(BuildContext context) {
@@ -64,45 +56,70 @@ class _Step extends StatelessWidget {
       TrackerStepState.pending => colors.textSecondary,
     };
 
+    final dot = switch (step.state) {
+      TrackerStepState.done => Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: colors.canvas,
+            border: Border.all(color: colors.brandGreen, width: 1.5),
+          ),
+          child: Icon(Icons.check, color: colors.brandGreen, size: 16),
+        ),
+      TrackerStepState.current => Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: colors.brandBlue,
+          ),
+          child: Center(
+            child: Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: colors.canvas,
+              ),
+            ),
+          ),
+        ),
+      TrackerStepState.pending => Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: colors.canvas,
+            border: Border.all(color: colors.borderHairline, width: 1.5),
+          ),
+        ),
+    };
+
     return Column(
       children: [
         SizedBox(
-          width: StepTracker._dot,
-          height: StepTracker._dot,
-          child: switch (step.state) {
-            // Green ring with a tick.
-            TrackerStepState.done => Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: colors.brandGreen, width: 1.5),
-              ),
-              child: Icon(Icons.check, size: 18, color: colors.brandGreen),
-            ),
-            // Solid blue disc with a contrasting core.
-            TrackerStepState.current => Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: colors.brandBlue,
-              ),
-              child: Center(
-                child: Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: colors.surface,
+          height: 24,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: index == 0
+                        ? const SizedBox()
+                        : Container(height: 1, color: colors.borderHairline),
                   ),
-                ),
+                  Expanded(
+                    child: index == totalSteps - 1
+                        ? const SizedBox()
+                        : Container(height: 1, color: colors.borderHairline),
+                  ),
+                ],
               ),
-            ),
-            // Nothing yet: a plain filled disc, no ring and no glyph.
-            TrackerStepState.pending => DecoratedBox(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: colors.borderHairline,
-              ),
-            ),
-          },
+              dot,
+            ],
+          ),
         ),
         const SizedBox(height: 8),
         Text(

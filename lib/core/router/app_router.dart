@@ -6,8 +6,16 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/cubit/session_cubit.dart';
 import '../../features/auth/presentation/cubit/session_state.dart';
 import '../../features/auth/presentation/view/login_screen.dart';
+import '../../features/auth/presentation/view/role_selection_mock_screen.dart';
 import '../../features/delivery/presentation/view/delivery_detail_screen.dart';
 import '../../features/delivery/presentation/view/driver_home_screen.dart';
+import '../../features/delivery/presentation/view/driver_main_scaffold.dart';
+import '../../features/delivery/presentation/view/driver_notifications_screen.dart';
+import '../../features/delivery/presentation/view/driver_orders_screen.dart';
+import '../../features/profile/presentation/view/driver_profile_details_screen.dart';
+import '../../features/profile/presentation/view/driver_change_phone_screen.dart';
+import '../../features/profile/presentation/view/driver_verify_phone_screen.dart';
+import '../../features/profile/presentation/view/driver_profile_screen.dart';
 import '../../features/home/presentation/view/client_home_screen.dart';
 import '../../features/notifications/presentation/view/notifications_screen.dart';
 import '../../features/orders/presentation/view/create_order_screen.dart';
@@ -54,13 +62,17 @@ class AppRouter {
       // Opens straight on the client dashboard, skipping login — paired with
       // the SessionUnauthenticated bypass in [_redirect] below. Both are
       // development shortcuts: restore this to AppRoutes.login before release.
-      initialLocation: AppRoutes.clientHome,
+      initialLocation: AppRoutes.roleSelection,
       refreshListenable: _StreamRefreshListenable(_sessionCubit.stream),
       redirect: _redirect,
       routes: [
         GoRoute(
           path: AppRoutes.login,
           builder: (context, state) => const LoginScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.roleSelection,
+          builder: (context, state) => const RoleSelectionMockScreen(),
         ),
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) {
@@ -152,9 +164,60 @@ class AppRouter {
             );
           },
         ),
+        StatefulShellRoute.indexedStack(
+          builder: (context, state, navigationShell) {
+            return DriverMainScaffold(navigationShell: navigationShell);
+          },
+          branches: [
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: AppRoutes.driverProfile,
+                  builder: (context, state) => const DriverProfileDetailsScreen(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: AppRoutes.driverNotifications,
+                  builder: (context, state) => const DriverNotificationsScreen(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: AppRoutes.driverHome,
+                  builder: (context, state) => const DriverHomeScreen(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: AppRoutes.driverOrders,
+                  builder: (context, state) => const DriverOrdersScreen(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: AppRoutes.driverMore,
+                  builder: (context, state) => const DriverProfileScreen(),
+                ),
+              ],
+            ),
+          ],
+        ),
         GoRoute(
-          path: AppRoutes.driverHome,
-          builder: (context, state) => const DriverHomeScreen(),
+          path: AppRoutes.driverChangePhone,
+          builder: (context, state) => const DriverChangePhoneScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.driverVerifyPhone,
+          builder: (context, state) => const DriverVerifyPhoneScreen(),
         ),
         GoRoute(
           path: AppRoutes.driverOrderDetailPattern,
@@ -182,6 +245,7 @@ class AppRouter {
   String? _redirect(BuildContext context, GoRouterState state) {
     final session = _sessionCubit.state;
     final atLogin = state.matchedLocation == AppRoutes.login;
+    final atRoleSelection = state.matchedLocation == AppRoutes.roleSelection;
     // Help & support is reachable from the login screen, so it must stay
     // accessible before a session exists (contracts/ui-state-contract.md).
     final atSupport = state.matchedLocation == AppRoutes.support;
@@ -189,6 +253,7 @@ class AppRouter {
     // lets an unauthenticated session sit on the client dashboard instead of
     // being bounced to login. Restore to atLogin || atSupport before release.
     final atClientRoute = state.matchedLocation.startsWith(AppRoutes.clientHome);
+    final atDriverRoute = state.matchedLocation.startsWith(AppRoutes.driverHome);
     final atNotifications = state.matchedLocation == AppRoutes.notifications;
 
     return switch (session) {
@@ -197,7 +262,7 @@ class AppRouter {
       // Signed out (or the session was revoked mid-use): the only reachable
       // destinations are the login screen itself and help & support.
       SessionUnauthenticated() =>
-        atLogin || atSupport || atClientRoute || atNotifications ? null : AppRoutes.login,
+        atLogin || atRoleSelection || atSupport || atClientRoute || atDriverRoute || atNotifications ? null : AppRoutes.login,
       SessionAuthenticated(:final user) => _redirectAuthenticated(
         user.role,
         state.matchedLocation,
