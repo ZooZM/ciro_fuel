@@ -599,7 +599,7 @@
     "yesterday": "Yesterday",
     "system_update_title": "System Update",
     "system_update_desc": "The app has been updated to the latest version with performance and stability improvements.",
-    "old_date": "9 Safar 1448",
+    "old_date": "14 Aug 2026",
     "yesterday_time": "Yesterday, 09:35 AM"
   },
   "driver_mock_extra": {
@@ -637,5 +637,29 @@
     "anas_road": "Anas Bin Malik Road, Al Malqa District",
     "rafah": "Rafah, Al Khaleej Riyadh",
     "mazaya": "Mazaya Fuel Makkah Al-Bibaan"
+  },
+  "driver_navigation": {
+    "title": "Start Navigation",
+    "subtitle": "Head to the customer's location to start delivery",
+    "order_id": "Order ID",
+    "remaining_distance": "Remaining Distance",
+    "expected_time": "Expected Time",
+    "fuel_type": "Fuel Type",
+    "station_name": "Al Rehab Station",
+    "station_address": "Jeddah - Old Makkah Road - Al Bawadi District",
+    "view_on_map": "View on Map",
+    "contact_customer": "Contact Customer",
+    "requested_time": "Requested Time",
+    "quantity": "Quantity",
+    "scan_delivery_code": "Scan Delivery Code",
+    "delivery_hint": "Upon arrival, press \"Start Delivery\" to show the delivery code",
+    "start_navigation": "Start Navigation",
+    "cannot_reach": "I Cannot Reach",
+    "enter_code": "Enter Code",
+    "scan_qr": "Scan QR",
+    "point_camera": "Point camera at QR code",
+    "confirm_delivery": "Confirm Delivery",
+    "enter_delivery_code": "Enter Delivery Code",
+    "enter_4_digit_code": "Enter the 4-digit code"
   }
 }

@@ -1,4 +1,7 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
@@ -7,7 +10,6 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../core/widgets/order_card.dart';
 import '../../../../core/router/app_routes.dart';
-import '../../../../core/constants/app_assets.dart';
 import '../../../../core/widgets/app_action_icon.dart';
 import '../../../../core/widgets/search_filter_bar.dart';
 import '../../../../shared/models/filter_selection.dart';
@@ -22,10 +24,26 @@ class DriverOrdersScreen extends StatefulWidget {
 
 class _DriverOrdersScreenState extends State<DriverOrdersScreen> {
   FilterSelection _filters = const FilterSelection();
+  int _selectedTabIndex = 0;
+
+  static const List<String> _tabKeys = [
+    InvoicesKeys.tabAll,
+    InvoicesKeys.tabDeferred,
+    InvoicesKeys.tabPaid,
+    InvoicesKeys.tabFailed,
+  ];
+
+  static Map<String, Color> _tabColors(BuildContext context) => {
+    InvoicesKeys.tabDeferred: context.colors.brandOrange,
+    InvoicesKeys.tabPaid: context.colors.brandGreen,
+    InvoicesKeys.tabFailed: context.colors.brandRed,
+  };
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Directionality(
+      textDirection: ui.TextDirection.rtl,
+      child: Scaffold(
       backgroundColor: context.colors.canvas,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -87,17 +105,7 @@ class _DriverOrdersScreenState extends State<DriverOrdersScreen> {
               const SizedBox(height: AppSpacing.lg),
 
               // Tabs
-              Row(
-                children: [
-                  _buildTabItem(context, CommonKeys.all.tr(), context.colors.brandBlue, true),
-                  const SizedBox(width: 8),
-                  _buildTabItem(context, InvoicesKeys.tabDeferred.tr(), context.colors.brandOrange, false),
-                  const SizedBox(width: 8),
-                  _buildTabItem(context, OrdersListKeys.filterPaid.tr(), context.colors.brandGreen, false),
-                  const SizedBox(width: 8),
-                  _buildTabItem(context, OrdersListKeys.filterFailed.tr(), context.colors.brandRed, false),
-                ],
-              ),
+              _buildTabs(),
               const SizedBox(height: AppSpacing.lg),
 
               // Orders List
@@ -144,23 +152,48 @@ class _DriverOrdersScreenState extends State<DriverOrdersScreen> {
           ),
         ),
       ),
-    );
+    ));
   }
 
-  Widget _buildTabItem(BuildContext context, String label, Color color, bool isSelected) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: isSelected ? color : Colors.transparent,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          color: isSelected ? Colors.white : color,
-          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-        ),
+  Widget _buildTabs() {
+    final colors = context.colors;
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: _tabKeys.asMap().entries.map((entry) {
+          final index = entry.key;
+          final tabKey = entry.value;
+          final isSelected = _selectedTabIndex == index;
+
+          final textColor = isSelected
+              ? Colors.white
+              : (_tabColors(context)[tabKey] ?? colors.textSecondary);
+
+          return GestureDetector(
+            onTap: () => setState(() => _selectedTabIndex = index),
+            child: Container(
+              margin: EdgeInsetsDirectional.only(
+                end: index < _tabKeys.length - 1 ? 8 : 0,
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: isSelected ? colors.brandBlue : colors.surface,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: isSelected ? colors.brandBlue : colors.borderHairline,
+                ),
+              ),
+              child: Text(
+                tabKey.tr(),
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }
@@ -202,24 +235,45 @@ class _DriverOrdersScreenState extends State<DriverOrdersScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(fuelType, style: TextStyle(fontSize: 10, color: context.colors.textSecondary)),
-                Text(quantity, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(fuelType, style: TextStyle(fontSize: 12, color: context.colors.textSecondary)),
+                        Text(quantity, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+                      ],
+                    ),
+                    const SizedBox(width: 8),
+                    SvgPicture.asset('assets/driverOrderPage/fuel_pump_diesel.svg', width: 40, height: 40),
+                  ],
+                ),
                 const SizedBox(height: 8),
                 Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Icon(Icons.calendar_today, size: 12, color: context.colors.textSecondary),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 4.0),
+                      child: SvgPicture.asset('assets/driverOrderPage/clock_grey.svg', width: 14, height: 14),
+                    ),
                     const SizedBox(width: 4),
-                    Text('driver_notifications.old_date'.tr(), style: TextStyle(fontSize: 10, color: context.colors.textSecondary)),
-                    const SizedBox(width: 8),
-                    Icon(Icons.access_time, size: 12, color: context.colors.textSecondary),
+                    Text('driver_mock_extra.time_pm'.tr(), style: TextStyle(fontSize: 12, color: context.colors.textSecondary)),
+                    const SizedBox(width: 12),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 4.0),
+                      child: SvgPicture.asset('assets/driverOrderPage/calendar_grey.svg', width: 14, height: 14),
+                    ),
                     const SizedBox(width: 4),
-                    Text('driver_mock_extra.time_pm'.tr(), style: TextStyle(fontSize: 10, color: context.colors.textSecondary)),
+                    Text('driver_notifications.old_date'.tr(), style: TextStyle(fontSize: 12, color: context.colors.textSecondary)),
                   ],
                 ),
               ],
             ),
-            const SizedBox(width: 12),
-            Icon(Icons.chevron_right, color: context.colors.textSecondary),
+            const SizedBox(width: 16),
+            Icon(Icons.arrow_forward_ios, size: 16, color: context.colors.textPrimary),
           ],
         ),
       ),

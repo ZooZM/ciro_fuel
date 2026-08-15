@@ -599,7 +599,7 @@
     "yesterday": "أمس",
     "system_update_title": "تحديث النظام",
     "system_update_desc": "تم تحديث التطبيق إلى الإصدار الجديد مع تحسينات في الأداء والاستقرار.",
-    "old_date": "9 صفر 1448",
+    "old_date": "14 أغسطس 2026",
     "yesterday_time": "أمس، 09:35 ص"
   },
   "driver_mock_extra": {
@@ -637,5 +637,29 @@
     "anas_road": "طريق أنس بن مالك، حي الملقا",
     "rafah": "رفح، الخليج الرياض",
     "mazaya": "مزايا فيول مكة البيبان"
+  },
+  "driver_navigation": {
+    "title": "أبدأ الملاحة",
+    "subtitle": "توجه إلي موقع العميل لبدء التسليم",
+    "order_id": "رقم الطلب",
+    "remaining_distance": "المسافة المتبقية",
+    "expected_time": "الوقت المتوقع",
+    "fuel_type": "نوع الوقود",
+    "station_name": "محطة الرحاب",
+    "station_address": "جدة - طريق مكة القديم - حي البوادي",
+    "view_on_map": "عرض علي الخريطة",
+    "contact_customer": "تواصل مع العميل",
+    "requested_time": "الموعد المطلوب",
+    "quantity": "الكمية",
+    "scan_delivery_code": "مسح كود التسليم",
+    "delivery_hint": "عند الوصول اضغط علي \"أبدأ التسليم\" لعرض كود التسليم",
+    "start_navigation": "أبدأ الملاحة",
+    "cannot_reach": "لا يمكنني الوصول",
+    "enter_code": "إدخال الكود",
+    "scan_qr": "مسح ال QR",
+    "point_camera": "وجه الكاميرا نحو رمز ال QR",
+    "confirm_delivery": "تأكيد التسليم",
+    "enter_delivery_code": "أدخل كود التسليم",
+    "enter_4_digit_code": "أدخل الكود المكوّن من 4 أرقام"
   }
 }

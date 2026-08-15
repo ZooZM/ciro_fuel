@@ -11,6 +11,7 @@ import '../../../../core/widgets/order_card.dart';
 import '../../../../core/widgets/app_logo.dart';
 import '../../../../core/widgets/icon_card.dart';
 import '../../../orders/presentation/widgets/order_detail/status_chip.dart';
+import 'driver_navigation_screen.dart';
 
 enum _OrderMockState { assigned, outForDelivery, completed }
 
@@ -196,9 +197,9 @@ class _DriverOrderProgressCard extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('driver_order.contact_customer'.tr(), style: TextStyle(color: context.colors.brandBlue, fontSize: 11, fontWeight: FontWeight.w700)),
-                        const SizedBox(width: 8),
                         SvgPicture.asset('assets/driverOrderPage/phone.svg', width: 16, height: 16, colorFilter: ColorFilter.mode(context.colors.brandBlue, BlendMode.srcIn)),
+                        const SizedBox(width: 8),
+                        Text('driver_order.contact_customer'.tr(), style: TextStyle(color: context.colors.brandBlue, fontSize: 11, fontWeight: FontWeight.w700)),
                       ],
                     ),
                   ),
@@ -206,7 +207,13 @@ class _DriverOrderProgressCard extends StatelessWidget {
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: FilledButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const DriverNavigationScreen(),
+                        ),
+                      );
+                    },
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       backgroundColor: context.colors.brandBlue,

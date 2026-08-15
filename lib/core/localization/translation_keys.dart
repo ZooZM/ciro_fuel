@@ -682,3 +682,29 @@ abstract final class FilterKeys {
   /// Takes a `count` named argument — how many filters are set.
   static const String apply = 'filter.apply';
 }
+
+/// The driver-side navigation screen.
+abstract final class DriverNavigationKeys {
+  static const String title = 'driver_navigation.title';
+  static const String subtitle = 'driver_navigation.subtitle';
+  static const String orderId = 'driver_navigation.order_id';
+  static const String remainingDistance = 'driver_navigation.remaining_distance';
+  static const String expectedTime = 'driver_navigation.expected_time';
+  static const String fuelType = 'driver_navigation.fuel_type';
+  static const String stationName = 'driver_navigation.station_name';
+  static const String stationAddress = 'driver_navigation.station_address';
+  static const String viewOnMap = 'driver_navigation.view_on_map';
+  static const String contactCustomer = 'driver_navigation.contact_customer';
+  static const String requestedTime = 'driver_navigation.requested_time';
+  static const String quantity = 'driver_navigation.quantity';
+  static const String scanDeliveryCode = 'driver_navigation.scan_delivery_code';
+  static const String deliveryHint = 'driver_navigation.delivery_hint';
+  static const String startNavigation = 'driver_navigation.start_navigation';
+  static const String cannotReach = 'driver_navigation.cannot_reach';
+  static const String enterCode = 'driver_navigation.enter_code';
+  static const String scanQr = 'driver_navigation.scan_qr';
+  static const String pointCamera = 'driver_navigation.point_camera';
+  static const String confirmDelivery = 'driver_navigation.confirm_delivery';
+  static const String enterDeliveryCode = 'driver_navigation.enter_delivery_code';
+  static const String enter4DigitCode = 'driver_navigation.enter_4_digit_code';
+}

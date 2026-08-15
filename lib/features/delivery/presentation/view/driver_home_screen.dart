@@ -194,8 +194,12 @@ class DriverHomeScreen extends StatelessWidget {
                     style: TextStyle(fontSize: 10, color: context.colors.textSecondary),
                   ),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      SvgPicture.asset('assets/driverHomePage/star.svg', width: 14, height: 14),
+                      Transform.translate(
+                        offset: const Offset(0, -1.5),
+                        child: SvgPicture.asset('assets/driverHomePage/star.svg', width: 14, height: 14),
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         '4.8',
@@ -218,8 +222,12 @@ class DriverHomeScreen extends StatelessWidget {
                     style: TextStyle(fontSize: 10, color: context.colors.textSecondary),
                   ),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      SvgPicture.asset('assets/driverHomePage/order.svg', width: 14, height: 14),
+                      Transform.translate(
+                        offset: const Offset(0, -1.5),
+                        child: SvgPicture.asset('assets/driverHomePage/order.svg', width: 14, height: 14),
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         '5',
