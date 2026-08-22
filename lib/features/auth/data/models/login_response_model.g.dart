@@ -12,10 +12,3 @@ _LoginResponseModel _$LoginResponseModelFromJson(Map<String, dynamic> json) =>
       refreshToken: json['refreshToken'] as String,
       user: AuthUser.fromJson(json['user'] as Map<String, dynamic>),
     );
-
-Map<String, dynamic> _$LoginResponseModelToJson(_LoginResponseModel instance) =>
-    <String, dynamic>{
-      'accessToken': instance.accessToken,
-      'refreshToken': instance.refreshToken,
-      'user': instance.user,
-    };

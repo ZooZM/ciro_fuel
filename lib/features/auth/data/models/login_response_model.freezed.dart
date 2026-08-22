@@ -22,8 +22,6 @@ mixin _$LoginResponseModel {
 @pragma('vm:prefer-inline')
 $LoginResponseModelCopyWith<LoginResponseModel> get copyWith => _$LoginResponseModelCopyWithImpl<LoginResponseModel>(this as LoginResponseModel, _$identity);
 
-  /// Serializes this LoginResponseModel to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -213,7 +211,7 @@ return $default(_that.accessToken,_that.refreshToken,_that.user);case _:
 }
 
 /// @nodoc
-@JsonSerializable()
+@JsonSerializable(createToJson: false)
 
 class _LoginResponseModel extends LoginResponseModel {
   const _LoginResponseModel({required this.accessToken, required this.refreshToken, required this.user}): super._();
@@ -229,10 +227,7 @@ class _LoginResponseModel extends LoginResponseModel {
 @pragma('vm:prefer-inline')
 _$LoginResponseModelCopyWith<_LoginResponseModel> get copyWith => __$LoginResponseModelCopyWithImpl<_LoginResponseModel>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$LoginResponseModelToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {

@@ -6,7 +6,12 @@ part 'login_response_model.freezed.dart';
 part 'login_response_model.g.dart';
 
 /// Wire shape of `POST /auth/login` (feature 001 REST contract).
-@freezed
+///
+/// `toJson: false` — nothing ever serializes this DTO back to JSON, and it
+/// nests `AuthUser`, which (via `station.location`'s `GeoPoint`) has no
+/// shape `json_serializable` can derive a matching `toJson` for. `fromJson`
+/// generation stays on; only the direction nothing uses is turned off.
+@Freezed(toJson: false)
 abstract class LoginResponseModel with _$LoginResponseModel {
   const LoginResponseModel._();
 
