@@ -18,6 +18,9 @@ class CurrentOrderSummary {
     required this.fuelType,
     required this.quantity,
     required this.statusLabel,
+    required this.statusColor,
+    required this.flowStep,
+    required this.isTrackable,
     required this.driverName,
     required this.truckPlate,
     required this.progress,
@@ -30,6 +33,17 @@ class CurrentOrderSummary {
   final String fuelType;
   final String quantity;
   final String statusLabel;
+
+  /// The design's colour for this exact status — the badge is not always
+  /// green, and an order still under review must not look accepted.
+  final Color statusColor;
+
+  /// How far along the delivery timeline this order actually is.
+  final OrderFlowStep flowStep;
+
+  /// Whether the track/contact actions apply yet.
+  final bool isTrackable;
+
   final String driverName;
   final String truckPlate;
 
@@ -47,12 +61,20 @@ class CurrentOrderSummary {
 class CurrentOrderCard extends StatelessWidget {
   const CurrentOrderCard({
     required this.order,
+    required this.onOpenOrder,
     required this.onTrackOrder,
     required this.onContactDriver,
     super.key,
   });
 
   final CurrentOrderSummary order;
+
+  /// Opens the order's own screen. The whole card is the target, not just
+  /// the buttons: those are withheld until the order is on the way, so
+  /// without this there is no way into the order from the dashboard for
+  /// most of its life.
+  final VoidCallback onOpenOrder;
+
   final VoidCallback onTrackOrder;
   final VoidCallback onContactDriver;
 
@@ -64,26 +86,42 @@ class CurrentOrderCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadii.dashboardCard),
         border: Border.all(color: context.colors.borderHairline),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
+      // The inner buttons keep their own taps — a nested gesture wins over
+      // this one, so "Track order" still tracks rather than merely opening.
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppRadii.dashboardCard),
+          onTap: onOpenOrder,
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _Header(
               fuelType: order.fuelType,
               quantity: order.quantity,
               statusLabel: order.statusLabel,
+              statusColor: order.statusColor,
             ),
             const SizedBox(height: AppSpacing.lg),
             _MiddleSection(order: order),
             const SizedBox(height: AppSpacing.xl),
-            const OrderFlow(),
-            const SizedBox(height: AppSpacing.xl),
-            OrderActionButtons(
-              onTrackOrder: onTrackOrder,
-              onContactDriver: onContactDriver,
+            OrderFlow(current: order.flowStep),
+            // Tracking the truck and calling its driver only mean anything
+            // once the order is on the way; before that there is no driver
+            // and no position, so the actions are withheld rather than
+            // offered and then failing.
+            if (order.isTrackable) ...[
+                  const SizedBox(height: AppSpacing.xl),
+                  OrderActionButtons(
+                    onTrackOrder: onTrackOrder,
+                    onContactDriver: onContactDriver,
+                  ),
+                ],
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -97,11 +135,13 @@ class _Header extends StatelessWidget {
     required this.fuelType,
     required this.quantity,
     required this.statusLabel,
+    required this.statusColor,
   });
 
   final String fuelType;
   final String quantity;
   final String statusLabel;
+  final Color statusColor;
 
   @override
   Widget build(BuildContext context) {
@@ -133,7 +173,7 @@ class _Header extends StatelessWidget {
             vertical: AppSizes.dashboardOrderStatusBadgePaddingV,
           ),
           decoration: BoxDecoration(
-            color: context.colors.brandGreen.withValues(alpha: 0.1),
+            color: statusColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(AppRadii.dashboardCard),
           ),
           child: Row(
@@ -143,7 +183,7 @@ class _Header extends StatelessWidget {
                 width: AppSizes.dashboardOrderStatusDotSize,
                 height: AppSizes.dashboardOrderStatusDotSize,
                 decoration: BoxDecoration(
-                  color: context.colors.brandGreen,
+                  color: statusColor,
                   shape: BoxShape.circle,
                 ),
               ),
@@ -151,7 +191,7 @@ class _Header extends StatelessWidget {
               Text(
                 statusLabel,
                 style: TextStyle(
-                  color: context.colors.brandGreen,
+                  color: statusColor,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),

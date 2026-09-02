@@ -1,8 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import '../../../../../core/localization/translation_keys.dart';
 
-import '../../../../../core/constants/app_assets.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/order_card.dart';
 import '../../../../../core/theme/theme_context.dart';
@@ -14,12 +14,17 @@ import '../../../../../core/theme/theme_context.dart';
 /// differences present in the original design.
 class PickupCodeCard extends StatelessWidget {
   const PickupCodeCard({
-    this.code = '8 6 3 5 6 4',
+    this.code = '863564',
     this.timeRemaining = 'د 05:00',
     super.key,
   });
 
-  /// Space-separated digits, one per box.
+  /// The raw handover code, unspaced.
+  ///
+  /// The card spaces it itself for the digit boxes. It used to arrive
+  /// pre-spaced from the caller, which was harmless while the QR was a
+  /// static image — but the QR now encodes this string, and `"8 6 3 5 6 4"`
+  /// is not a code the backend will accept.
   final String code;
   final String timeRemaining;
 
@@ -64,10 +69,19 @@ class PickupCodeCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: AppSpacing.xs),
-                      Image.asset(
-                        AppAssets.qrCodeImage,
-                        width: AppSizes.orderQrImageSize,
-                        height: AppSizes.orderQrImageSize,
+                      // Generated from the live code, not the design's
+                      // placeholder PNG — that image encoded nothing, so a
+                      // driver scanning it got a string unrelated to this
+                      // order and the handover could only ever be completed
+                      // by typing the digits.
+                      QrImageView(
+                        data: code,
+                        version: QrVersions.auto,
+                        size: AppSizes.orderQrImageSize,
+                        backgroundColor: Colors.white,
+                        // The digits are printed beside this anyway, so a
+                        // scan failure is never the client's only route.
+                        errorCorrectionLevel: QrErrorCorrectLevel.M,
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
@@ -119,7 +133,7 @@ class PickupCodeCard extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: code
-                              .split(' ')
+                              .split('')
                               .map(
                                 (e) => Padding(
                                   padding: const EdgeInsets.symmetric(

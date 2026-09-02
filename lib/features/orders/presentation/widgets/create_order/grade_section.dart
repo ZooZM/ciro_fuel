@@ -6,6 +6,7 @@ import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/fuel_pump_icon.dart';
 import '../../../../../core/widgets/order_card.dart';
 import '../../../../../shared/enums/fuel_grade.dart';
+import '../../../../../shared/enums/fuel_type.dart';
 import '../../../../../core/theme/theme_context.dart';
 
 /// "2. نوع الوقود" — the row of selectable fuel-grade tiles. Exactly one
@@ -14,6 +15,7 @@ class GradeSection extends StatelessWidget {
   const GradeSection({
     required this.selectedIndex,
     required this.onSelect,
+    this.soldTypes,
     super.key,
   });
 
@@ -21,9 +23,25 @@ class GradeSection extends StatelessWidget {
   final int? selectedIndex;
   final ValueChanged<int> onSelect;
 
+  /// The client's own fuel company's real grades (FR-010) — `null` only
+  /// while still loading, in which case every grade the platform can
+  /// possibly model is shown rather than nothing (never a longer-lived
+  /// default; the create-order screen always supplies this once loaded).
+  /// A grade with no backend [FuelGrade.type] at all (98/kerosene — the
+  /// design's tiles for grades the platform doesn't sell) is never shown,
+  /// regardless of [soldTypes].
+  final Set<FuelType>? soldTypes;
+
   @override
   Widget build(BuildContext context) {
-    const grades = FuelGrade.values;
+    // Keeps each grade's TRUE index into FuelGrade.values — selectedIndex
+    // and onSelect are both keyed to that full enum, not to whatever
+    // position a grade happens to land at after filtering.
+    final grades = [
+      for (final (index, grade) in FuelGrade.values.indexed)
+        if (grade.type != null && (soldTypes == null || soldTypes!.contains(grade.type)))
+          (index, grade),
+    ];
 
     return OrderCard(
       title: CreateOrderKeys.sectionGrade.tr(),
@@ -34,14 +52,14 @@ class GradeSection extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
-            for (final (index, grade) in grades.indexed) ...[
-              if (index > 0) const SizedBox(width: AppSpacing.sm),
+            for (final (rowPosition, (trueIndex, grade)) in grades.indexed) ...[
+              if (rowPosition > 0) const SizedBox(width: AppSpacing.sm),
               SizedBox(
                 width: AppSizes.orderGradeTileWidth,
                 child: _GradeTile(
                   grade: grade,
-                  selected: selectedIndex == index,
-                  onTap: () => onSelect(index),
+                  selected: selectedIndex == trueIndex,
+                  onTap: () => onSelect(trueIndex),
                 ),
               ),
             ],

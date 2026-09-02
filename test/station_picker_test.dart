@@ -25,10 +25,15 @@ void main() {
         body: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(16),
+            // More than one station, and a selection (spec 005 T124):
+            // CurrentStationCard's default is empty now that it's real
+            // production data, not the fixed kStationOptions sample.
             child: CurrentStationCard(
               name: 'محطة الرحاب',
               address: 'جدة',
               onChangeStation: () {},
+              stations: kStationOptions,
+              selectedStationId: 'rehab',
             ),
           ),
         ),
@@ -163,7 +168,13 @@ void orderFormTests() {
       tester,
       const Scaffold(
         body: SingleChildScrollView(
-          child: Padding(padding: EdgeInsets.all(16), child: StationSection()),
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            // More than one station (spec 005 T113/FR-036d): with only one
+            // (or none), the "change station" link is absent entirely, not
+            // just inert — these tests exercise the multi-station case.
+            child: StationSection(stations: kStationOptions),
+          ),
         ),
       ),
       locale: AppLocales.arabic,
@@ -199,4 +210,27 @@ void orderFormTests() {
       reason: 'an order cannot be placed against an inactive station',
     );
   });
+
+  testWidgets(
+    'a single-station client is never offered a choice (spec 005 T113/FR-036d)',
+    (tester) async {
+      await loadTajawal();
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+
+      await pumpLocalized(
+        tester,
+        SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: StationSection(stations: [kStationOptions.first]),
+          ),
+        ),
+        locale: AppLocales.arabic,
+      );
+
+      expect(find.text('تغيير المحطة'), findsNothing);
+    },
+  );
 }

@@ -59,6 +59,9 @@ class PaymentCubit extends Cubit<PaymentState> {
       return;
     }
     final result = await _getOrder(_orderId);
+    // close() cancels the timer but cannot cancel a fetch already in
+    // flight — its result would otherwise emit into a closed cubit.
+    if (isClosed) return;
     result.fold((_) {}, _applyOrderStatus);
   }
 

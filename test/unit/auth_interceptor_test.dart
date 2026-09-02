@@ -46,6 +46,21 @@ class _FakeAdapter implements HttpClientAdapter {
       );
     }
 
+    if (options.path.contains('/forbidden')) {
+      return ResponseBody.fromString(
+        '{"message":"forbidden"}',
+        403,
+        headers: headers,
+      );
+    }
+    if (options.path.contains('/not-found')) {
+      return ResponseBody.fromString(
+        '{"message":"not found"}',
+        404,
+        headers: headers,
+      );
+    }
+
     final authHeader = options.headers['Authorization'] as String?;
     if (authHeader == 'Bearer new-token') {
       return ResponseBody.fromString('{"ok":true}', 200, headers: headers);
@@ -113,7 +128,7 @@ void main() {
         AuthInterceptor(
           tokenStore: tokenStore,
           refreshDio: refreshDio,
-          onSessionExpired: () async {
+          onSessionExpired: ([cause]) async {
             sessionExpiredCalls++;
           },
         ),
@@ -165,6 +180,52 @@ void main() {
 
       expect(response.statusCode, 200);
       expect(adapter.refreshCallCount, 1);
+    },
+  );
+
+  // spec 005 T027/FR-043: a permission or ownership boundary (403/404) must
+  // never be treated as a session problem. Confirming this by test, not
+  // just by reading the `isUnauthorized` guard, is the point of T027 —
+  // "verify, do not assume" — because a refresh storm on every 404 a
+  // client's own code legitimately triggers (e.g. probing an order id they
+  // don't own) would be a silent, hard-to-notice regression.
+  test(
+    '403 passes through untouched — no refresh attempted, no session-expired notification',
+    () async {
+      await expectLater(
+        dio.get<dynamic>('/forbidden'),
+        throwsA(
+          isA<DioException>().having(
+            (e) => e.response?.statusCode,
+            'statusCode',
+            403,
+          ),
+        ),
+      );
+
+      expect(adapter.refreshCallCount, 0);
+      expect(sessionExpiredCalls, 0);
+      expect(await tokenStore.accessToken, 'old-token');
+    },
+  );
+
+  test(
+    '404 passes through untouched — no refresh attempted, no session-expired notification',
+    () async {
+      await expectLater(
+        dio.get<dynamic>('/not-found'),
+        throwsA(
+          isA<DioException>().having(
+            (e) => e.response?.statusCode,
+            'statusCode',
+            404,
+          ),
+        ),
+      );
+
+      expect(adapter.refreshCallCount, 0);
+      expect(sessionExpiredCalls, 0);
+      expect(await tokenStore.accessToken, 'old-token');
     },
   );
 }

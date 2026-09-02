@@ -16,22 +16,32 @@ import '../../../../../core/theme/theme_context.dart';
 /// track/contact actions.
 class InTransitOrderStatusCard extends StatelessWidget {
   const InTransitOrderStatusCard({
+    required this.orderId,
     this.orderReference = 'ORD-2024-256 · 9 صفر 1448',
     this.fuelType,
     this.quantity,
     this.driverName = 'أحمد السبيعي',
     this.truckPlate = 'ABC-1234',
+    this.vehicleVerified = false,
     this.etaMinutes = 35,
     this.progress = 0.75,
     this.onContactDriver,
     super.key,
   });
 
+  final String orderId;
   final String orderReference;
   final String? fuelType;
   final String? quantity;
   final String driverName;
   final String truckPlate;
+
+  /// spec 008 FR-038/FR-047d (SC-006/SC-020): only ever true off the
+  /// backend's own `vehicleVerified` — false for an overridden departure,
+  /// since an override deliberately records no verification. Never
+  /// inferred from `driverSummary`/`truckPlate` merely being present,
+  /// which would present an assignment as a proof it never was.
+  final bool vehicleVerified;
   final int etaMinutes;
   final double progress;
   final VoidCallback? onContactDriver;
@@ -78,6 +88,7 @@ class InTransitOrderStatusCard extends StatelessWidget {
                             label: CommonKeys.truck.tr(),
                             value: truckPlate,
                             icon: Icons.local_shipping_outlined,
+                            verified: vehicleVerified,
                           ),
                         ],
                       ),
@@ -102,7 +113,7 @@ class InTransitOrderStatusCard extends StatelessWidget {
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute<void>(
-                          builder: (_) => const TrackOrderScreen(),
+                          builder: (_) => TrackOrderScreen(orderId: orderId),
                         ),
                       );
                     },
@@ -180,6 +191,7 @@ class _TransitDetailRow extends StatelessWidget {
     required this.label,
     required this.value,
     this.icon,
+    this.verified = false,
   });
 
   final String label;
@@ -187,6 +199,11 @@ class _TransitDetailRow extends StatelessWidget {
 
   /// Omitted on the consignment line, which the design leaves unglyphed.
   final IconData? icon;
+
+  /// spec 008 FR-038: an honest signal, shown only when the backend's own
+  /// `vehicleVerified` says so — never a decoration implying proof the
+  /// platform doesn't actually have.
+  final bool verified;
 
   @override
   Widget build(BuildContext context) {
@@ -207,15 +224,25 @@ class _TransitDetailRow extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(color: context.colors.textSecondary, fontSize: 10),
               ),
-              Text(
-                value,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: context.colors.textPrimary,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                ),
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      value,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: context.colors.textPrimary,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  if (verified) ...[
+                    const SizedBox(width: 4),
+                    Icon(Icons.verified, size: 14, color: context.colors.brandGreen),
+                  ],
+                ],
               ),
             ],
           ),

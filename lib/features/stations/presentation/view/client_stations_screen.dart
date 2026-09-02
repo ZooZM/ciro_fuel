@@ -1,293 +1,212 @@
-// `hide TextDirection`: easy_localization re-exports intl, whose
-// `TextDirection` would otherwise shadow the Flutter one used below.
-import 'package:easy_localization/easy_localization.dart' hide TextDirection;
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/localization/translation_keys.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../../../core/router/app_routes.dart';
-import '../../../home/presentation/widgets/current_station_card.dart';
-import '../../../home/presentation/widgets/new_request_button.dart';
-import '../../../home/presentation/widgets/current_order_card.dart';
-import '../../../home/presentation/widgets/quick_glance_row.dart';
-import '../../../home/presentation/widgets/section_header.dart';
+import '../../../../core/di/injector.dart';
+import '../../../../core/error/failure.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_context.dart';
-import '../../../../core/widgets/app_logo.dart';
-import '../../../../core/widgets/date_time_row.dart';
+import '../../../../core/widgets/app_top_bar.dart';
+import '../../../../core/widgets/error_presenter.dart';
+import '../../../../core/widgets/station_picker.dart';
+import '../../domain/entities/station.dart';
+import '../cubit/stations_cubit.dart';
+import '../cubit/stations_state.dart';
 
-const _kProfileImage = 'assets/more/Image.png';
-
-const _kStationIcon = 'assets/HomePage/green station.svg';
-
-
-class ClientStationsScreen extends StatefulWidget {
+/// The client's own stations, registered by their fuel company (spec 005
+/// T110/FR-036). Read + favourite only — no create, rename or delete
+/// affordance anywhere on this screen (FR-036b is the absence of those
+/// controls, not a disabled state on them).
+class ClientStationsScreen extends StatelessWidget {
   const ClientStationsScreen({super.key});
 
   @override
-  State<ClientStationsScreen> createState() => _ClientStationsScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider<StationsCubit>(
+      create: (_) => getIt<StationsCubit>()..load(),
+      child: const _StationsView(),
+    );
+  }
 }
 
-class _ClientStationsScreenState extends State<ClientStationsScreen> {
-  // A getter rather than a `const` field: the translated parts have to be
-  // resolved per build so they follow a locale switch.
-  static CurrentOrderSummary get _currentOrder => CurrentOrderSummary(
-    fuelType: FuelKeys.gasoline95.tr(),
-    quantity: '20,000 ${CommonKeys.litre.tr()}',
-    statusLabel: OrdersListKeys.statusInDelivery.tr(),
-    driverName: 'أحمد السبيعي',
-    truckPlate: 'ABC-1234',
-    progress: 0.65,
-    etaMinutes: '35',
-    orderId: 'ORD-2024-256',
-    orderDate: '02/05/2024',
-    orderTime: '04:35 م',
-  );
+class _StationsView extends StatelessWidget {
+  const _StationsView();
+
+  Future<void> _toggleFavourite(BuildContext context, Station station) async {
+    final ok = await context.read<StationsCubit>().toggleFavourite(
+      station.id,
+      !station.isFavourite,
+    );
+    if (!ok && context.mounted) {
+      presentFailure(context, const Failure.server());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.colors.canvas,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.only(
-            left: 20.0,
-            right: 20.0,
-            top: 16.0,
-            bottom: 40.0,
-          ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildAppBar(),
+              const AppTopBar(),
               const SizedBox(height: 24),
-              CurrentStationCard(
-                name: 'محطة الرحاب',
-                address: 'جدة - طريق مكة القديم - حي البوادي',
-                onChangeStation: () {},
-                // This is the stations screen: nothing to point a chevron at.
-                headsWithStar: true,
+              Text(
+                StationsKeys.title.tr(),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: context.colors.textPrimary,
+                ),
               ),
-              const SizedBox(height: 24),
-              NewRequestButton(
-                onPressed: () => context.push(AppRoutes.clientCreateOrder),
+              const SizedBox(height: 16),
+              Expanded(
+                child: BlocBuilder<StationsCubit, StationsState>(
+                  builder: (context, state) => switch (state) {
+                    StationsLoading() => const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                    StationsFailureState(:final failure) => _ErrorView(
+                      failure: failure,
+                      onRetry: () => context.read<StationsCubit>().load(),
+                    ),
+                    StationsLoaded(:final stations) => stations.isEmpty
+                        ? Center(
+                            child: Text(
+                              ProfileKeys.noStations.tr(),
+                              style: TextStyle(color: context.colors.textSecondary),
+                            ),
+                          )
+                        : ListView.separated(
+                            itemCount: stations.length,
+                            separatorBuilder: (_, _) => const SizedBox(height: 12),
+                            itemBuilder: (context, index) => _StationCard(
+                              station: stations[index],
+                              onToggleFavourite: () =>
+                                  _toggleFavourite(context, stations[index]),
+                            ),
+                          ),
+                  },
+                ),
               ),
-              const SizedBox(height: 32),
-              SectionHeader(StationsKeys.currentOrder.tr()),
-              const SizedBox(height: 12),
-              CurrentOrderCard(
-                order: _currentOrder,
-                onTrackOrder: () {},
-                onContactDriver: () {},
-              ),
-              const SizedBox(height: 32),
-              SectionHeader(StationsKeys.lastOrder.tr()),
-              const SizedBox(height: 12),
-              _buildLastOrderCard(),
-              const SizedBox(height: 32),
-              SectionHeader(StationsKeys.quickGlance.tr()),
-              const SizedBox(height: 12),
-              QuickGlanceRow(stats: defaultOrderCountStats(context)),
             ],
           ),
         ),
       ),
     );
   }
+}
 
-  /// Back on the leading edge, logo centred, profile on the trailing one.
-  ///
-  /// The back button leads, as it does in [AppTopBar] and on every other
-  /// screen: it used to be the row's last child, which put it on the left in
-  /// Arabic and — once the row mirrored — on the right under English, where a
-  /// back button never sits.
-  Widget _buildAppBar() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        GestureDetector(
-          onTap: () => context.pop(),
-          child: Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: context.colors.surface,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x0F000000),
-                  offset: Offset(0, 2),
-                  blurRadius: 10,
-                ),
-              ],
+class _ErrorView extends StatelessWidget {
+  const _ErrorView({required this.failure, required this.onRetry});
+
+  final Failure failure;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              failureMessage(failure),
+              textAlign: TextAlign.center,
+              style: TextStyle(color: context.colors.textSecondary),
             ),
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsetsDirectional.only(end: 2.0),
-                // No manual swap: arrow_back_ios_new is declared
-                // `matchTextDirection`, so Flutter mirrors it already.
-                child: Icon(
-                  Icons.arrow_back_ios_new,
-                  size: 20,
-                  color: context.colors.textPrimary,
-                ),
-              ),
+            const SizedBox(height: 16),
+            OutlinedButton(
+              onPressed: onRetry,
+              child: Text(CommonKeys.retry.tr()),
             ),
-          ),
+          ],
         ),
-        const AppLogo(),
-        GestureDetector(
-          onTap: () => context.push(AppRoutes.clientProfile),
-          child: ClipOval(
-            child: Image.asset(
-              _kProfileImage,
-              width: 44,
-              height: 44,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
-                width: 44,
-                height: 44,
-                color: Colors.grey[200],
-                child: const Icon(Icons.person, color: Colors.grey),
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
+}
 
-  /// The most recent completed order, laid out like the payments screen's card:
-  /// the text column on the right, the station artwork on the left.
-  Widget _buildLastOrderCard() {
+class _StationCard extends StatelessWidget {
+  const _StationCard({required this.station, required this.onToggleFavourite});
+
+  final Station station;
+  final VoidCallback onToggleFavourite;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsetsDirectional.only(
-        start: 16,
-        top: 16,
-        bottom: 16,
-        // The artwork keeps a margin off the card's left edge rather than
-        // bleeding into it.
-        end: 12,
-      ),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: context.colors.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0A000000),
-            blurRadius: 10,
-            offset: Offset(0, 4),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: AppColors.shadowCard,
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          FavouriteStar(
+            isFavourite: station.isFavourite,
+            onTap: onToggleFavourite,
+          ),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Fuel type + order id
                 Row(
                   children: [
-                    Expanded(
+                    Flexible(
                       child: Text(
-                        '${FuelKeys.gasoline95.tr()} • 20,000 ${CommonKeys.litre.tr()}',
+                        station.name?.isNotEmpty == true
+                            ? station.name!
+                            : station.addressText,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: context.colors.brandBlue,
-                          fontSize: 13,
+                          fontSize: 15,
                           fontWeight: FontWeight.w700,
+                          color: context.colors.textPrimary,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'ORD-2024-256',
-                      style: TextStyle(color: context.colors.textSecondary, fontSize: 12),
-                    ),
+                    if (station.isDefault) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: context.colors.greenTint,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          StationsKeys.defaultStation.tr(),
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: context.colors.brandGreen,
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
-                const SizedBox(height: 10),
-                // Bar first so it sits on the right under the fuel line, with
-                // the dot and then the label trailing off to the left. The
-                // label is [Flexible] because StationsKeys.deliveredDeferredInvoice.tr() is
-                // long enough to push the fixed-width bar off the card on
-                // narrower screens.
-                Row(
-                  children: [
-                    _buildProgressBar(1.0, context.colors.brandOrange),
-                    const SizedBox(width: 8),
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: BoxDecoration(
-                        color: context.colors.brandOrange,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Text(
-                        StationsKeys.deliveredDeferredInvoice.tr(),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: context.colors.textSecondary, fontSize: 12),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  context.locale.languageCode == 'ar' ? 'طريق أنس بن مالك، حي الملقا' : 'Anas Bin Malik Road, Al Malqa District',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: context.colors.brandBlue,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
+                if (station.addressText.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    station.addressText,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 13, color: context.colors.textSecondary),
                   ),
-                ),
-                const SizedBox(height: 10),
-                DateTimeRow(
-                  date: context.locale.languageCode == 'ar'
-                      ? '9 أغسطس 2024'
-                      : '9 August 2024',
-                  time: context.locale.languageCode == 'ar'
-                      ? '06.30 صباحاً'
-                      : '06.30 AM',
-                  iconSize: 16,
-                  fontSize: 12,
-                  textColor: context.colors.textPrimary,
-                ),
+                ],
               ],
             ),
           ),
-          const SizedBox(width: 12),
-          SvgPicture.asset(_kStationIcon, width: 72, height: 72),
         ],
-      ),
-    );
-  }
-
-  Widget _buildProgressBar(double progress, Color color) {
-    return Container(
-      height: 8,
-      width: 80,
-      decoration: BoxDecoration(
-        color: context.colors.borderHairline,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      alignment: AlignmentDirectional.centerStart,
-      child: FractionallySizedBox(
-        widthFactor: progress,
-        child: Container(
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(4),
-          ),
-        ),
       ),
     );
   }

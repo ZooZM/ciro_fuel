@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../session/current_avatar.dart';
+import 'dart:typed_data';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
@@ -51,11 +53,7 @@ class AppTopBar extends StatelessWidget {
                     onTap:
                         onProfileTap ??
                         () => context.push(AppRoutes.clientProfile),
-                    child: Image.asset(
-                      AppAssets.dashboardProfileImage,
-                      width: AppSizes.dashboardProfileImageSize,
-                      height: AppSizes.dashboardProfileImageSize,
-                    ),
+                    child: const _ProfileAvatar(),
                   )
                 : _TopBarButton(
                     onTap: onBack ?? () => context.pop(),
@@ -153,6 +151,50 @@ class _TopBarButton extends StatelessWidget {
           ],
         ),
         child: Center(child: child),
+      ),
+    );
+  }
+}
+
+/// The signed-in user's picture, or a neutral glyph until one exists.
+///
+/// This was a fixed `assets/HomePage/profile image.png` — a photograph of a
+/// person — so every account displayed that stranger in the header of every
+/// screen.
+class _ProfileAvatar extends StatelessWidget {
+  const _ProfileAvatar();
+
+  static const _size = AppSizes.dashboardProfileImageSize;
+
+  @override
+  Widget build(BuildContext context) {
+    // Safe to call from build: it fetches at most once per session and
+    // reports back through the notifier rather than by rebuilding here.
+    CurrentAvatar.warmUp();
+
+    return ValueListenableBuilder<Uint8List?>(
+      valueListenable: CurrentAvatar.bytes,
+      builder: (context, bytes, _) => Container(
+        width: _size,
+        height: _size,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: context.colors.borderHairline.withValues(alpha: 0.35),
+        ),
+        child: bytes != null
+            ? SizedBox(child: Image.memory(bytes, fit: BoxFit.cover))
+            : Center(
+                child: SvgPicture.asset(
+                  'assets/HomePage/profile.svg',
+                  width: _size * 0.45,
+                  height: _size * 0.45,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.textSecondary,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ),
       ),
     );
   }

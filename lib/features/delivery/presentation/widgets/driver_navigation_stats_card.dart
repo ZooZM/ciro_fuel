@@ -10,24 +10,24 @@ import '../../../../../core/theme/theme_context.dart';
 
 class DriverNavigationStatsCard extends StatelessWidget {
   const DriverNavigationStatsCard({
-    this.orderId,
+    required this.orderId,
+    required this.fuelType,
     this.distance,
     this.expectedTime,
-    this.fuelType,
     super.key,
   });
 
-  final String? orderId;
+  final String orderId;
+  final String fuelType;
+  // Null (never a guessed figure) until the platform has both a driver
+  // position and an ETA to derive these from (FR-029).
   final String? distance;
   final String? expectedTime;
-  final String? fuelType;
 
   @override
   Widget build(BuildContext context) {
-    final orderId = this.orderId ?? 'ORD-2024-256';
-    final distance = this.distance ?? '12.7 كم';
-    final expectedTime = this.expectedTime ?? '17 دقيقة';
-    final fuelType = this.fuelType ?? 'بنزين 95';
+    final distance = this.distance ?? OrdersKeys.locationUnavailable.tr();
+    final expectedTime = this.expectedTime ?? OrdersKeys.locationUnavailable.tr();
 
     // In RTL, the first child in a Row appears on the RIGHT.
     // Design order (right to left): نوع الوقود | الوقت المتوقع | المسافة المتبقية | رقم الطلب

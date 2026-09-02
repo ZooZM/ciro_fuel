@@ -6,7 +6,8 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/cubit/session_cubit.dart';
 import '../../features/auth/presentation/cubit/session_state.dart';
 import '../../features/auth/presentation/view/login_screen.dart';
-import '../../features/auth/presentation/view/role_selection_mock_screen.dart';
+import '../../features/auth/presentation/view/forgot_password_screen.dart';
+import '../../features/auth/presentation/view/reset_password_screen.dart';
 import '../../features/delivery/presentation/view/delivery_detail_screen.dart';
 import '../../features/delivery/presentation/view/driver_home_screen.dart';
 import '../../features/delivery/presentation/view/driver_main_scaffold.dart';
@@ -24,6 +25,7 @@ import '../../features/orders/presentation/view/orders_list_screen.dart';
 import '../../features/support/presentation/view/support_screen.dart';
 import '../../features/home/presentation/view/client_main_scaffold.dart';
 import '../../features/invoices/presentation/view/client_invoices_screen.dart';
+import '../../features/invoices/presentation/view/invoice_detail_screen.dart';
 import '../../features/more/presentation/view/client_more_screen.dart';
 import '../../features/payments/presentation/view/client_payments_screen.dart';
 import '../../features/more/presentation/view/client_credit_limit_screen.dart';
@@ -59,10 +61,7 @@ class AppRouter {
   AppRouter({required SessionCubit sessionCubit})
     : _sessionCubit = sessionCubit {
     config = GoRouter(
-      // Opens straight on the client dashboard, skipping login — paired with
-      // the SessionUnauthenticated bypass in [_redirect] below. Both are
-      // development shortcuts: restore this to AppRoutes.login before release.
-      initialLocation: AppRoutes.roleSelection,
+      initialLocation: AppRoutes.login,
       refreshListenable: _StreamRefreshListenable(_sessionCubit.stream),
       redirect: _redirect,
       routes: [
@@ -71,8 +70,15 @@ class AppRouter {
           builder: (context, state) => const LoginScreen(),
         ),
         GoRoute(
-          path: AppRoutes.roleSelection,
-          builder: (context, state) => const RoleSelectionMockScreen(),
+          path: AppRoutes.forgotPassword,
+          builder: (context, state) => const ForgotPasswordScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.resetPassword,
+          // `extra` carries the resetToken a code was just verified for
+          // (forgot_password_screen.dart) — spec 006 US3.
+          builder: (context, state) =>
+              ResetPasswordScreen(resetToken: state.extra as String),
         ),
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) {
@@ -143,7 +149,11 @@ class AppRouter {
         ),
         GoRoute(
           path: AppRoutes.clientVerifyPhone,
-          builder: (context, state) => const VerifyPhoneScreen(),
+          // `extra` carries the E.164 number a code was just sent to
+          // (change_phone_screen.dart), so this screen never needs to
+          // re-derive or re-request it.
+          builder: (context, state) =>
+              VerifyPhoneScreen(phone: state.extra as String),
         ),
         GoRoute(
           path: AppRoutes.clientCreateOrder,
@@ -154,15 +164,13 @@ class AppRouter {
         ),
         GoRoute(
           path: AppRoutes.clientOrderDetailPattern,
-          builder: (context, state) {
-            final mockState = state.extra is MockOrderState
-                ? state.extra as MockOrderState
-                : MockOrderState.pendingReview;
-            return OrderDetailScreen(
-              orderId: state.pathParameters['id']!,
-              mockState: mockState,
-            );
-          },
+          builder: (context, state) =>
+              OrderDetailScreen(orderId: state.pathParameters['id']!),
+        ),
+        GoRoute(
+          path: AppRoutes.clientInvoiceDetailPattern,
+          builder: (context, state) =>
+              InvoiceDetailScreen(invoiceId: state.pathParameters['id']!),
         ),
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) {
@@ -217,7 +225,11 @@ class AppRouter {
         ),
         GoRoute(
           path: AppRoutes.driverVerifyPhone,
-          builder: (context, state) => const DriverVerifyPhoneScreen(),
+          // `extra` carries the E.164 number a code was just sent to
+          // (driver_change_phone_screen.dart), mirroring
+          // AppRoutes.clientVerifyPhone (spec 006 FR-006).
+          builder: (context, state) =>
+              DriverVerifyPhoneScreen(phone: state.extra as String),
         ),
         GoRoute(
           path: AppRoutes.driverOrderDetailPattern,
@@ -245,16 +257,13 @@ class AppRouter {
   String? _redirect(BuildContext context, GoRouterState state) {
     final session = _sessionCubit.state;
     final atLogin = state.matchedLocation == AppRoutes.login;
-    final atRoleSelection = state.matchedLocation == AppRoutes.roleSelection;
     // Help & support is reachable from the login screen, so it must stay
     // accessible before a session exists (contracts/ui-state-contract.md).
     final atSupport = state.matchedLocation == AppRoutes.support;
-    // Dev shortcut paired with `initialLocation: AppRoutes.clientHome` above:
-    // lets an unauthenticated session sit on the client dashboard instead of
-    // being bounced to login. Restore to atLogin || atSupport before release.
-    final atClientRoute = state.matchedLocation.startsWith(AppRoutes.clientHome);
-    final atDriverRoute = state.matchedLocation.startsWith(AppRoutes.driverHome);
-    final atNotifications = state.matchedLocation == AppRoutes.notifications;
+    // spec 006 FR-019: password recovery starts from the login screen and
+    // must work with no session — the same reasoning as support above.
+    final atForgotPassword = state.matchedLocation == AppRoutes.forgotPassword;
+    final atResetPassword = state.matchedLocation == AppRoutes.resetPassword;
 
     return switch (session) {
       // Splash/launch: stay on the current route while session restore runs.
@@ -262,7 +271,9 @@ class AppRouter {
       // Signed out (or the session was revoked mid-use): the only reachable
       // destinations are the login screen itself and help & support.
       SessionUnauthenticated() =>
-        atLogin || atRoleSelection || atSupport || atClientRoute || atDriverRoute || atNotifications ? null : AppRoutes.login,
+        atLogin || atSupport || atForgotPassword || atResetPassword
+            ? null
+            : AppRoutes.login,
       SessionAuthenticated(:final user) => _redirectAuthenticated(
         user.role,
         state.matchedLocation,

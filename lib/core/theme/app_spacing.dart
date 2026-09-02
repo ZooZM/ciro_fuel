@@ -148,7 +148,7 @@ abstract final class AppSizes {
   /// The avatar in the top bar. Larger than the 44 the bell tile beside it
   /// runs at — a circle reads smaller than a rounded square of the same size,
   /// so matching them left the avatar looking undersized.
-  static const double dashboardProfileImageSize = 58;
+  static const double dashboardProfileImageSize = 48;
 
   /// The top bar is as tall as its tallest element — the avatar — so nothing
   /// bleeds past its box.

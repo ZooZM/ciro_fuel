@@ -1,10 +1,6 @@
-// `hide TextDirection`: easy_localization re-exports intl, whose
-// `TextDirection` would otherwise shadow the Flutter one used below.
-import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../../../core/localization/translation_keys.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../core/widgets/date_time_row.dart';
 
@@ -15,6 +11,7 @@ import '../../../../core/widgets/date_time_row.dart';
 /// the list does rather than a near-copy of it.
 class OrderListCard extends StatelessWidget {
   const OrderListCard({
+    required this.fuelLine,
     required this.orderId,
     required this.statusLabel,
     required this.statusColor,
@@ -25,6 +22,13 @@ class OrderListCard extends StatelessWidget {
     this.onTap,
     super.key,
   });
+
+  /// The consignment line — "Gasoline 91 · 5,000 L".
+  ///
+  /// Required, with no default: this card used to render a literal
+  /// `Gasoline 95 · 20,000 L` for every row, taking no fuel or quantity at
+  /// all, so every order in the list was misdescribed.
+  final String fuelLine;
 
   final String orderId;
 
@@ -68,8 +72,7 @@ class OrderListCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '${FuelKeys.gasoline95.tr()} · '
-                        '20,000 ${CommonKeys.litre.tr()}',
+                        fuelLine,
                         style: TextStyle(
                           color: context.colors.brandBlue,
                           fontWeight: FontWeight.bold,

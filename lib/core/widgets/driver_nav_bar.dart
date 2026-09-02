@@ -7,7 +7,7 @@ import '../theme/app_colors.dart';
 import '../theme/theme_context.dart';
 
 const _kProfile = 'assets/HomePage/profile.svg';
-const _kNotification = 'assets/Icons/notification.svg';
+const _kNotification = 'assets/icons/notification.svg';
 const _kHome = 'assets/NavBar/home.svg';
 const _kOrder = 'assets/NavBar/order.svg';
 const _kMore = 'assets/NavBar/more.svg';

@@ -12,6 +12,7 @@ abstract final class SocketEvents {
   static const String orderStatus = 'order:status';
   static const String orderOtp = 'order:otp';
   static const String notificationNew = 'notification:new';
+  static const String sessionRevoked = 'session:revoked';
 
   // Connection
   static const String connect = 'connect';

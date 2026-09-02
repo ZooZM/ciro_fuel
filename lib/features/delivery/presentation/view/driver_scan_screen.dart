@@ -5,11 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+import '../../../../core/di/injector.dart';
+import '../../../../core/error/failure.dart';
 import '../../../../core/localization/translation_keys.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../core/widgets/icon_card.dart';
 import '../../../../core/widgets/app_logo.dart';
+import '../cubit/delivery_cubit.dart';
 
 class DriverScanScreen extends StatefulWidget {
   const DriverScanScreen({super.key});
@@ -24,8 +27,54 @@ class _DriverScanScreenState extends State<DriverScanScreen> {
   final TextEditingController _codeController = TextEditingController();
   final FocusNode _codeFocusNode = FocusNode();
 
+  /// The handover OTP's length — the client's card shows exactly this many
+  /// digits, and the QR encodes the same string.
+  static const _codeLength = 6;
+
+  bool _submitting = false;
+
+  /// Sends the code the client is showing. Which transition it completes —
+  /// "I have arrived" or "the fuel is handed over" — follows the order's own
+  /// status inside the cubit; the driver just presents the code either way.
+  Future<void> _confirm() async {
+    final code = _codeController.text.trim();
+    setState(() => _submitting = true);
+    final failure = await getIt<DeliveryCubit>().confirmHandover(code);
+    if (!mounted) return;
+    setState(() => _submitting = false);
+
+    if (failure == null) {
+      // The order has moved on; the driver's own screen reloads behind this.
+      Navigator.of(context).pop(true);
+      return;
+    }
+
+    // A wrong or expired code is the common case, and the backend's message
+    // is the only thing that distinguishes them — surface it rather than a
+    // generic failure.
+    final message = switch (failure) {
+      ValidationFailure(:final message) => message,
+      NotFoundFailure() => DriverNavigationKeys.codeNotRecognised.tr(),
+      ThrottledFailure() => DriverNavigationKeys.codeTooManyAttempts.tr(),
+      _ => DriverNavigationKeys.codeConfirmFailed.tr(),
+    };
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // The confirm button's enabled state is derived from the code's length,
+    // so it has to rebuild as the driver types — and when a scan fills the
+    // field for them.
+    _codeController.addListener(_onCodeChanged);
+  }
+
+  void _onCodeChanged() => setState(() {});
+
   @override
   void dispose() {
+    _codeController.removeListener(_onCodeChanged);
     _codeController.dispose();
     _codeFocusNode.dispose();
     super.dispose();
@@ -169,23 +218,37 @@ class _DriverScanScreenState extends State<DriverScanScreen> {
             Padding(
               padding: const EdgeInsets.all(AppSpacing.lg),
               child: FilledButton(
-                onPressed: () {},
+                // Disabled until six digits are present, so a half-typed code
+                // is never sent — a failed attempt counts against the OTP's
+                // five-try lockout.
+                onPressed: _submitting || _codeController.text.trim().length != _codeLength
+                    ? null
+                    : _confirm,
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   backgroundColor: context.colors.brandBlue,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SvgPicture.asset('assets/driverOrderPage/arrow_forward_white.svg', width: 20, height: 20),
-                    const SizedBox(width: 8),
-                    Text(
-                      DriverNavigationKeys.confirmDelivery.tr(),
-                      style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w800),
-                    ),
-                  ],
-                ),
+                child: _submitting
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SvgPicture.asset('assets/driverOrderPage/arrow_forward_white.svg', width: 20, height: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            DriverNavigationKeys.confirmDelivery.tr(),
+                            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w800),
+                          ),
+                        ],
+                      ),
               ),
             ),
             // SafeArea Bottom spacing
@@ -344,7 +407,12 @@ class _DriverScanScreenState extends State<DriverScanScreen> {
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            DriverNavigationKeys.enter4DigitCode.tr(),
+            // spec 007 T030: this used to say "4-digit" and cap input at 4
+            // characters, while the backend's handover code is 6 digits
+            // (`OtpPrimitivesService.generateCode`) — typing a code could
+            // never actually submit it. Same bug class spec 006 already
+            // fixed once in driver_verify_phone_screen.dart.
+            DriverNavigationKeys.enter6DigitCode.tr(),
             style: TextStyle(
               fontSize: 14,
               color: context.colors.textSecondary,
@@ -369,7 +437,7 @@ class _DriverScanScreenState extends State<DriverScanScreen> {
                     controller: _codeController,
                     focusNode: _codeFocusNode,
                     keyboardType: TextInputType.number,
-                    maxLength: 4,
+                    maxLength: _codeLength,
                     autofocus: true,
                     showCursor: false,
                     enableSuggestions: false,
@@ -391,13 +459,14 @@ class _DriverScanScreenState extends State<DriverScanScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _buildPinBox(context, _getChar(0), _codeController.text.length == 0),
-                      const SizedBox(width: 16),
-                      _buildPinBox(context, _getChar(1), _codeController.text.length == 1),
-                      const SizedBox(width: 16),
-                      _buildPinBox(context, _getChar(2), _codeController.text.length == 2),
-                      const SizedBox(width: 16),
-                      _buildPinBox(context, _getChar(3), _codeController.text.length == 3),
+                      for (var i = 0; i < _codeLength; i++) ...[
+                        if (i > 0) const SizedBox(width: _pinBoxSpacing),
+                        _buildPinBox(
+                          context,
+                          _getChar(i),
+                          _codeController.text.length == i,
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -409,11 +478,18 @@ class _DriverScanScreenState extends State<DriverScanScreen> {
     );
   }
 
+  // spec 007 T030: shrunk from the original 56/16 (sized for 4 boxes) so
+  // six boxes fit a phone-width screen without overflowing — verified by
+  // the RTL sweep alongside every other screen this feature touches.
+  static const _pinBoxWidth = 44.0;
+  static const _pinBoxHeight = 56.0;
+  static const _pinBoxSpacing = 8.0;
+
   Widget _buildPinBox(BuildContext context, String text, bool isActive) {
     final bool hasText = text.isNotEmpty;
     return Container(
-      width: 56,
-      height: 64,
+      width: _pinBoxWidth,
+      height: _pinBoxHeight,
       decoration: BoxDecoration(
         color: isActive ? Colors.white : Colors.transparent,
         border: Border.all(
@@ -429,17 +505,17 @@ class _DriverScanScreenState extends State<DriverScanScreen> {
             Text(
               text,
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 22,
                 fontWeight: FontWeight.w800,
                 color: context.colors.textPrimary,
               ),
             ),
           if (isActive)
             Positioned(
-              left: 28, // center approximately
+              left: _pinBoxWidth / 2,
               child: Container(
                 width: 1.5,
-                height: 32,
+                height: 28,
                 color: context.colors.textPrimary,
               ),
             ),

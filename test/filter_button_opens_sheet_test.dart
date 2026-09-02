@@ -7,11 +7,16 @@ import 'package:mobile_app/core/widgets/filter_sheet.dart';
 import 'package:mobile_app/features/orders/presentation/view/orders_list_screen.dart';
 
 import 'helpers/localized_harness.dart';
+import 'support/orders_test_di.dart';
 
 /// Tapping the funnel has to open the sheet. The button is an SVG, and a
 /// GestureDetector defaulting to `deferToChild` only fires where its child
 /// reports a hit — which a painted-only render box does not.
 void main() {
+  // OrdersListScreen resolves OrdersCubit from getIt now (spec 005).
+  setUp(registerOrdersTestDi);
+  tearDown(resetOrdersTestDi);
+
   testWidgets('the funnel opens the filter sheet', (tester) async {
     await loadTajawal();
     tester.view.physicalSize = const Size(1080, 2400);

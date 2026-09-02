@@ -3,6 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import '../enums/converters.dart';
 import '../enums/invoice_state.dart';
 import '../enums/payment_method.dart';
+import 'value_objects.dart';
 
 part 'invoice.freezed.dart';
 part 'invoice.g.dart';
@@ -17,6 +18,12 @@ abstract class Invoice with _$Invoice {
     required double amount,
     @PaymentMethodConverter() required PaymentMethod method,
     @InvoiceStateConverter() required InvoiceState state,
+    required DateTime createdAt,
+    DateTime? settledAt,
+    // spec 005 FR-011e: absent for a pre-feature invoice, or one whose
+    // order's admin-overridden final price diverged from what it was
+    // quoted — a total-only receipt then, never a fabricated breakdown.
+    PriceBreakdown? priceBreakdown,
   }) = _Invoice;
 
   factory Invoice.fromJson(Map<String, Object?> json) =>

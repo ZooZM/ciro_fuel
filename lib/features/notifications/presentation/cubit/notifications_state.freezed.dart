@@ -122,11 +122,11 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( List<AppNotification> notifications)?  loaded,TResult Function( Failure failure)?  failure,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( List<AppNotification> notifications,  int unreadCount,  String? nextCursor,  bool isLoadingMore,  bool loadMoreFailed)?  loaded,TResult Function( Failure failure)?  failure,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case NotificationsLoading() when loading != null:
 return loading();case NotificationsLoaded() when loaded != null:
-return loaded(_that.notifications);case NotificationsFailureState() when failure != null:
+return loaded(_that.notifications,_that.unreadCount,_that.nextCursor,_that.isLoadingMore,_that.loadMoreFailed);case NotificationsFailureState() when failure != null:
 return failure(_that.failure);case _:
   return orElse();
 
@@ -145,11 +145,11 @@ return failure(_that.failure);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( List<AppNotification> notifications)  loaded,required TResult Function( Failure failure)  failure,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( List<AppNotification> notifications,  int unreadCount,  String? nextCursor,  bool isLoadingMore,  bool loadMoreFailed)  loaded,required TResult Function( Failure failure)  failure,}) {final _that = this;
 switch (_that) {
 case NotificationsLoading():
 return loading();case NotificationsLoaded():
-return loaded(_that.notifications);case NotificationsFailureState():
+return loaded(_that.notifications,_that.unreadCount,_that.nextCursor,_that.isLoadingMore,_that.loadMoreFailed);case NotificationsFailureState():
 return failure(_that.failure);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -164,11 +164,11 @@ return failure(_that.failure);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( List<AppNotification> notifications)?  loaded,TResult? Function( Failure failure)?  failure,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( List<AppNotification> notifications,  int unreadCount,  String? nextCursor,  bool isLoadingMore,  bool loadMoreFailed)?  loaded,TResult? Function( Failure failure)?  failure,}) {final _that = this;
 switch (_that) {
 case NotificationsLoading() when loading != null:
 return loading();case NotificationsLoaded() when loaded != null:
-return loaded(_that.notifications);case NotificationsFailureState() when failure != null:
+return loaded(_that.notifications,_that.unreadCount,_that.nextCursor,_that.isLoadingMore,_that.loadMoreFailed);case NotificationsFailureState() when failure != null:
 return failure(_that.failure);case _:
   return null;
 
@@ -213,7 +213,7 @@ String toString() {
 
 
 class NotificationsLoaded implements NotificationsState {
-  const NotificationsLoaded(final  List<AppNotification> notifications): _notifications = notifications;
+  const NotificationsLoaded(final  List<AppNotification> notifications, {required this.unreadCount, this.nextCursor, this.isLoadingMore = false, this.loadMoreFailed = false}): _notifications = notifications;
   
 
  final  List<AppNotification> _notifications;
@@ -223,6 +223,10 @@ class NotificationsLoaded implements NotificationsState {
   return EqualUnmodifiableListView(_notifications);
 }
 
+ final  int unreadCount;
+ final  String? nextCursor;
+@JsonKey() final  bool isLoadingMore;
+@JsonKey() final  bool loadMoreFailed;
 
 /// Create a copy of NotificationsState
 /// with the given fields replaced by the non-null parameter values.
@@ -234,16 +238,16 @@ $NotificationsLoadedCopyWith<NotificationsLoaded> get copyWith => _$Notification
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationsLoaded&&const DeepCollectionEquality().equals(other._notifications, _notifications));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationsLoaded&&const DeepCollectionEquality().equals(other._notifications, _notifications)&&(identical(other.unreadCount, unreadCount) || other.unreadCount == unreadCount)&&(identical(other.nextCursor, nextCursor) || other.nextCursor == nextCursor)&&(identical(other.isLoadingMore, isLoadingMore) || other.isLoadingMore == isLoadingMore)&&(identical(other.loadMoreFailed, loadMoreFailed) || other.loadMoreFailed == loadMoreFailed));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_notifications));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_notifications),unreadCount,nextCursor,isLoadingMore,loadMoreFailed);
 
 @override
 String toString() {
-  return 'NotificationsState.loaded(notifications: $notifications)';
+  return 'NotificationsState.loaded(notifications: $notifications, unreadCount: $unreadCount, nextCursor: $nextCursor, isLoadingMore: $isLoadingMore, loadMoreFailed: $loadMoreFailed)';
 }
 
 
@@ -254,7 +258,7 @@ abstract mixin class $NotificationsLoadedCopyWith<$Res> implements $Notification
   factory $NotificationsLoadedCopyWith(NotificationsLoaded value, $Res Function(NotificationsLoaded) _then) = _$NotificationsLoadedCopyWithImpl;
 @useResult
 $Res call({
- List<AppNotification> notifications
+ List<AppNotification> notifications, int unreadCount, String? nextCursor, bool isLoadingMore, bool loadMoreFailed
 });
 
 
@@ -271,10 +275,14 @@ class _$NotificationsLoadedCopyWithImpl<$Res>
 
 /// Create a copy of NotificationsState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? notifications = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? notifications = null,Object? unreadCount = null,Object? nextCursor = freezed,Object? isLoadingMore = null,Object? loadMoreFailed = null,}) {
   return _then(NotificationsLoaded(
 null == notifications ? _self._notifications : notifications // ignore: cast_nullable_to_non_nullable
-as List<AppNotification>,
+as List<AppNotification>,unreadCount: null == unreadCount ? _self.unreadCount : unreadCount // ignore: cast_nullable_to_non_nullable
+as int,nextCursor: freezed == nextCursor ? _self.nextCursor : nextCursor // ignore: cast_nullable_to_non_nullable
+as String?,isLoadingMore: null == isLoadingMore ? _self.isLoadingMore : isLoadingMore // ignore: cast_nullable_to_non_nullable
+as bool,loadMoreFailed: null == loadMoreFailed ? _self.loadMoreFailed : loadMoreFailed // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

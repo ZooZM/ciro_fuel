@@ -7,6 +7,7 @@ import 'package:mobile_app/features/home/presentation/view/client_main_scaffold.
 import 'package:mobile_app/features/more/presentation/view/client_more_screen.dart';
 
 import 'helpers/localized_harness.dart';
+import 'support/orders_test_di.dart';
 
 /// The nav bar lives in the shell that hosts every tab, and go_router only
 /// rebuilds that shell when navigation happens. `.tr()` reads
@@ -15,6 +16,10 @@ import 'helpers/localized_harness.dart';
 /// after a switch: the More screen turned English while the bar underneath it
 /// stayed Arabic until another tab was opened.
 void main() {
+  // ClientMainScaffold's nav bar now resolves NotificationsCubit from getIt.
+  setUp(registerOrdersTestDi);
+  tearDown(resetOrdersTestDi);
+
   testWidgets('nav bar labels follow a language switch without navigating', (
     tester,
   ) async {

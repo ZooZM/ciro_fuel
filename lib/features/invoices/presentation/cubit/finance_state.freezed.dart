@@ -122,7 +122,7 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( double pendingInvoiceAmount,  double availableBalanceAmount)?  loaded,TResult Function( Failure failure)?  failure,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( double pendingInvoiceAmount,  double? availableBalanceAmount)?  loaded,TResult Function( Failure failure)?  failure,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case FinanceLoading() when loading != null:
 return loading();case FinanceLoaded() when loaded != null:
@@ -145,7 +145,7 @@ return failure(_that.failure);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( double pendingInvoiceAmount,  double availableBalanceAmount)  loaded,required TResult Function( Failure failure)  failure,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( double pendingInvoiceAmount,  double? availableBalanceAmount)  loaded,required TResult Function( Failure failure)  failure,}) {final _that = this;
 switch (_that) {
 case FinanceLoading():
 return loading();case FinanceLoaded():
@@ -164,7 +164,7 @@ return failure(_that.failure);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( double pendingInvoiceAmount,  double availableBalanceAmount)?  loaded,TResult? Function( Failure failure)?  failure,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( double pendingInvoiceAmount,  double? availableBalanceAmount)?  loaded,TResult? Function( Failure failure)?  failure,}) {final _that = this;
 switch (_that) {
 case FinanceLoading() when loading != null:
 return loading();case FinanceLoaded() when loaded != null:
@@ -213,11 +213,13 @@ String toString() {
 
 
 class FinanceLoaded implements FinanceState {
-  const FinanceLoaded({required this.pendingInvoiceAmount, required this.availableBalanceAmount});
+  const FinanceLoaded({required this.pendingInvoiceAmount, this.availableBalanceAmount});
   
 
  final  double pendingInvoiceAmount;
- final  double availableBalanceAmount;
+// Null when the client has no credit facility (spec 005 FR-027) —
+// never coerced to 0, which would read as a real, empty facility.
+ final  double? availableBalanceAmount;
 
 /// Create a copy of FinanceState
 /// with the given fields replaced by the non-null parameter values.
@@ -249,7 +251,7 @@ abstract mixin class $FinanceLoadedCopyWith<$Res> implements $FinanceStateCopyWi
   factory $FinanceLoadedCopyWith(FinanceLoaded value, $Res Function(FinanceLoaded) _then) = _$FinanceLoadedCopyWithImpl;
 @useResult
 $Res call({
- double pendingInvoiceAmount, double availableBalanceAmount
+ double pendingInvoiceAmount, double? availableBalanceAmount
 });
 
 
@@ -266,11 +268,11 @@ class _$FinanceLoadedCopyWithImpl<$Res>
 
 /// Create a copy of FinanceState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? pendingInvoiceAmount = null,Object? availableBalanceAmount = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? pendingInvoiceAmount = null,Object? availableBalanceAmount = freezed,}) {
   return _then(FinanceLoaded(
 pendingInvoiceAmount: null == pendingInvoiceAmount ? _self.pendingInvoiceAmount : pendingInvoiceAmount // ignore: cast_nullable_to_non_nullable
-as double,availableBalanceAmount: null == availableBalanceAmount ? _self.availableBalanceAmount : availableBalanceAmount // ignore: cast_nullable_to_non_nullable
-as double,
+as double,availableBalanceAmount: freezed == availableBalanceAmount ? _self.availableBalanceAmount : availableBalanceAmount // ignore: cast_nullable_to_non_nullable
+as double?,
   ));
 }
 

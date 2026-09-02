@@ -128,23 +128,29 @@ class DriverCard extends StatelessWidget {
                 children: [
                   _Field(label: CommonKeys.driver.tr(), value: driverName),
                   const SizedBox(height: AppSpacing.sm),
-                  GestureDetector(
-                    onTap: onCallDriver,
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        vertical: AppSpacing.sm,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: context.colors.borderHairline),
-                        borderRadius: BorderRadius.circular(
-                          AppSizes.orderCreditIconRadius,
+                  // Dimmed when there is no number to dial, so the control
+                  // reads as unavailable instead of looking identical to a
+                  // working one and doing nothing on tap.
+                  Opacity(
+                    opacity: onCallDriver == null ? 0.4 : 1,
+                    child: GestureDetector(
+                      onTap: onCallDriver,
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppSpacing.sm,
                         ),
-                      ),
-                      child: Icon(
-                        Icons.phone_outlined,
-                        color: context.colors.textPrimary,
-                        size: AppSizes.iconMd,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: context.colors.borderHairline),
+                          borderRadius: BorderRadius.circular(
+                            AppSizes.orderCreditIconRadius,
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.phone_outlined,
+                          color: context.colors.textPrimary,
+                          size: AppSizes.iconMd,
+                        ),
                       ),
                     ),
                   ),

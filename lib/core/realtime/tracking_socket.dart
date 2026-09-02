@@ -79,6 +79,15 @@ class TrackingSocket {
   void onNotification(void Function(Map<String, dynamic>) handler) => _socket
       ?.on(SocketEvents.notificationNew, (dynamic d) => handler(_asMap(d)));
 
+  /// spec 006 US5 (FR-035): the server pushes this the instant a live
+  /// session is revoked — displacement by a sign-in elsewhere, a password
+  /// reset, or a deactivation — so the callback must be attached AFTER
+  /// [connect] (or a reconnect) has actually run, not from a constructor
+  /// invoked before any socket exists (`mobile_app/CLAUDE.md` debt #6,
+  /// the exact silent-no-op mistake this must not repeat).
+  void onSessionRevoked(void Function(Map<String, dynamic>) handler) =>
+      _socket?.on(SocketEvents.sessionRevoked, (dynamic d) => handler(_asMap(d)));
+
   /// Fires on the initial connect AND every reconnect (background/foreground
   /// resume, a transient network drop, or [reauthenticate] cycling the
   /// connection). Callers that depend on server-side room membership (e.g.

@@ -8,7 +8,6 @@ import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/utils/number_formatting.dart';
 import '../../../../../core/widgets/order_card.dart';
 import '../../../../../shared/enums/fuel_grade.dart';
-import 'create_order_data.dart';
 import '../../../../../core/theme/theme_context.dart';
 
 /// "3. الكمية" — one quantity row per selected grade: the لتر box and the
@@ -18,13 +17,26 @@ class QuantitySection extends StatefulWidget {
   const QuantitySection({
     required this.quantities,
     required this.onPresetSelected,
+    required this.tileQuantities,
+    required this.counterQuantities,
     super.key,
   });
 
-  /// Grade index → chosen litres. Always one of [kOrderCounterQuantities]: the
+  /// Grade index → chosen litres. Always one of [counterQuantities]: the
   /// row offers no way to enter an amount off that ladder.
   final Map<int, int> quantities;
   final void Function(int gradeIndex, int litres) onPresetSelected;
+
+  /// The client's own fuel company's tanker capacities (spec 005 FR-017),
+  /// smallest-first — sourced from `PricingConfig.tankerCapacitiesLiters`,
+  /// never a list fixed in the app. [tileQuantities] (a small, featured
+  /// subset) drives the row of quick-pick tiles; [counterQuantities] is the
+  /// full ladder the +/− counter steps through — both must stay ascending,
+  /// and every [tileQuantities] value must also appear in
+  /// [counterQuantities], or a tile could select a size the counter cannot
+  /// step away from.
+  final List<int> tileQuantities;
+  final List<int> counterQuantities;
 
   @override
   State<QuantitySection> createState() => _QuantitySectionState();
@@ -90,7 +102,7 @@ class _QuantitySectionState extends State<QuantitySection> {
                       onTap: () => _toggleCounter(entry.key),
                     ),
                   ),
-                  for (final litres in kOrderQuantities.reversed) ...[
+                  for (final litres in widget.tileQuantities.reversed) ...[
                     const SizedBox(width: AppSpacing.sm),
                     SizedBox(
                       width: AppSizes.orderQuantityTileWidth,
@@ -111,6 +123,7 @@ class _QuantitySectionState extends State<QuantitySection> {
               const SizedBox(height: AppSpacing.sm),
               _QuantityCounter(
                 litres: entry.value,
+                counterQuantities: widget.counterQuantities,
                 onChanged: (litres) =>
                     widget.onPresetSelected(entry.key, litres),
               ),
@@ -123,13 +136,18 @@ class _QuantitySectionState extends State<QuantitySection> {
 }
 
 /// The counter from the design: the litres in the middle, `−` and `+` on
-/// either side. The buttons walk [kOrderCounterQuantities] rather than adding a
+/// either side. The buttons walk [counterQuantities] rather than adding a
 /// free amount, so every order lands on a size the fleet carries. This is the
 /// only way to reach the sizes the row has no tile for.
 class _QuantityCounter extends StatelessWidget {
-  const _QuantityCounter({required this.litres, required this.onChanged});
+  const _QuantityCounter({
+    required this.litres,
+    required this.counterQuantities,
+    required this.onChanged,
+  });
 
   final int litres;
+  final List<int> counterQuantities;
   final ValueChanged<int> onChanged;
 
   @override
@@ -138,10 +156,10 @@ class _QuantityCounter extends StatelessWidget {
 
     // -1 for a quantity off the ladder, which leaves both buttons disabled
     // rather than jumping to an arbitrary end of it.
-    final index = kOrderCounterQuantities.indexOf(litres);
-    final previous = index > 0 ? kOrderCounterQuantities[index - 1] : null;
-    final next = index >= 0 && index < kOrderCounterQuantities.length - 1
-        ? kOrderCounterQuantities[index + 1]
+    final index = counterQuantities.indexOf(litres);
+    final previous = index > 0 ? counterQuantities[index - 1] : null;
+    final next = index >= 0 && index < counterQuantities.length - 1
+        ? counterQuantities[index + 1]
         : null;
 
     return Container(
@@ -202,7 +220,7 @@ class _StepperButton extends StatelessWidget {
 
   final IconData icon;
 
-  /// Null at either end of [kOrderQuantities] — the button greys out instead
+  /// Null at either end of the counter ladder — the button greys out instead
   /// of disappearing, so the counter keeps its shape.
   final VoidCallback? onTap;
 

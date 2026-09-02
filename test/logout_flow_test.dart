@@ -25,12 +25,19 @@ import 'package:mobile_app/features/auth/presentation/cubit/session_cubit.dart';
 import 'package:mobile_app/features/auth/presentation/cubit/session_state.dart';
 import 'package:mobile_app/features/more/presentation/view/client_more_screen.dart';
 import 'package:mobile_app/features/notifications/domain/entities/app_notification.dart';
+import 'package:mobile_app/features/notifications/domain/entities/notifications_page.dart';
 import 'package:mobile_app/features/notifications/domain/repositories/notifications_repository.dart';
 import 'package:mobile_app/features/notifications/domain/usecases/get_notifications.dart';
 import 'package:mobile_app/features/notifications/domain/usecases/mark_notification_read.dart';
 import 'package:mobile_app/features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:mobile_app/features/notifications/presentation/cubit/notifications_state.dart';
+import 'package:mobile_app/features/stations/domain/entities/station.dart';
+import 'package:mobile_app/features/stations/domain/repositories/stations_repository.dart';
+import 'package:mobile_app/features/stations/domain/usecases/get_stations.dart';
+import 'package:mobile_app/features/stations/domain/usecases/set_favourite_station.dart';
+import 'package:mobile_app/features/stations/presentation/cubit/stations_cubit.dart';
 import 'package:mobile_app/shared/entities/auth_user.dart';
+import 'package:mobile_app/shared/entities/value_objects.dart';
 import 'package:mobile_app/shared/enums/notification_type.dart';
 import 'package:mobile_app/shared/enums/user_role.dart';
 import 'package:mocktail/mocktail.dart';
@@ -41,6 +48,33 @@ class _MockAuthRepository extends Mock implements AuthRepository {}
 
 class _MockNotificationsRepository extends Mock
     implements NotificationsRepository {}
+
+class _MockStationsRepository extends Mock implements StationsRepository {}
+
+/// Two stations, so the profile header's count is a value that could only
+/// have come from the repository — a hardcoded `1` would fail this.
+final _stations = [
+  Station(
+    id: 's1',
+    name: 'Main depot',
+    regionCode: 'R1',
+    governorateCode: 'G1',
+    location: const GeoPoint(lat: 24.7, lng: 46.6),
+    addressText: 'Riyadh',
+    isDefault: true,
+    isFavourite: false,
+  ),
+  Station(
+    id: 's2',
+    name: 'North yard',
+    regionCode: 'R1',
+    governorateCode: 'G1',
+    location: const GeoPoint(lat: 24.8, lng: 46.7),
+    addressText: 'Riyadh',
+    isDefault: false,
+    isFavourite: true,
+  ),
+];
 
 /// Never connected, so every `_socket?.…` call inside [TrackingSocket] is a
 /// no-op — enough for a cubit that only registers a push handler on it.
@@ -79,9 +113,21 @@ void main() {
 
     // The screen resolves both from getIt (not from an inherited provider), so
     // the sign-out still lands if the router tears the screen down mid-await.
+    final stationsRepository = _MockStationsRepository();
+    when(stationsRepository.getStations).thenAnswer(
+      (_) async => Right(_stations),
+    );
+
     getIt
       ..registerSingleton<SessionCubit>(sessionCubit)
-      ..registerSingleton<SignOut>(SignOut(repository));
+      ..registerSingleton<SignOut>(SignOut(repository))
+      // The profile header now reads its station count from here (FR-036).
+      ..registerFactory<StationsCubit>(
+        () => StationsCubit(
+          getStations: GetStations(stationsRepository),
+          setFavouriteStation: SetFavouriteStation(stationsRepository),
+        ),
+      );
   });
 
   tearDown(() async {
@@ -252,16 +298,23 @@ void main() {
     when(
       () => notificationsRepository.getNotifications(
         unread: any(named: 'unread'),
+        cursor: any(named: 'cursor'),
       ),
     ).thenAnswer(
-      (_) async => Right([
-        AppNotification(
-          id: 'n1',
-          type: NotificationType.finalPriceReady,
-          orderId: 'o1',
-          createdAt: DateTime.utc(2026, 5, 2),
+      (_) async => Right(
+        NotificationsPage(
+          items: [
+            AppNotification(
+              id: 'n1',
+              type: NotificationType.orderApprovedFinalPrice,
+              orderId: 'o1',
+              createdAt: DateTime.utc(2026, 5, 2),
+            ),
+          ],
+          nextCursor: null,
+          unreadCount: 1,
         ),
-      ]),
+      ),
     );
 
     final cubit = NotificationsCubit(

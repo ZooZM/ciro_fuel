@@ -15,7 +15,10 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Invoice {
 
-@JsonKey(name: '_id') String get id; String get orderId; double get amount;@PaymentMethodConverter() PaymentMethod get method;@InvoiceStateConverter() InvoiceState get state;
+@JsonKey(name: '_id') String get id; String get orderId; double get amount;@PaymentMethodConverter() PaymentMethod get method;@InvoiceStateConverter() InvoiceState get state; DateTime get createdAt; DateTime? get settledAt;// spec 005 FR-011e: absent for a pre-feature invoice, or one whose
+// order's admin-overridden final price diverged from what it was
+// quoted — a total-only receipt then, never a fabricated breakdown.
+ PriceBreakdown? get priceBreakdown;
 /// Create a copy of Invoice
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +31,16 @@ $InvoiceCopyWith<Invoice> get copyWith => _$InvoiceCopyWithImpl<Invoice>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Invoice&&(identical(other.id, id) || other.id == id)&&(identical(other.orderId, orderId) || other.orderId == orderId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.method, method) || other.method == method)&&(identical(other.state, state) || other.state == state));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Invoice&&(identical(other.id, id) || other.id == id)&&(identical(other.orderId, orderId) || other.orderId == orderId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.method, method) || other.method == method)&&(identical(other.state, state) || other.state == state)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.settledAt, settledAt) || other.settledAt == settledAt)&&(identical(other.priceBreakdown, priceBreakdown) || other.priceBreakdown == priceBreakdown));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,orderId,amount,method,state);
+int get hashCode => Object.hash(runtimeType,id,orderId,amount,method,state,createdAt,settledAt,priceBreakdown);
 
 @override
 String toString() {
-  return 'Invoice(id: $id, orderId: $orderId, amount: $amount, method: $method, state: $state)';
+  return 'Invoice(id: $id, orderId: $orderId, amount: $amount, method: $method, state: $state, createdAt: $createdAt, settledAt: $settledAt, priceBreakdown: $priceBreakdown)';
 }
 
 
@@ -48,11 +51,11 @@ abstract mixin class $InvoiceCopyWith<$Res>  {
   factory $InvoiceCopyWith(Invoice value, $Res Function(Invoice) _then) = _$InvoiceCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: '_id') String id, String orderId, double amount,@PaymentMethodConverter() PaymentMethod method,@InvoiceStateConverter() InvoiceState state
+@JsonKey(name: '_id') String id, String orderId, double amount,@PaymentMethodConverter() PaymentMethod method,@InvoiceStateConverter() InvoiceState state, DateTime createdAt, DateTime? settledAt, PriceBreakdown? priceBreakdown
 });
 
 
-
+$PriceBreakdownCopyWith<$Res>? get priceBreakdown;
 
 }
 /// @nodoc
@@ -65,17 +68,32 @@ class _$InvoiceCopyWithImpl<$Res>
 
 /// Create a copy of Invoice
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? orderId = null,Object? amount = null,Object? method = null,Object? state = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? orderId = null,Object? amount = null,Object? method = null,Object? state = null,Object? createdAt = null,Object? settledAt = freezed,Object? priceBreakdown = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,orderId: null == orderId ? _self.orderId : orderId // ignore: cast_nullable_to_non_nullable
 as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
 as double,method: null == method ? _self.method : method // ignore: cast_nullable_to_non_nullable
 as PaymentMethod,state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
-as InvoiceState,
+as InvoiceState,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime,settledAt: freezed == settledAt ? _self.settledAt : settledAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,priceBreakdown: freezed == priceBreakdown ? _self.priceBreakdown : priceBreakdown // ignore: cast_nullable_to_non_nullable
+as PriceBreakdown?,
   ));
 }
+/// Create a copy of Invoice
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$PriceBreakdownCopyWith<$Res>? get priceBreakdown {
+    if (_self.priceBreakdown == null) {
+    return null;
+  }
 
+  return $PriceBreakdownCopyWith<$Res>(_self.priceBreakdown!, (value) {
+    return _then(_self.copyWith(priceBreakdown: value));
+  });
+}
 }
 
 
@@ -157,10 +175,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: '_id')  String id,  String orderId,  double amount, @PaymentMethodConverter()  PaymentMethod method, @InvoiceStateConverter()  InvoiceState state)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: '_id')  String id,  String orderId,  double amount, @PaymentMethodConverter()  PaymentMethod method, @InvoiceStateConverter()  InvoiceState state,  DateTime createdAt,  DateTime? settledAt,  PriceBreakdown? priceBreakdown)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Invoice() when $default != null:
-return $default(_that.id,_that.orderId,_that.amount,_that.method,_that.state);case _:
+return $default(_that.id,_that.orderId,_that.amount,_that.method,_that.state,_that.createdAt,_that.settledAt,_that.priceBreakdown);case _:
   return orElse();
 
 }
@@ -178,10 +196,10 @@ return $default(_that.id,_that.orderId,_that.amount,_that.method,_that.state);ca
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: '_id')  String id,  String orderId,  double amount, @PaymentMethodConverter()  PaymentMethod method, @InvoiceStateConverter()  InvoiceState state)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: '_id')  String id,  String orderId,  double amount, @PaymentMethodConverter()  PaymentMethod method, @InvoiceStateConverter()  InvoiceState state,  DateTime createdAt,  DateTime? settledAt,  PriceBreakdown? priceBreakdown)  $default,) {final _that = this;
 switch (_that) {
 case _Invoice():
-return $default(_that.id,_that.orderId,_that.amount,_that.method,_that.state);case _:
+return $default(_that.id,_that.orderId,_that.amount,_that.method,_that.state,_that.createdAt,_that.settledAt,_that.priceBreakdown);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +216,10 @@ return $default(_that.id,_that.orderId,_that.amount,_that.method,_that.state);ca
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: '_id')  String id,  String orderId,  double amount, @PaymentMethodConverter()  PaymentMethod method, @InvoiceStateConverter()  InvoiceState state)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: '_id')  String id,  String orderId,  double amount, @PaymentMethodConverter()  PaymentMethod method, @InvoiceStateConverter()  InvoiceState state,  DateTime createdAt,  DateTime? settledAt,  PriceBreakdown? priceBreakdown)?  $default,) {final _that = this;
 switch (_that) {
 case _Invoice() when $default != null:
-return $default(_that.id,_that.orderId,_that.amount,_that.method,_that.state);case _:
+return $default(_that.id,_that.orderId,_that.amount,_that.method,_that.state,_that.createdAt,_that.settledAt,_that.priceBreakdown);case _:
   return null;
 
 }
@@ -213,7 +231,7 @@ return $default(_that.id,_that.orderId,_that.amount,_that.method,_that.state);ca
 @JsonSerializable()
 
 class _Invoice implements Invoice {
-  const _Invoice({@JsonKey(name: '_id') required this.id, required this.orderId, required this.amount, @PaymentMethodConverter() required this.method, @InvoiceStateConverter() required this.state});
+  const _Invoice({@JsonKey(name: '_id') required this.id, required this.orderId, required this.amount, @PaymentMethodConverter() required this.method, @InvoiceStateConverter() required this.state, required this.createdAt, this.settledAt, this.priceBreakdown});
   factory _Invoice.fromJson(Map<String, dynamic> json) => _$InvoiceFromJson(json);
 
 @override@JsonKey(name: '_id') final  String id;
@@ -221,6 +239,12 @@ class _Invoice implements Invoice {
 @override final  double amount;
 @override@PaymentMethodConverter() final  PaymentMethod method;
 @override@InvoiceStateConverter() final  InvoiceState state;
+@override final  DateTime createdAt;
+@override final  DateTime? settledAt;
+// spec 005 FR-011e: absent for a pre-feature invoice, or one whose
+// order's admin-overridden final price diverged from what it was
+// quoted — a total-only receipt then, never a fabricated breakdown.
+@override final  PriceBreakdown? priceBreakdown;
 
 /// Create a copy of Invoice
 /// with the given fields replaced by the non-null parameter values.
@@ -235,16 +259,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Invoice&&(identical(other.id, id) || other.id == id)&&(identical(other.orderId, orderId) || other.orderId == orderId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.method, method) || other.method == method)&&(identical(other.state, state) || other.state == state));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Invoice&&(identical(other.id, id) || other.id == id)&&(identical(other.orderId, orderId) || other.orderId == orderId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.method, method) || other.method == method)&&(identical(other.state, state) || other.state == state)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.settledAt, settledAt) || other.settledAt == settledAt)&&(identical(other.priceBreakdown, priceBreakdown) || other.priceBreakdown == priceBreakdown));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,orderId,amount,method,state);
+int get hashCode => Object.hash(runtimeType,id,orderId,amount,method,state,createdAt,settledAt,priceBreakdown);
 
 @override
 String toString() {
-  return 'Invoice(id: $id, orderId: $orderId, amount: $amount, method: $method, state: $state)';
+  return 'Invoice(id: $id, orderId: $orderId, amount: $amount, method: $method, state: $state, createdAt: $createdAt, settledAt: $settledAt, priceBreakdown: $priceBreakdown)';
 }
 
 
@@ -255,11 +279,11 @@ abstract mixin class _$InvoiceCopyWith<$Res> implements $InvoiceCopyWith<$Res> {
   factory _$InvoiceCopyWith(_Invoice value, $Res Function(_Invoice) _then) = __$InvoiceCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: '_id') String id, String orderId, double amount,@PaymentMethodConverter() PaymentMethod method,@InvoiceStateConverter() InvoiceState state
+@JsonKey(name: '_id') String id, String orderId, double amount,@PaymentMethodConverter() PaymentMethod method,@InvoiceStateConverter() InvoiceState state, DateTime createdAt, DateTime? settledAt, PriceBreakdown? priceBreakdown
 });
 
 
-
+@override $PriceBreakdownCopyWith<$Res>? get priceBreakdown;
 
 }
 /// @nodoc
@@ -272,18 +296,33 @@ class __$InvoiceCopyWithImpl<$Res>
 
 /// Create a copy of Invoice
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? orderId = null,Object? amount = null,Object? method = null,Object? state = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? orderId = null,Object? amount = null,Object? method = null,Object? state = null,Object? createdAt = null,Object? settledAt = freezed,Object? priceBreakdown = freezed,}) {
   return _then(_Invoice(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,orderId: null == orderId ? _self.orderId : orderId // ignore: cast_nullable_to_non_nullable
 as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
 as double,method: null == method ? _self.method : method // ignore: cast_nullable_to_non_nullable
 as PaymentMethod,state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
-as InvoiceState,
+as InvoiceState,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime,settledAt: freezed == settledAt ? _self.settledAt : settledAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,priceBreakdown: freezed == priceBreakdown ? _self.priceBreakdown : priceBreakdown // ignore: cast_nullable_to_non_nullable
+as PriceBreakdown?,
   ));
 }
 
+/// Create a copy of Invoice
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$PriceBreakdownCopyWith<$Res>? get priceBreakdown {
+    if (_self.priceBreakdown == null) {
+    return null;
+  }
 
+  return $PriceBreakdownCopyWith<$Res>(_self.priceBreakdown!, (value) {
+    return _then(_self.copyWith(priceBreakdown: value));
+  });
+}
 }
 
 // dart format on

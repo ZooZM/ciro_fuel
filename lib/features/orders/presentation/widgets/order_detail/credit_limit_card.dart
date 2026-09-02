@@ -5,40 +5,52 @@ import '../../../../../core/localization/translation_keys.dart';
 
 import '../../../../../core/constants/app_assets.dart';
 import '../../../../../core/theme/app_spacing.dart';
+import '../../../../../core/utils/number_formatting.dart';
 import '../../../../../core/widgets/order_card.dart';
 import '../../../../../core/theme/theme_context.dart';
+import '../../../../invoices/domain/entities/credit_standing.dart';
 
 /// The "الحد الإئتماني" card: limit summary, usage bar and the
 /// pay-from-credit action.
+///
+/// Every figure comes from [standing] — the platform's own credit
+/// calculation, the same one the dashboard and the credit screen read, so
+/// the three cannot disagree (FR-026). This card previously carried
+/// fabricated defaults (120,000 available of a 200,000 limit, 37.5% used)
+/// which rendered identically for every client regardless of their real
+/// facility.
 class CreditLimitCard extends StatelessWidget {
   const CreditLimitCard({
-    this.availableAmount = '120,000.00 ',
-    this.totalLimitText,
-    this.usedText,
+    required this.standing,
     this.onPayFromCredit,
     super.key,
   });
 
-  final String availableAmount;
-  // Nullable rather than defaulted: the placeholder copy is translated, and
-  // a default parameter value has to be a compile-time constant.
-  final String? totalLimitText;
-  final String? usedText;
+  final CreditStanding standing;
   final VoidCallback? onPayFromCredit;
 
   @override
   Widget build(BuildContext context) {
     final currency = CommonKeys.currencySymbol.tr();
-    final totalLimitText =
-        this.totalLimitText ??
-        OrderDetailKeys.creditOf.tr(
-          namedArgs: {'amount': '200,000.00 $currency'},
-        );
-    final usedText =
-        this.usedText ??
-        OrderDetailKeys.creditUsed.tr(
-          namedArgs: {'amount': '200,000.00 $currency', 'percent': '37.5%'},
-        );
+    final creditLimit = standing.creditLimit ?? 0;
+    final consumed = standing.consumed ?? 0;
+    final available = standing.available ?? 0;
+    // Guarded against a zero limit: a client with no facility would
+    // otherwise divide by zero and render NaN% in the usage bar.
+    final usedFraction = creditLimit > 0
+        ? (consumed / creditLimit).clamp(0.0, 1.0)
+        : 0.0;
+
+    final availableAmount = '${NumberFormatting.currency(available)} ';
+    final totalLimitText = OrderDetailKeys.creditOf.tr(
+      namedArgs: {'amount': '${NumberFormatting.currency(creditLimit)} $currency'},
+    );
+    final usedText = OrderDetailKeys.creditUsed.tr(
+      namedArgs: {
+        'amount': '${NumberFormatting.currency(consumed)} $currency',
+        'percent': '${(usedFraction * 100).toStringAsFixed(1)}%',
+      },
+    );
 
     return OrderCard(
       child: Column(
@@ -157,15 +169,18 @@ class CreditLimitCard extends StatelessWidget {
             ),
             child: Row(
               children: [
+                // Integer flex weights out of 1000 — fine-grained enough
+                // that a fraction of a percent still moves the bar, and a
+                // fully-consumed facility leaves no remainder sliver.
                 Expanded(
-                  flex: 63,
+                  flex: (usedFraction * 1000).round(),
                   child: Container(
                     height: AppSizes.orderCreditProgressHeight,
                     color: context.colors.brandOrange,
                   ),
                 ),
                 Expanded(
-                  flex: 37,
+                  flex: 1000 - (usedFraction * 1000).round(),
                   child: Container(
                     height: AppSizes.orderCreditProgressHeight,
                     color: context.colors.borderHairline,

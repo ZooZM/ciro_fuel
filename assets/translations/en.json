@@ -26,7 +26,10 @@
     "contact_driver": "Contact the driver",
     "contact_support": "Contact support",
     "search_by_invoice_code": "Search by invoice code",
-    "search_by_order_code": "Search by order code"
+    "search_by_order_code": "Search by order code",
+    "save": "Save",
+    "retry": "Retry",
+    "edit_name": "Edit name"
   },
   "nav": {
     "payments": "Payments",
@@ -151,8 +154,10 @@
     "final_total": "Final total",
     "headline_deferred": "Deferred to next time",
     "headline_paid": "Paid",
+    "headline_credit": "On credit",
     "headline_delivered": "Delivered",
     "order_another": "Order again",
+    "retry_payment": "Retry payment",
     "paid_successfully": "Paid successfully",
     "reference_number": "Reference number",
     "day": "Day",
@@ -212,7 +217,12 @@
     "fuel_tanker_truck": "Fuel tanker truck",
     "handover_note": "For a safe and fast handover, show the driver the following to complete the pickup.",
     "order_stages": "Order stages",
-    "received": "Received"
+    "received": "Received",
+    "stale_warning": "Position may be out of date",
+    "not_trackable_title": "Live tracking isn't available yet",
+    "not_trackable_body": "The truck's position will show here once it sets out.",
+    "map_unavailable": "Map unavailable — this build has no Google Maps key configured. Tracking details below are live.",
+    "call_unavailable": "Calling is not available on this device."
   },
   "orders_list": {
     "title": "All orders",
@@ -237,17 +247,22 @@
     "tab_all": "All",
     "tab_deferred": "Deferred",
     "tab_paid": "Paid",
-    "tab_failed": "Failed"
+    "tab_failed": "Failed",
+    "tab_outstanding": "Outstanding",
+    "tab_voided": "Voided",
+    "detail_title": "Invoice",
+    "reference": "Reference",
+    "settled_on": "Settled on",
+    "fuel_charge": "Fuel"
   },
   "payments": {
     "title": "All orders due for payment",
-    "count": "{count} orders in total"
+    "count": "{count} orders in total",
+    "empty": "No payments yet"
   },
   "stations": {
-    "current_order": "Your current order",
-    "last_order": "Last order",
-    "quick_glance": "At a glance",
-    "delivered_deferred_invoice": "Delivered (invoice deferred)"
+    "title": "Your stations",
+    "default_station": "Default"
   },
   "invoice_payment": {
     "sadad_note": "Pay from your banking app via SADAD by entering the biller number and the invoice number, or at the nearest ATM.",
@@ -261,13 +276,16 @@
     "deferred_note": "The deferred invoice must be paid to complete the current order",
     "delivery_fee": "Delivery fee",
     "service_fee": "Service fee",
-    "hide_details": "Hide details"
+    "hide_details": "Hide details",
+    "awaiting_confirmation": "Waiting for the payment to be confirmed...",
+    "window_expired": "The payment window has expired. Please go back and try again."
   },
   "notifications": {
     "filter_all": "All",
     "filter_orders": "Orders",
     "filter_invoices": "Invoices",
     "filter_system": "System",
+    "filter_unread": "Unread",
     "mark_all_read": "Mark all as read",
     "order_accepted_title": "Your order was accepted",
     "invoice_due_title": "Invoice due",
@@ -277,12 +295,18 @@
     "minutes_ago": "5 minutes ago",
     "yesterday_time": "Yesterday, 09:35 AM",
     "system_body": "The app has been updated to the latest version with performance and stability improvements.",
-    "banner_final_price_ready": "Your order has been priced — payment is ready.",
+    "banner_order_approved_final_price": "Your order has been priced — payment is ready.",
+    "banner_no_driver_available": "No driver is available for an order right now.",
     "banner_payment_timeout": "Payment window expired for one of your orders.",
-    "banner_no_eligible_driver": "No driver is available for an order right now.",
-    "banner_delivery_completed": "A delivery has been completed.",
+    "banner_order_assigned": "You've been assigned a new delivery.",
+    "banner_order_status_changed": "One of your orders has a new status.",
+    "banner_otp_issued": "A verification code has been sent for your order.",
+    "banner_payment_reconciliation_required": "A payment requires reconciliation.",
+    "banner_order_routed_to_transport": "An order has been routed to your company.",
+    "banner_support_request_raised": "A new support request has been raised.",
     "banner_unknown": "You have a new notification.",
-    "banner_view": "View"
+    "banner_view": "View",
+    "banner_driver_stop_detected": "Your truck hasn't moved for a while — tap to tell us why."
   },
   "more": {
     "section_account": "Account",
@@ -346,11 +370,11 @@
     "linked_stations": "Stations linked to your account",
     "stations_count": "{count} stations",
     "account_info": "Account details",
-    "account_code": "Account code",
     "join_date": "Joined on",
     "active": "Active",
     "change_phone": "Change mobile number",
-    "verified_account": "Verified account"
+    "verified_account": "Verified account",
+    "no_stations": "No stations linked to your account yet"
   },
   "change_phone": {
     "step_change_number": "Change number",
@@ -363,9 +387,12 @@
   },
   "verify_phone": {
     "title": "Enter the verification code",
-    "sent_to": "A 4-digit code has been sent to",
+    "sent_to": "A code has been sent to",
     "change_number": "Change number",
-    "resend_in": "Resend in {timer}"
+    "resend_in": "Resend in {timer}",
+    "resend_code": "Resend code",
+    "code_resent": "A new code has been sent",
+    "phone_verified": "Your phone number has been updated"
   },
   "support": {
     "contact_now": "Contact us right away",
@@ -384,6 +411,13 @@
     "faq_question": "Can I place an order and pay again?",
     "faq_answer": "Yes — you can order your load and defer the settlement invoice to the next one",
     "availability": "Our support team is available daily from 8am to 12am",
+    "select_order": "Select an order",
+    "no_orders_to_attach": "You have no orders to attach yet",
+    "request_submitted": "Your request has been received — support will contact you soon",
+    "my_requests": "Your requests",
+    "no_requests_yet": "You haven't submitted any requests yet",
+    "state_submitted": "Submitted",
+    "state_acknowledged": "Acknowledged",
     "brand_suffix": "FUEL",
     "whatsapp": "WhatsApp",
     "telegram": "Telegram",
@@ -409,7 +443,33 @@
     "verify": "Verify",
     "throttled_in": "Too many attempts. Try again in {minutes} min.",
     "throttled": "Too many attempts. Please wait and try again.",
-    "code_rejected": "Incorrect code. Please try again."
+    "code_rejected": "Incorrect code. Please try again.",
+    "stop_detected_title": "Have you stopped?",
+    "stop_detected_body": "Your truck hasn't moved for a while. Tap to tell us why.",
+    "stop_reason": {
+      "traffic": "Traffic",
+      "vehicleProblem": "Vehicle problem",
+      "restOrPrayer": "Rest or prayer",
+      "refuelling": "Refuelling",
+      "roadClosure": "Road closed",
+      "accident": "Accident",
+      "other": "Something else"
+    },
+    "stop_prompt_title": "Why have you stopped?",
+    "stop_prompt_subtitle": "Tap the closest reason. Your transport office will see it.",
+    "stop_reason_other_hint": "Tell us briefly what happened",
+    "stop_reason_other_required": "Please describe what happened.",
+    "stop_reason_submit": "Send",
+    "stop_reason_sent": "Thanks — your transport office has been told.",
+    "stop_reason_failed": "Could not send that. Please try again.",
+    "declare_stop": "I'm stopping",
+    "declare_stop_title": "Tell us about this stop",
+    "declare_stop_subtitle": "Let your transport office know before we ask.",
+    "declare_stop_duration": "About how long?",
+    "declare_stop_minutes": "{minutes} min",
+    "declare_stop_submit": "Send",
+    "declare_stop_sent": "Noted — we won't ask you about this stop.",
+    "declare_stop_failed": "Could not send that. Please try again."
   },
   "orders": {
     "list_title": "Orders",
@@ -464,7 +524,13 @@
     "confirm_order": "Confirm order",
     "select_at_least_one_fuel_type": "Please select at least one fuel type",
     "order_failed": "Could not submit the order, please try again",
-    "enter_valid_quantity_for": "Enter a valid quantity for {grade}"
+    "enter_valid_quantity_for": "Enter a valid quantity for {grade}",
+    "loading_station": "Loading your station...",
+    "select_station": "Please select a station",
+    "price_changed_title": "Price has changed",
+    "price_changed_message": "The price changed while you were ordering. The new total is {total}. Do you want to continue at this price?",
+    "confirm_new_price": "Continue at new price",
+    "credit_over_limit_warning": "This order exceeds your available credit by {shortfall}. You can still submit it, but approval will be refused unless it fits your limit."
   },
   "order_invoice": {
     "sadad_note": "Pay from your banking app through SADAD using the biller and invoice numbers, or at the nearest ATM.",
@@ -480,7 +546,12 @@
     "network": "Check your connection and try again.",
     "generic": "Something went wrong. Please try again.",
     "biometric_unavailable": "No saved session on this device. Sign in with your password first.",
-    "biometric_failed": "We couldn't verify your identity. Please try again."
+    "biometric_failed": "We couldn't verify your identity. Please try again.",
+    "phone_in_use": "This phone number is already registered to another account.",
+    "sms_send_failed": "We couldn't send the verification code. Please try again.",
+    "wrong_verification_code": "Incorrect or expired code. Please try again.",
+    "reset_code_invalid": "That code is incorrect or has expired",
+    "reset_rate_limited": "Too many attempts. Try again in {minutes} min"
   },
   "filter": {
     "title": "Filter items",
@@ -500,8 +571,11 @@
   "order_status": {
     "pending_approval": "Under review",
     "approved": "Confirmed",
+    "awaiting_routing": "Awaiting a transporter",
+    "routed_to_transport": "Transporter assigned",
     "assigned_to_driver": "Driver assigned",
     "pending_payment": "Awaiting payment",
+    "loading": "Loading fuel",
     "in_transit": "In transit",
     "unloading": "Unloading",
     "delivered": "Delivered",
@@ -511,81 +585,39 @@
   "fuel_type": {
     "diesel": "Diesel",
     "gasoline_91": "Gasoline 91",
-    "gasoline_95": "Gasoline 95"
+    "gasoline_95": "Gasoline 95",
+    "kerosene": "Kerosene"
   },
   "driver_order": {
     "order_details": "Order Details",
-    "status_completed": "Completed",
-    "status_assigned": "Assigned",
-    "status_out_for_delivery": "Out for Delivery",
     "time_to_arrival": "Time to Arrival",
     "minutes": "Min",
-    "step_assigned": "Assigned",
-    "step_loaded": "Loaded",
-    "step_in_transit": "In Transit",
-    "step_delivered": "Delivered",
-    "customer_rating": "Customer Rating",
     "contact_customer": "Contact Customer",
-    "start_navigation_load": "Navigation to Load",
-    "start_navigation_station": "Navigation to Station",
-    "scan_delivery_code": "Scan Delivery Code",
-    "delivery_station": "Delivery Station",
     "view_on_map": "View on Map",
     "shipment_details": "Shipment Details",
     "fuel_type": "Fuel Type",
     "quantity": "Quantity",
-    "requested_time": "Requested Time",
-    "distance": "Distance",
-    "customer_notes": "Customer Notes"
-  },
-  "driver_order_mock": {
-    "review_text": "Excellent driver, executed all required instructions.",
-    "user_name": "Mohamed Ahmed",
-    "station_name": "Go Station",
-    "delivery_station_name": "Al Rehab Station",
-    "delivery_address": "Jeddah - Old Makkah Road - Al Bawadi Dist.",
-    "date": "9 Safar 1446",
-    "time": "06.30 AM",
-    "fuel_type_98": "Gasoline 98",
-    "quantity_val": "20,000 Liters",
-    "today_time": "Today, 04:30 PM",
-    "distance_val": "12.7 km",
-    "notes_text": "Please call 10 minutes before arrival, and enter through the back gate of the station."
+    "destination": "Destination"
   },
   "driver_home": {
-    "active_order": "Active Order",
-    "orders_list": "Orders List",
-    "view_all": "View All",
+    "active_order": "Active Delivery",
     "quick_actions": "Quick Actions",
     "online": "You're Online",
     "ready_to_receive": "Ready to receive orders",
     "rating": "Rating",
     "orders_today": "Orders Today",
     "fuel_type": "Fuel Type",
-    "fuel_95": "Gasoline 95",
     "quantity": "Quantity",
-    "quantity_value": "20,000.00 L",
-    "station": "Station",
-    "driver_name": "Mohamed Ahmed",
+    "customer": "Customer",
+    "customer_unavailable": "Not available",
     "time_remaining": "Time Remaining",
     "minutes": "min",
-    "in_transit": "In Transit",
-    "today_time": "Today, 04:35 PM",
-    "requested_time": "Requested Time",
-    "station_name": "Al Rehab Station ",
-    "station_address": "Jeddah - Old Makkah Road - Al Bawadi Dist.",
-    "contact_customer": "Contact Customer",
-    "start_navigation": "Start Navigation",
+    "no_active_delivery": "You have no active delivery right now.",
+    "view_delivery": "View Delivery",
     "nearby_stations": "Nearby Stations",
     "support": "Support",
     "delivery_report": "Delivery Report",
-    "scan_qr": "Scan\nQR Code",
-    "tab_all": "All Orders",
-    "tab_delivering": "Delivering",
-    "tab_on_way": "On the Way",
-    "tab_completed": "Completed",
-    "status_assigned": "Assigned",
-    "status_completed": "Completed"
+    "scan_qr": "Scan\nQR Code"
   },
   "driver_notifications": {
     "mark_all_read": "Mark all as read",
@@ -601,21 +633,6 @@
     "system_update_desc": "The app has been updated to the latest version with performance and stability improvements.",
     "old_date": "14 Aug 2026",
     "yesterday_time": "Yesterday, 09:35 AM"
-  },
-  "driver_mock_extra": {
-    "date_aug": "August 14, 2026",
-    "time_pm": "04:30 PM",
-    "fuel_diesel": "Diesel",
-    "fuel_kero": "Kerosene",
-    "fuel_91": "Gasoline 91",
-    "quantity_33": "33,000 L",
-    "quantity_23": "23,000 L",
-    "quantity_30": "30,000 L",
-    "quantity_28": "28,000 L",
-    "station_rehab": "Al Rehab Station - Jeddah",
-    "station_safa": "Al Safa Station - Jeddah",
-    "station_galala": "Al Galala Station - Jeddah",
-    "station_yamama": "Al Yamama Station - Jeddah"
   },
   "driver_profile_details": {
     "contact_info": "Contact Information",
@@ -645,8 +662,6 @@
     "remaining_distance": "Remaining Distance",
     "expected_time": "Expected Time",
     "fuel_type": "Fuel Type",
-    "station_name": "Al Rehab Station",
-    "station_address": "Jeddah - Old Makkah Road - Al Bawadi District",
     "view_on_map": "View on Map",
     "contact_customer": "Contact Customer",
     "requested_time": "Requested Time",
@@ -660,6 +675,100 @@
     "point_camera": "Point camera at QR code",
     "confirm_delivery": "Confirm Delivery",
     "enter_delivery_code": "Enter Delivery Code",
-    "enter_4_digit_code": "Enter the 4-digit code"
+    "enter_6_digit_code": "Enter the 6-digit code",
+    "mark_arrived": "I Have Arrived",
+    "request_delivery_code": "Request Delivery Code",
+    "code_sent_to_customer": "A code has been sent to the customer.",
+    "code_not_recognised": "That code was not recognised. Ask the client to read it again.",
+    "code_too_many_attempts": "Too many attempts. Ask the client for a fresh code.",
+    "code_confirm_failed": "Could not confirm right now. Try again."
+  },
+  "driver_verification": {
+    "departure_title": "Verify your vehicle",
+    "loading_title": "Verify at the warehouse",
+    "tap_card": "Tap NFC card",
+    "tap_card_hint": "Hold the truck's NFC card near your phone",
+    "scan_code_instead": "Scan QR code instead",
+    "use_card_instead": "Use NFC card instead",
+    "point_camera": "Point camera at the truck's QR code",
+    "verifying": "Verifying...",
+    "mismatch": "This isn't the assigned vehicle. Check the truck and try again.",
+    "try_again": "Try again",
+    "unreachable": "Couldn't reach the platform — nothing was recorded. Try again.",
+    "failed": "Verification isn't available right now. Try again.",
+    "too_many_attempts": "Too many attempts. Wait a few minutes and try again.",
+    "nfc_unavailable": "NFC isn't available on this device — use the QR code instead.",
+    "verify_vehicle": "Verify vehicle",
+    "not_at_warehouse": "You are {distance} km from the loading depot. Tap the card again once you arrive.",
+    "not_at_warehouse_unknown_distance": "You are too far from the loading depot. Tap the card again once you arrive.",
+    "location_unavailable": "Location is off, so loading can't be verified. Turn on location for CIRO and try again."
+  },
+  "driver_loading": {
+    "destination": "Warehouse",
+    "tank_details": "Assigned tank",
+    "tank_code": "Tank code",
+    "tank_material": "Material",
+    "confirm_loading": "Confirm Loading Complete",
+    "confirm_loading_failed": "Could not confirm loading right now. Try again.",
+    "material_iron": "Iron",
+    "material_aluminium": "Aluminium",
+    "navigate_to_warehouse": "Navigate to the depot",
+    "navigate_failed": "Couldn't open a maps app on this device."
+  },
+  "driver_profile": {
+    "company": "Company",
+    "truck_plate": "Plate number",
+    "truck_fuel_types": "Fuel types",
+    "no_truck_assigned": "No truck assigned yet"
+  },
+  "lock": {
+    "challenge_reason": "Verify it's you to continue",
+    "title": "App locked",
+    "retry": "Try again",
+    "unavailable_title": "A device lock is required",
+    "unavailable_body": "For security, this app can only be used on a device with a fingerprint, face unlock, or passcode set. Set one up in your phone's settings, or sign out."
+  },
+  "password_reset": {
+    "forgot_title": "Forgot password",
+    "phone_intro": "Enter your registered phone number and we'll send you a code to reset your password",
+    "send_code": "Send code",
+    "code_sent_to": "A code was sent to {phone}",
+    "code_label": "Verification code",
+    "verify": "Verify",
+    "resend": "Resend code",
+    "change_number": "Change number",
+    "new_password_title": "New password",
+    "new_password_label": "New password",
+    "new_password_rules": "Password must be at least 8 characters",
+    "submit": "Set new password",
+    "completed_message": "Password changed successfully. Please sign in"
+  },
+  "session": {
+    "signed_in_elsewhere": "You signed in on another device. Please sign in again.",
+    "password_reset": "Your password was reset. Please sign in again.",
+    "account_deactivated": "Your account has been deactivated. Please contact your administrator.",
+    "ended": "Your session has ended. Please sign in again."
+  },
+  "driver_orders": {
+    "tab_all": "All",
+    "tab_in_progress": "In progress",
+    "tab_completed": "Completed",
+    "tab_cancelled": "Cancelled",
+    "empty": "No deliveries yet."
+  },
+  "driver_summary": {
+    "not_yet_rated": "Not yet rated",
+    "off_duty": "Offline",
+    "not_receiving_orders": "Not receiving new orders",
+    "could_not_load": "Could not load"
+  },
+  "rating": {
+    "prompt": "Rate your delivery",
+    "review_hint": "Share more about your experience (optional)",
+    "submit": "Submit rating",
+    "submitted": "Thanks for rating this delivery.",
+    "already_rated": "You've already rated this delivery.",
+    "not_delivered": "This delivery hasn't been completed yet.",
+    "submit_failed": "Could not submit your rating. Try again."
   }
 }

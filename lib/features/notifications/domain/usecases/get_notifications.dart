@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 
 import '../../../../core/error/failure.dart';
-import '../entities/app_notification.dart';
+import '../entities/notifications_page.dart';
 import '../repositories/notifications_repository.dart';
 
 class GetNotifications {
@@ -9,6 +9,8 @@ class GetNotifications {
 
   final NotificationsRepository _repository;
 
-  Future<Either<Failure, List<AppNotification>>> call({bool? unread}) =>
-      _repository.getNotifications(unread: unread);
+  Future<Either<Failure, NotificationsPage>> call({
+    bool? unread,
+    String? cursor,
+  }) => _repository.getNotifications(unread: unread, cursor: cursor);
 }

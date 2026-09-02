@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/localization/translation_keys.dart';
 
-import 'mock_order_state.dart';
+import '../../constants/order_presentation.dart';
 import '../../../../../core/theme/theme_context.dart';
 
 /// Which palette entry a step's bar and dot read from. An enum cannot hold a
@@ -24,9 +24,7 @@ enum _StepStatus {
   /// Half-filled like [onProgress], in the alert colour.
   warning(_StepInk.orange),
 
-  /// Filled end to end, in the error colour. No screen in the current
-  /// designs reaches it, but it completes the artwork's set.
-  // ignore: unused_field
+  /// Filled end to end, in the error colour.
   failed(_StepInk.red, filled: true),
 
   /// Track only; the dot still shows the journey ahead.
@@ -49,11 +47,13 @@ enum _StepStatus {
 }
 
 /// The four-stop confirm ← pay ← deliver ← hand over progress bar at the top
-/// of the order-detail screen.
+/// of the order-detail screen. Driven by [OrderCardKind] (spec 005 T039)
+/// rather than the platform's finer-grained [OrderStatus] — the stepper
+/// only needs the same coarse classification the status card itself uses.
 class OrderStepper extends StatelessWidget {
-  const OrderStepper({required this.currentState, super.key});
+  const OrderStepper({required this.cardKind, super.key});
 
-  final MockOrderState currentState;
+  final OrderCardKind cardKind;
 
   // Keys, not copy: the list stays `const` and each caption is translated
   // where it is drawn, so the stepper follows a locale switch.
@@ -73,25 +73,24 @@ class OrderStepper extends StatelessWidget {
   List<_StepStatus> _stepStatuses() {
     const done = _StepStatus.finished;
     const todo = _StepStatus.notFinished;
-    switch (currentState) {
-      case MockOrderState.pendingReview:
-        return const [_StepStatus.onProgress, todo, todo, todo];
-      case MockOrderState.confirmed:
-        return const [done, _StepStatus.onProgress, todo, todo];
-      case MockOrderState.waitingPayment:
-      case MockOrderState.deferred:
-        return const [done, _StepStatus.warning, todo, todo];
-      case MockOrderState.failedPayment:
-        return const [done, _StepStatus.failed, todo, todo];
-      case MockOrderState.paid:
-        return const [done, done, todo, todo];
-      case MockOrderState.inTransit:
-        return const [done, done, _StepStatus.onProgress, todo];
-      case MockOrderState.delivered:
-        return const [done, done, done, done];
-      case MockOrderState.canceled:
-        return const [_StepStatus.failed, todo, todo, todo];
-    }
+    return switch (cardKind) {
+      OrderCardKind.pendingApproval => const [
+        _StepStatus.onProgress,
+        todo,
+        todo,
+        todo,
+      ],
+      OrderCardKind.awaitingPayment => const [
+        done,
+        _StepStatus.warning,
+        todo,
+        todo,
+      ],
+      OrderCardKind.confirmed => const [done, done, _StepStatus.onProgress, todo],
+      OrderCardKind.inTransit => const [done, done, done, _StepStatus.onProgress],
+      OrderCardKind.delivered => const [done, done, done, done],
+      OrderCardKind.cancelled => const [_StepStatus.failed, todo, todo, todo],
+    };
   }
 
   @override
@@ -118,7 +117,6 @@ class _Step extends StatelessWidget {
 
   final String title;
   final _StepStatus status;
-
 
   @override
   Widget build(BuildContext context) {

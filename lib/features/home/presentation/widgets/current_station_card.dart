@@ -19,8 +19,8 @@ class CurrentStationCard extends StatefulWidget {
     required this.onChangeStation,
     this.onOpenStations,
     this.headsWithStar = false,
-    this.stations = kStationOptions,
-    this.selectedStationId = 'rehab',
+    this.stations = const [],
+    this.selectedStationId,
     super.key,
   });
 
@@ -45,7 +45,7 @@ class CurrentStationCard extends StatefulWidget {
   final bool headsWithStar;
 
   final List<StationOption> stations;
-  final String selectedStationId;
+  final String? selectedStationId;
 
   @override
   State<CurrentStationCard> createState() => _CurrentStationCardState();
@@ -53,7 +53,7 @@ class CurrentStationCard extends StatefulWidget {
 
 class _CurrentStationCardState extends State<CurrentStationCard> {
   late List<StationOption> _stations = widget.stations;
-  late String _selectedId = widget.selectedStationId;
+  late String? _selectedId = widget.selectedStationId;
   bool _expanded = false;
 
   void _toggle() {

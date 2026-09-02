@@ -16,6 +16,10 @@ abstract interface class AuthRemoteDataSource {
   });
 
   Future<AuthUser> me();
+
+  /// Ends the session server-side (spec 006 FR-029) — without this, a
+  /// refresh token captured before sign-out would keep working after it.
+  Future<void> logout();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -40,5 +44,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<AuthUser> me() async {
     final response = await _dio.get<Map<String, dynamic>>('/auth/me');
     return AuthUser.fromJson(response.data!);
+  }
+
+  @override
+  Future<void> logout() async {
+    await _dio.post<void>('/auth/logout');
   }
 }

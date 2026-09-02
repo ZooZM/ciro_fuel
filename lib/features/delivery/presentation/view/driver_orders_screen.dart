@@ -1,19 +1,49 @@
 import 'dart:ui' as ui;
 
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:easy_localization/easy_localization.dart' hide TextDirection;
+import '../../../../core/di/injector.dart';
 import '../../../../core/localization/translation_keys.dart';
+import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/theme_context.dart';
-import '../../../../core/widgets/order_card.dart';
-import '../../../../core/router/app_routes.dart';
 import '../../../../core/widgets/app_action_icon.dart';
-import '../../../../core/widgets/search_filter_bar.dart';
-import '../../../../shared/models/filter_selection.dart';
-import '../../../../shared/models/station_option.dart';
+import '../../../../shared/entities/order.dart';
+import '../../../../shared/enums/order_status.dart';
+import '../../../orders/presentation/constants/order_formatting.dart';
+import '../../../orders/presentation/constants/order_presentation.dart';
+import '../../../orders/presentation/cubit/orders_cubit.dart';
+import '../../../orders/presentation/cubit/orders_state.dart';
+import '../../../orders/presentation/widgets/order_list_card.dart';
+
+/// One of the four real delivery categories a driver's own order list
+/// filters by (FR-020/FR-020a/FR-020b) — not the invoice vocabulary
+/// (`InvoicesKeys.tabAll`/`tabDeferred`/`tabPaid`/`tabFailed`) this screen
+/// used to borrow by copy-paste, and not the client's own `OrderFilter`
+/// (whose categories — under review, awaiting payment, … — describe a
+/// billing lifecycle a driver never sees any part of).
+enum _DriverDeliveryTab {
+  all(<OrderStatus>{}),
+  inProgress({OrderStatus.loading, OrderStatus.inTransit, OrderStatus.unloading}),
+  completed({OrderStatus.delivered}),
+  cancelled({OrderStatus.cancelled});
+
+  const _DriverDeliveryTab(this.statuses);
+  final Set<OrderStatus> statuses;
+
+  String label(BuildContext context) => switch (this) {
+    _DriverDeliveryTab.all => 'driver_orders.tab_all'.tr(),
+    _DriverDeliveryTab.inProgress => 'driver_orders.tab_in_progress'.tr(),
+    _DriverDeliveryTab.completed => 'driver_orders.tab_completed'.tr(),
+    _DriverDeliveryTab.cancelled => 'driver_orders.tab_cancelled'.tr(),
+  };
+
+  bool matches(Order order) =>
+      statuses.isEmpty || statuses.contains(order.status);
+}
 
 class DriverOrdersScreen extends StatefulWidget {
   const DriverOrdersScreen({super.key});
@@ -23,136 +53,166 @@ class DriverOrdersScreen extends StatefulWidget {
 }
 
 class _DriverOrdersScreenState extends State<DriverOrdersScreen> {
-  FilterSelection _filters = const FilterSelection();
-  int _selectedTabIndex = 0;
+  late final OrdersCubit _cubit;
+  late final ScrollController _scrollController;
 
-  static const List<String> _tabKeys = [
-    InvoicesKeys.tabAll,
-    InvoicesKeys.tabDeferred,
-    InvoicesKeys.tabPaid,
-    InvoicesKeys.tabFailed,
-  ];
+  _DriverDeliveryTab _selectedTab = _DriverDeliveryTab.all;
 
-  static Map<String, Color> _tabColors(BuildContext context) => {
-    InvoicesKeys.tabDeferred: context.colors.brandOrange,
-    InvoicesKeys.tabPaid: context.colors.brandGreen,
-    InvoicesKeys.tabFailed: context.colors.brandRed,
-  };
+  @override
+  void initState() {
+    super.initState();
+    _cubit = getIt<OrdersCubit>();
+    // Session-lifetime singleton (spec 005 FR-047/T028, reused as-is here
+    // per research R4): only load if nothing has been fetched yet —
+    // returning to this tab must not refetch.
+    if (_cubit.state is OrdersLoading) {
+      _cubit.load();
+    }
+    _scrollController = ScrollController()..addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final threshold = _scrollController.position.maxScrollExtent - 300;
+    if (_scrollController.position.pixels >= threshold) {
+      _cubit.loadMore();
+    }
+  }
+
+  /// `inProgress` spans two backend statuses, which the single-value
+  /// `?status=` query can't express in one request — every remaining page
+  /// is fetched first (same reasoning, same shape, as the client's own
+  /// `OrdersListScreen._applyFilter`), so switching to it never silently
+  /// narrows to whatever happened to already be loaded (FR-020b).
+  Future<void> _selectTab(_DriverDeliveryTab tab) async {
+    setState(() => _selectedTab = tab);
+    if (tab.statuses.length <= 1) {
+      await _cubit.setStatusFilter(
+        tab.statuses.isEmpty ? null : tab.statuses.first,
+      );
+      return;
+    }
+    await _cubit.setStatusFilter(null);
+    while (true) {
+      final state = _cubit.state;
+      if (state is! OrdersLoaded || state.nextCursor == null) break;
+      await _cubit.loadMore();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: ui.TextDirection.rtl,
-      child: Scaffold(
-      backgroundColor: context.colors.canvas,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.only(
-            left: AppSpacing.lg,
-            right: AppSpacing.lg,
-            top: AppSpacing.lg,
-            bottom: 120, // space for nav bar
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(OrdersListKeys.title.tr(), style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
-                      Text(OrdersListKeys.count.tr(namedArgs: {'count': '8'}), style: TextStyle(fontSize: 12, color: context.colors.textSecondary)),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () {},
-                        child: const AppActionIcon.reload(),
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      GestureDetector(
-                        onTap: () {},
-                        child: const AppActionIcon.download(),
-                      ),
-                    ],
-                  ),
-                ],
+      child: BlocProvider<OrdersCubit>.value(
+        value: _cubit,
+        child: Scaffold(
+          backgroundColor: context.colors.canvas,
+          body: SafeArea(
+            child: RefreshIndicator(
+              onRefresh: _cubit.refresh,
+              child: BlocBuilder<OrdersCubit, OrdersState>(
+                builder: _buildBody,
               ),
-              const SizedBox(height: AppSpacing.lg),
-
-              // Search Bar
-              SearchFilterBar(
-                hintText: CommonKeys.searchByOrderCode.tr(),
-                sortOptions: const [
-                  SortOption.newestFirst,
-                  SortOption.oldestFirst,
-                  SortOption.highestQuantity,
-                  SortOption.lowestQuantity,
-                ],
-                filterStations: [
-                  for (final s in kStationOptions)
-                    if (s.isActive) s,
-                ],
-                showFuelTypeFilter: true,
-                showDateFilter: true,
-                filters: _filters,
-                onFiltersChanged: (f) => setState(() => _filters = f),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-
-              // Tabs
-              _buildTabs(),
-              const SizedBox(height: AppSpacing.lg),
-
-              // Orders List
-              _buildMockOrderListItem(
-                context: context,
-                orderId: 'ORD-2024-256',
-                fuelType: 'driver_mock_extra.fuel_diesel'.tr(),
-                quantity: 'driver_mock_extra.quantity_33'.tr(),
-                stationName: 'driver_mock_extra.station_rehab'.tr(),
-                statusText: 'driver_home.in_transit'.tr(),
-                statusColor: context.colors.brandGreen,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              _buildMockOrderListItem(
-                context: context,
-                orderId: 'ORD-2024-256',
-                fuelType: 'driver_home.fuel_95'.tr(),
-                quantity: 'driver_mock_extra.quantity_23'.tr(),
-                stationName: 'driver_mock_extra.station_safa'.tr(),
-                statusText: 'driver_home.status_assigned'.tr(),
-                statusColor: context.colors.brandBlue,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              _buildMockOrderListItem(
-                context: context,
-                orderId: 'ORD-2024-256',
-                fuelType: 'driver_mock_extra.fuel_kero'.tr(),
-                quantity: 'driver_mock_extra.quantity_30'.tr(),
-                stationName: 'driver_mock_extra.station_galala'.tr(),
-                statusText: 'driver_home.status_assigned'.tr(),
-                statusColor: context.colors.brandBlue,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              _buildMockOrderListItem(
-                context: context,
-                orderId: 'ORD-2024-256',
-                fuelType: 'driver_mock_extra.fuel_91'.tr(),
-                quantity: 'driver_mock_extra.quantity_28'.tr(),
-                stationName: 'driver_mock_extra.station_yamama'.tr(),
-                statusText: 'driver_home.status_completed'.tr(),
-                statusColor: context.colors.textSecondary,
-              ),
-            ],
+            ),
           ),
         ),
       ),
-    ));
+    );
+  }
+
+  Widget _buildBody(BuildContext context, OrdersState state) {
+    return switch (state) {
+      OrdersLoading() => const Center(child: CircularProgressIndicator()),
+      OrdersLoadFailure() => Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(OrdersKeys.loadFailed.tr()),
+            const SizedBox(height: AppSpacing.md),
+            TextButton(onPressed: _cubit.load, child: Text(OrdersKeys.retry.tr())),
+          ],
+        ),
+      ),
+      OrdersLoaded(:final orders) => _buildList(context, orders, state),
+    };
+  }
+
+  Widget _buildList(BuildContext context, List<Order> orders, OrdersLoaded state) {
+    final filtered = orders.where(_selectedTab.matches).toList();
+
+    return ListView(
+      controller: _scrollController,
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.only(
+        left: AppSpacing.lg,
+        right: AppSpacing.lg,
+        top: AppSpacing.lg,
+        bottom: 120, // space for nav bar
+      ),
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  OrdersListKeys.title.tr(),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: context.colors.textPrimary),
+                ),
+                Text(
+                  OrdersListKeys.count.tr(namedArgs: {'count': '${filtered.length}'}),
+                  style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
+                ),
+              ],
+            ),
+            GestureDetector(
+              onTap: _cubit.refresh,
+              child: const AppActionIcon.reload(),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        _buildTabs(),
+        const SizedBox(height: AppSpacing.lg),
+        if (filtered.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 48),
+            child: Center(
+              child: Text(
+                'driver_orders.empty'.tr(),
+                textAlign: TextAlign.center,
+                style: TextStyle(color: context.colors.textSecondary, fontSize: 14),
+              ),
+            ),
+          )
+        else
+          for (final order in filtered) ...[
+            _buildOrderCard(context, order),
+            const SizedBox(height: AppSpacing.md),
+          ],
+        if (state.isLoadingMore)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Center(child: CircularProgressIndicator()),
+          ),
+        if (state.loadMoreFailed)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Center(
+              child: TextButton(onPressed: _cubit.loadMore, child: Text(OrdersKeys.retry.tr())),
+            ),
+          ),
+      ],
+    );
   }
 
   Widget _buildTabs() {
@@ -160,33 +220,24 @@ class _DriverOrdersScreenState extends State<DriverOrdersScreen> {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children: _tabKeys.asMap().entries.map((entry) {
-          final index = entry.key;
-          final tabKey = entry.value;
-          final isSelected = _selectedTabIndex == index;
-
-          final textColor = isSelected
-              ? Colors.white
-              : (_tabColors(context)[tabKey] ?? colors.textSecondary);
-
+        children: _DriverDeliveryTab.values.map((tab) {
+          final isSelected = _selectedTab == tab;
           return GestureDetector(
-            onTap: () => setState(() => _selectedTabIndex = index),
+            onTap: () => _selectTab(tab),
             child: Container(
               margin: EdgeInsetsDirectional.only(
-                end: index < _tabKeys.length - 1 ? 8 : 0,
+                end: tab != _DriverDeliveryTab.values.last ? 8 : 0,
               ),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 color: isSelected ? colors.brandBlue : colors.surface,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: isSelected ? colors.brandBlue : colors.borderHairline,
-                ),
+                border: Border.all(color: isSelected ? colors.brandBlue : colors.borderHairline),
               ),
               child: Text(
-                tabKey.tr(),
+                tab.label(context),
                 style: TextStyle(
-                  color: textColor,
+                  color: isSelected ? Colors.white : colors.textSecondary,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),
@@ -198,85 +249,19 @@ class _DriverOrdersScreenState extends State<DriverOrdersScreen> {
     );
   }
 
-  Widget _buildMockOrderListItem({
-    required BuildContext context,
-    required String orderId,
-    required String fuelType,
-    required String quantity,
-    required String stationName,
-    required String statusText,
-    required Color statusColor,
-  }) {
-    return OrderCard(
-      child: InkWell(
-        onTap: () => context.push(AppRoutes.driverOrderDetail(orderId)),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(orderId, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
-                  const SizedBox(height: 4),
-                  Text(stationName, style: TextStyle(fontSize: 10, color: context.colors.textSecondary)),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: statusColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(statusText, style: TextStyle(fontSize: 10, color: statusColor, fontWeight: FontWeight.w700)),
-                  ),
-                ],
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(fuelType, style: TextStyle(fontSize: 12, color: context.colors.textSecondary)),
-                        Text(quantity, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
-                      ],
-                    ),
-                    const SizedBox(width: 8),
-                    SvgPicture.asset('assets/driverOrderPage/fuel_pump_diesel.svg', width: 40, height: 40),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 4.0),
-                      child: SvgPicture.asset('assets/driverOrderPage/clock_grey.svg', width: 14, height: 14),
-                    ),
-                    const SizedBox(width: 4),
-                    Text('driver_mock_extra.time_pm'.tr(), style: TextStyle(fontSize: 12, color: context.colors.textSecondary)),
-                    const SizedBox(width: 12),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 4.0),
-                      child: SvgPicture.asset('assets/driverOrderPage/calendar_grey.svg', width: 14, height: 14),
-                    ),
-                    const SizedBox(width: 4),
-                    Text('driver_notifications.old_date'.tr(), style: TextStyle(fontSize: 12, color: context.colors.textSecondary)),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(width: 16),
-            Icon(Icons.arrow_forward_ios, size: 16, color: context.colors.textPrimary),
-          ],
-        ),
-      ),
+  Widget _buildOrderCard(BuildContext context, Order order) {
+    return OrderListCard(
+      fuelLine:
+          '${OrderPresentation.fuelLabel(order.fuelType)} · '
+          '${OrderFormatting.litres(order.quantityLiters)}',
+      orderId: OrderPresentation.shortReference(order.id),
+      statusLabel: OrderPresentation.statusLabel(order.status),
+      statusColor: OrderPresentation.statusColor(order.status),
+      statusProgress: OrderPresentation.statusProgress(order.status),
+      address: OrderPresentation.destinationLabel(order),
+      date: OrderPresentation.date(order.statusChangedAt),
+      time: OrderPresentation.time(order.statusChangedAt),
+      onTap: () => context.push(AppRoutes.driverOrderDetail(order.id)),
     );
   }
 }

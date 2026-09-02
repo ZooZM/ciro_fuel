@@ -1,9 +1,10 @@
 import 'package:dio/dio.dart';
 
 import '../../domain/entities/app_notification.dart';
+import '../../domain/entities/notifications_page.dart';
 
 abstract interface class NotificationsRemoteDataSource {
-  Future<List<AppNotification>> getNotifications({bool? unread});
+  Future<NotificationsPage> getNotifications({bool? unread, String? cursor});
 
   Future<void> markRead(String id);
 }
@@ -15,16 +16,24 @@ class NotificationsRemoteDataSourceImpl
   final Dio _dio;
 
   @override
-  Future<List<AppNotification>> getNotifications({bool? unread}) async {
+  Future<NotificationsPage> getNotifications({
+    bool? unread,
+    String? cursor,
+  }) async {
     final response = await _dio.get<Map<String, dynamic>>(
       '/notifications',
-      queryParameters: {'unread': ?unread},
+      queryParameters: {'unread': ?unread, if (cursor != null) 'cursor': cursor},
     );
-    final items = response.data!['data'] as List<dynamic>;
-    return items
+    final data = response.data!;
+    final items = (data['items'] as List<dynamic>)
         .cast<Map<String, dynamic>>()
         .map(AppNotification.fromJson)
         .toList();
+    return NotificationsPage(
+      items: items,
+      nextCursor: data['nextCursor'] as String?,
+      unreadCount: data['unreadCount']! as int,
+    );
   }
 
   @override

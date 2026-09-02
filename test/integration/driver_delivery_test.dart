@@ -3,10 +3,10 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_app/core/network/error_interceptor.dart';
-import 'package:mobile_app/core/realtime/tracking_socket.dart';
 import 'package:mobile_app/features/delivery/data/datasources/delivery_remote_data_source.dart';
 import 'package:mobile_app/features/delivery/data/repositories/delivery_repository_impl.dart';
 import 'package:mobile_app/features/delivery/data/services/location_stream_service.dart';
+import 'package:mobile_app/features/delivery/domain/usecases/acknowledge_assignment.dart';
 import 'package:mobile_app/features/delivery/domain/usecases/get_active_order.dart';
 import 'package:mobile_app/features/delivery/domain/usecases/mark_arrived.dart';
 import 'package:mobile_app/features/delivery/domain/usecases/request_delivery_otp.dart';
@@ -38,14 +38,24 @@ class _ScriptedDriverAdapter implements HttpClientAdapter {
     };
 
     if (options.method == 'GET' && options.path == '/orders') {
+      // The real envelope (`{ items, nextCursor }`, cursor pagination,
+      // spec 005) — not the bare `{"data": [...]}` this scripted response
+      // used to send. `mobile_app/CLAUDE.md` debt #1 recorded that the
+      // old shape here masked the real parsing bug: this test passed
+      // against a fiction the actual backend never sent.
       return ResponseBody.fromString(
-        '{"data":[{"id":"o1","status":"IN_TRANSIT","fuelType":"DIESEL",'
-        '"quantityLiters":500,"statusChangedAt":"2026-01-01T12:00:00Z"}]}',
+        '{"items":[{"id":"o1","status":"IN_TRANSIT","fuelType":"DIESEL",'
+        '"quantityLiters":500,"statusChangedAt":"2026-01-01T12:00:00Z"}],'
+        '"nextCursor":null}',
         200,
         headers: headers,
       );
     }
     if (options.method == 'POST' && options.path == '/orders/o1/arrive') {
+      return ResponseBody.fromString('{}', 200, headers: headers);
+    }
+    if (options.method == 'POST' &&
+        options.path == '/orders/o1/acknowledge-assignment') {
       return ResponseBody.fromString('{}', 200, headers: headers);
     }
     if (options.method == 'POST' &&
@@ -95,8 +105,6 @@ class _ScriptedDriverAdapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
-class _MockTrackingSocket extends Mock implements TrackingSocket {}
-
 class _MockLocationStreamService extends Mock
     implements LocationStreamService {}
 
@@ -111,17 +119,16 @@ void main() {
       final dataSource = DeliveryRemoteDataSourceImpl(dio);
       final repository = DeliveryRepositoryImpl(dataSource);
 
-      final socket = _MockTrackingSocket();
-      when(() => socket.onStatus(any())).thenAnswer((_) {});
-
       final locationStream = _MockLocationStreamService();
       when(locationStream.start).thenAnswer((_) async => true);
       when(locationStream.stop).thenAnswer((_) async {});
 
       final deliveryCubit = DeliveryCubit(
         getActiveOrder: GetActiveOrder(repository),
+        verifyArrivalOtp: VerifyArrivalOtp(repository),
+        verifyDeliveryOtp: VerifyDeliveryOtp(repository),
         locationStream: locationStream,
-        socket: socket,
+        acknowledgeAssignment: AcknowledgeAssignment(repository),
       );
       final otpCubit = OtpVerifyCubit(
         orderId: 'o1',

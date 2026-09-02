@@ -5,7 +5,8 @@
 enum FuelType {
   diesel('DIESEL'),
   gasoline91('PETROL_91'),
-  gasoline95('PETROL_95');
+  gasoline95('PETROL_95'),
+  kerosene('KEROSENE');
 
   const FuelType(this.wire);
 
@@ -15,6 +16,7 @@ enum FuelType {
     'DIESEL' => FuelType.diesel,
     'PETROL_91' => FuelType.gasoline91,
     'PETROL_95' => FuelType.gasoline95,
+    'KEROSENE' => FuelType.kerosene,
     _ => throw ArgumentError.value(wire, 'wire', 'Unknown FuelType'),
   };
 

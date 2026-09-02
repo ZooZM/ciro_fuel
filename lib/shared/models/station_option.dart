@@ -1,8 +1,4 @@
 /// One station the client can be switched to.
-///
-/// Stands in for API data, like the rest of the order mocks. Names carry both
-/// locales because the picker lists them verbatim — unlike the single current
-/// station, whose copy the screen resolves for itself.
 class StationOption {
   const StationOption({
     required this.id,

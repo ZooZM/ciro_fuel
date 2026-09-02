@@ -2,9 +2,11 @@
 /// route path literals appear (Principle I).
 abstract final class AppRoutes {
   static const String login = '/login';
-  static const String roleSelection = '/role-selection';
   static const String support = '/support';
   static const String forgotPassword = '/forgot-password';
+  // spec 006 US3 — reachable while unauthenticated, like login/support.
+  // `extra` carries the opaque resetToken a code was just verified for.
+  static const String resetPassword = '/reset-password';
   static const String clientPayments = '/client/payments';
   static const String clientOrders = '/client/orders';
   static const String clientHome = '/client';
@@ -20,6 +22,10 @@ abstract final class AppRoutes {
   static const String clientCreateOrder = '/client/orders/new';
   static const String clientOrderDetailPattern = '/client/orders/:id';
   static String clientOrderDetail(String orderId) => '/client/orders/$orderId';
+
+  static const String clientInvoiceDetailPattern = '/client/invoices/:id';
+  static String clientInvoiceDetail(String invoiceId) =>
+      '/client/invoices/$invoiceId';
 
   static const String driverHome = '/driver';
   static const String driverOrders = '/driver/orders';

@@ -49,6 +49,11 @@ class ReceiptBreakdown extends StatelessWidget {
   /// invoice screen gives it the card to itself and drops the outline.
   final bool bordered;
 
+  /// No line items to reveal — a pre-feature order with no stored breakdown
+  /// (FR-011e). The toggle is dropped along with them: offering to "show
+  /// details" that don't exist would read as a bug, not an empty state.
+  bool get _totalOnly => invoices.isEmpty;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -59,24 +64,26 @@ class ReceiptBreakdown extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // AnimatedSize rather than a bare `if`: the card shrinking to the
-          // total is the whole point of the control, and a snap makes it
-          // read as a different card rather than the same one folding.
-          AnimatedSize(
-            duration: AppSizes.orderDetailsCollapseDuration,
-            curve: Curves.easeInOut,
-            alignment: Alignment.topCenter,
-            child: expanded
-                ? Column(
-                    children: [
-                      for (final invoice in invoices)
-                        _InvoiceBlock(invoice: invoice),
-                    ],
-                  )
-                : const SizedBox(width: double.infinity),
-          ),
-          _DetailsToggle(expanded: expanded, onTap: onToggleExpanded),
-          const SizedBox(height: AppSpacing.lg),
+          if (!_totalOnly) ...[
+            // AnimatedSize rather than a bare `if`: the card shrinking to
+            // the total is the whole point of the control, and a snap makes
+            // it read as a different card rather than the same one folding.
+            AnimatedSize(
+              duration: AppSizes.orderDetailsCollapseDuration,
+              curve: Curves.easeInOut,
+              alignment: Alignment.topCenter,
+              child: expanded
+                  ? Column(
+                      children: [
+                        for (final invoice in invoices)
+                          _InvoiceBlock(invoice: invoice),
+                      ],
+                    )
+                  : const SizedBox(width: double.infinity),
+            ),
+            _DetailsToggle(expanded: expanded, onTap: onToggleExpanded),
+            const SizedBox(height: AppSpacing.lg),
+          ],
           _TotalRow(total: total),
         ],
       ),

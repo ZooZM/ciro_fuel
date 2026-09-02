@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 
@@ -39,6 +41,9 @@ class AuthRepositoryImpl implements AuthRepository {
       return Right(me);
     } on DioException catch (e) {
       return Left(_failureOf(e));
+    } catch (e) {
+      print(e.toString());
+      return const Left(Failure.server());
     }
   }
 
@@ -52,11 +57,25 @@ class AuthRepositoryImpl implements AuthRepository {
       return Right(user);
     } on DioException catch (e) {
       return Left(_failureOf(e));
+    } catch (_) {
+      // A parse/mapping throw must not escape: an escaping error leaves the
+      // awaiting cubit stuck on loading forever (FR-041/FR-003).
+      return const Left(Failure.server());
     }
   }
 
   @override
-  Future<void> signOut() => _tokenStore.clear();
+  Future<void> signOut() async {
+    // Fire-and-forget (spec 006 T070): the local clear must succeed
+    // whether or not the network call does — a driver out of coverage
+    // must never be trapped in a session they cannot leave (FR-031). The
+    // outer try/catch guards a call that fails before returning a Future
+    // at all, not just one that rejects after.
+    try {
+      unawaited(_remoteDataSource.logout().catchError((_) {}));
+    } catch (_) {}
+    await _tokenStore.clear();
+  }
 
   Failure _failureOf(DioException e) =>
       e.error is Failure ? e.error as Failure : const Failure.server();

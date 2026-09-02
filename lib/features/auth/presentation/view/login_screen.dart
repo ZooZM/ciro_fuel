@@ -208,20 +208,16 @@ class _LoginViewState extends State<_LoginView> {
               builder: (context, state) => SignInButton(
                 isLoading: state is AuthSubmitting,
                 onPressed: _submit,
+                signInWithBiometrics: _signInWithBiometrics,
+                form: form,
               ),
             ),
             const SizedBox(height: AppSpacing.lg),
             const AlternativesDivider(),
             const SizedBox(height: AppSpacing.lg),
+
             // Hidden outright when the device has no enrolled biometrics —
             // a control that can only ever fail is worse than no control.
-            if (form.supportsBiometrics) ...[
-              BiometricButton(
-                method: form.biometricMethod,
-                onPressed: _signInWithBiometrics,
-              ),
-              const SizedBox(height: AppSpacing.lg),
-            ],
             FederatedSignInRow(onProviderSelected: (_) => _notifyComingSoon()),
             const SizedBox(height: AppSpacing.md),
             LoginFooter(onSupportPressed: _notifyComingSoon),

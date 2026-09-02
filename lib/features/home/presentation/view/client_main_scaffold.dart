@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/widgets/main_nav_bar.dart';
 import '../../../../core/theme/theme_context.dart';
+import '../../../notifications/presentation/cubit/notifications_cubit.dart';
+import '../../../notifications/presentation/cubit/notifications_state.dart';
 
 class ClientMainScaffold extends StatelessWidget {
   const ClientMainScaffold({super.key, required this.navigationShell});
@@ -37,7 +40,10 @@ class ClientMainScaffold extends StatelessWidget {
             right: _navBarInset,
             child: MainNavBar(
               currentIndex: navigationShell.currentIndex,
-              notificationCount: 3, // Keep the notification count as it was
+              notificationCount: context
+                  .watch<NotificationsCubit>()
+                  .state
+                  .unreadBadgeCount,
               onTap: (index) {
                 navigationShell.goBranch(
                   index,

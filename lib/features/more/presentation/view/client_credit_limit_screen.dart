@@ -2,15 +2,21 @@
 // `TextDirection` would otherwise shadow the Flutter one used below.
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/localization/translation_keys.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 // Only NumberFormat: intl also exports a TextDirection that would shadow the
 // one this file lays out with.
 
+import '../../../../core/di/injector.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_context.dart';
+import '../../../../core/utils/number_formatting.dart';
 import '../../../../core/widgets/app_top_bar.dart';
 import '../../../../core/widgets/step_tracker.dart';
+import '../../../invoices/domain/entities/credit_standing.dart';
+import '../../../invoices/presentation/cubit/credit_cubit.dart';
+import '../../../invoices/presentation/cubit/credit_state.dart';
 
 // A 16x16 stroked credit card, drawn in Ignition Orange — retinted per use.
 const _kCardIcon = 'assets/more/payment.svg';
@@ -24,15 +30,27 @@ const double _kMinAmount = 10000;
 
 /// The client's credit limit: what they have today (nothing, until the petrol
 /// company grants one) and the form for requesting or renewing it.
-class ClientCreditLimitScreen extends StatefulWidget {
+class ClientCreditLimitScreen extends StatelessWidget {
   const ClientCreditLimitScreen({super.key});
 
   @override
-  State<ClientCreditLimitScreen> createState() =>
-      _ClientCreditLimitScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider<CreditCubit>(
+      create: (_) => getIt<CreditCubit>()..load(),
+      child: const _ClientCreditLimitView(),
+    );
+  }
 }
 
-class _ClientCreditLimitScreenState extends State<ClientCreditLimitScreen> {
+class _ClientCreditLimitView extends StatefulWidget {
+  const _ClientCreditLimitView();
+
+  @override
+  State<_ClientCreditLimitView> createState() =>
+      _ClientCreditLimitViewState();
+}
+
+class _ClientCreditLimitViewState extends State<_ClientCreditLimitView> {
   // Latin digits and grouping, as in the design — an Arabic locale would print
   // Arabic-Indic numerals instead.
   static final NumberFormat _amountFormat = NumberFormat('#,##0.00', 'en_US');
@@ -67,56 +85,78 @@ class _ClientCreditLimitScreenState extends State<ClientCreditLimitScreen> {
     return Scaffold(
       backgroundColor: context.colors.canvas,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const AppTopBar(),
-              const SizedBox(height: 24),
-              _buildCurrentLimitCard(),
-              // Once the request is in, the form is replaced by its status —
-              // there is nothing left to fill in until the company answers.
-              if (_submitted) ...[
-                const SizedBox(height: 40),
-                _buildRequestStatusCard(),
-              ] else ...[
-                const SizedBox(height: 32),
-                Text(
-                  CreditLimitKeys.requestOrRenew.tr(),
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    color: context.colors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _buildAmountStepper(),
-                const SizedBox(height: 32),
-                _buildAcknowledgement(
-                  value: _firstAcknowledged,
-                  onChanged: (value) =>
-                      setState(() => _firstAcknowledged = value),
-                ),
-                const SizedBox(height: 20),
-                _buildAcknowledgement(
-                  value: _secondAcknowledged,
-                  onChanged: (value) =>
-                      setState(() => _secondAcknowledged = value),
-                ),
-                const SizedBox(height: 24),
-                _buildTermsRow(),
-                const SizedBox(height: 24),
-                _buildSubmitButton(),
-              ],
-            ],
-          ),
+        child: BlocBuilder<CreditCubit, CreditState>(
+          builder: (context, state) => switch (state) {
+            CreditLoading() => const Center(
+              child: CircularProgressIndicator(),
+            ),
+            CreditLoadFailure() => _ErrorState(
+              onRetry: () => context.read<CreditCubit>().load(),
+            ),
+            CreditLoaded(:final standing) => _buildLoaded(context, standing),
+          },
         ),
       ),
     );
   }
 
-  Widget _buildCurrentLimitCard() {
+  Widget _buildLoaded(BuildContext context, CreditStanding standing) {
+    final hasFacility = standing.creditLimit != null;
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const AppTopBar(),
+          const SizedBox(height: 24),
+          _buildCurrentLimitCard(standing),
+          // A facility already granted has nothing left to request; the form
+          // below is only for the no-facility-yet case. Once the request is
+          // in, the form gives way to its status — there is nothing left to
+          // fill in until the company answers.
+          if (!hasFacility) ...[
+            if (_submitted) ...[
+              const SizedBox(height: 40),
+              _buildRequestStatusCard(),
+            ] else ...[
+              const SizedBox(height: 32),
+              Text(
+                CreditLimitKeys.requestOrRenew.tr(),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: context.colors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 16),
+              _buildAmountStepper(),
+              const SizedBox(height: 32),
+              _buildAcknowledgement(
+                value: _firstAcknowledged,
+                onChanged: (value) =>
+                    setState(() => _firstAcknowledged = value),
+              ),
+              const SizedBox(height: 20),
+              _buildAcknowledgement(
+                value: _secondAcknowledged,
+                onChanged: (value) =>
+                    setState(() => _secondAcknowledged = value),
+              ),
+              const SizedBox(height: 24),
+              _buildTermsRow(),
+              const SizedBox(height: 24),
+              _buildSubmitButton(),
+            ],
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCurrentLimitCard(CreditStanding standing) {
+    final creditLimit = standing.creditLimit;
+    final currency = CommonKeys.currencySymbol.tr();
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -150,35 +190,95 @@ class _ClientCreditLimitScreenState extends State<ClientCreditLimitScreen> {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: context.colors.redTint,
+                  color: creditLimit != null
+                      ? context.colors.greenTint
+                      : context.colors.redTint,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  CreditLimitKeys.unavailable.tr(),
+                  creditLimit != null
+                      ? OrderDetailKeys.active.tr()
+                      : CreditLimitKeys.unavailable.tr(),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: context.colors.brandRed,
+                    color: creditLimit != null
+                        ? context.colors.brandGreen
+                        : context.colors.brandRed,
                   ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 28),
-          // Empty state — there is no limit to show yet.
-          _IconTile(
-            background: context.colors.redTint,
-            color: context.colors.brandRed,
-            size: 52,
-            iconSize: 24,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            CreditLimitKeys.noActiveLimit.tr(),
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, color: context.colors.textSecondary),
-          ),
-          const SizedBox(height: 8),
+          if (creditLimit == null) ...[
+            // Empty state — there is no limit to show yet.
+            _IconTile(
+              background: context.colors.redTint,
+              color: context.colors.brandRed,
+              size: 52,
+              iconSize: 24,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              CreditLimitKeys.noActiveLimit.tr(),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                color: context.colors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 8),
+          ] else ...[
+            Text(
+              OrderDetailKeys.availableNow.tr(),
+              style: TextStyle(fontSize: 13, color: context.colors.textSecondary),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              '${NumberFormatting.currency(standing.available ?? 0)} $currency',
+              textDirection: TextDirection.ltr,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+                color: context.colors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  OrderDetailKeys.creditOf.tr(
+                    namedArgs: {
+                      'amount':
+                          '${NumberFormatting.currency(creditLimit)} $currency',
+                    },
+                  ),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: context.colors.textPrimary,
+                  ),
+                ),
+                Text(
+                  OrderDetailKeys.creditUsed.tr(
+                    namedArgs: {
+                      'amount':
+                          '${NumberFormatting.currency(standing.consumed ?? 0)} $currency',
+                      'percent': creditLimit > 0
+                          ? '${(((standing.consumed ?? 0) / creditLimit) * 100).toStringAsFixed(1)}%'
+                          : '0%',
+                    },
+                  ),
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: context.colors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -560,6 +660,30 @@ class _CheckBox extends StatelessWidget {
       child: value
           ? Icon(Icons.check, size: 18, color: context.colors.brandBlue)
           : null,
+    );
+  }
+}
+
+class _ErrorState extends StatelessWidget {
+  const _ErrorState({required this.onRetry});
+
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            OrdersKeys.loadFailed.tr(),
+            textAlign: TextAlign.center,
+            style: TextStyle(color: context.colors.textSecondary, fontSize: 14),
+          ),
+          const SizedBox(height: 16),
+          TextButton(onPressed: onRetry, child: Text(OrdersKeys.retry.tr())),
+        ],
+      ),
     );
   }
 }

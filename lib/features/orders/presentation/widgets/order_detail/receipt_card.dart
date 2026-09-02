@@ -5,8 +5,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../../core/constants/app_assets.dart';
 import '../../../../../core/theme/app_spacing.dart';
+import '../../../../../core/utils/number_formatting.dart';
 import '../../../../../core/widgets/order_card.dart';
 import '../../../../../core/theme/theme_context.dart';
+import '../../../../../shared/entities/value_objects.dart';
+import 'receipt_breakdown.dart';
 
 /// The paid/deferred receipt: seal, reference/day/hour, the collapsible
 /// line-item breakdown, and the download/Sadaad footer.
@@ -15,6 +18,8 @@ class ReceiptCard extends StatelessWidget {
     required this.deferred,
     required this.detailsExpanded,
     required this.onToggleDetails,
+    this.priceBreakdown,
+    this.lineItemLabel,
     this.referenceNumber = '#889241035',
     this.day,
     this.hour,
@@ -35,7 +40,39 @@ class ReceiptCard extends StatelessWidget {
   final String? hour;
   final String total;
 
+  /// The order's itemised cost (spec 005 FR-011e). `null` — a pre-feature
+  /// order, or one created without a quote — renders a total-only receipt
+  /// rather than a fabricated or zeroed-out breakdown.
+  final PriceBreakdown? priceBreakdown;
+
+  /// The consignment line's label ("بنزين 95 • 20,000 لتر"), required
+  /// alongside [priceBreakdown] to build the itemised line; ignored when
+  /// [priceBreakdown] is null.
+  final String? lineItemLabel;
+
   static const _sadaadLogoHeight = 26.0;
+
+  List<ReceiptInvoice> get _invoices {
+    final breakdown = priceBreakdown;
+    final label = lineItemLabel;
+    if (breakdown == null || label == null) return const [];
+    final currency = CommonKeys.currencySymbol.tr();
+    return [
+      (
+        lineItem: label,
+        lineTotal:
+            '${NumberFormatting.currency(breakdown.fuelLineTotal)} $currency',
+        deliveryFee:
+            '${NumberFormatting.currency(breakdown.deliveryFee)} $currency',
+        serviceFee:
+            '${NumberFormatting.currency(breakdown.serviceFee)} $currency',
+        // Whether a *separate*, already-standing invoice must be settled
+        // alongside this one — not modelled yet (no data source exists for
+        // it), so never asserted from this order's own payment method.
+        deferred: false,
+      ),
+    ];
+  }
 
   Color _accent(BuildContext context) =>
       deferred ? context.colors.brandOrange : context.colors.brandGreen;
@@ -104,10 +141,11 @@ class ReceiptCard extends StatelessWidget {
                 const SizedBox(height: AppSpacing.sm),
                 _BreakdownRow(CommonKeys.hour.tr(), resolvedHour, isRightGray: true),
                 const SizedBox(height: AppSpacing.lg),
-                _ReceiptBreakdown(
+                ReceiptBreakdown(
+                  invoices: _invoices,
+                  total: total,
                   expanded: detailsExpanded,
                   onToggleExpanded: onToggleDetails,
-                  total: total,
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 TextButton.icon(
@@ -132,164 +170,6 @@ class ReceiptCard extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// The line-by-line receipt, boxed and collapsible as in the design: open
-/// it shows both invoices, closed it keeps only the total.
-class _ReceiptBreakdown extends StatelessWidget {
-  const _ReceiptBreakdown({
-    required this.expanded,
-    required this.onToggleExpanded,
-    required this.total,
-  });
-
-  final bool expanded;
-  final VoidCallback onToggleExpanded;
-  final String total;
-
-  static const _copyIconSize = 16.0;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppRadii.tile),
-        border: Border.all(color: context.colors.borderHairline),
-      ),
-      child: Column(
-        children: [
-          if (expanded) ...[
-            _BreakdownRow(
-              '${FuelKeys.gasoline95.tr()} • 20,000 ${CommonKeys.litre.tr()}',
-              '450,000.00 ${CommonKeys.currencySymbol.tr()}',
-              isMain: true,
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            _BreakdownRow(
-              OrderDetailKeys.deliveryFee.tr(),
-              '30.00 ${CommonKeys.currencySymbol.tr()}',
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            _BreakdownRow(
-              OrderDetailKeys.serviceFee.tr(),
-              '30.00 ${CommonKeys.currencySymbol.tr()}',
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(
-                    AppSizes.orderReceiptIconPadding,
-                  ),
-                  decoration: BoxDecoration(
-                    color: context.colors.blueTint,
-                    borderRadius: BorderRadius.circular(
-                      AppSizes.orderReceiptIconRadius,
-                    ),
-                  ),
-                  child: SvgPicture.asset(
-                    AppAssets.copyIcon,
-                    width: _copyIconSize,
-                    height: _copyIconSize,
-                    colorFilter: ColorFilter.mode(
-                      context.colors.brandBlue,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        OrderDetailKeys.deferredInvoiceTitle.tr(),
-                        style: TextStyle(
-                          color: context.colors.brandOrange,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      Text(
-                        OrderDetailKeys.deferredInvoiceNote.tr(),
-                        style: TextStyle(
-                          color: context.colors.brandGreen,
-                          fontSize: 10,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            _BreakdownRow(
-              '${FuelKeys.gasoline95.tr()} • 20,000 ${CommonKeys.litre.tr()}',
-              '450,000.00 ${CommonKeys.currencySymbol.tr()}',
-              isMain: true,
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            _BreakdownRow(
-              OrderDetailKeys.deliveryFee.tr(),
-              '30.00 ${CommonKeys.currencySymbol.tr()}',
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            _BreakdownRow(
-              OrderDetailKeys.serviceFee.tr(),
-              '30.00 ${CommonKeys.currencySymbol.tr()}',
-            ),
-            const SizedBox(height: AppSpacing.lg),
-          ],
-          _DetailsToggle(expanded: expanded, onTap: onToggleExpanded),
-          const SizedBox(height: AppSpacing.lg),
-          // Both sides Flexible: "Total" is longer than "الإجمالي", and the
-          // amount carries its currency word, so the pair overran the row
-          // under English while fitting under Arabic.
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Text(
-                  CommonKeys.total.tr(),
-                  style: TextStyle(
-                    color: context.colors.textPrimary,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Flexible(
-                child: RichText(
-                  textAlign: TextAlign.end,
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: total,
-                        style: TextStyle(
-                          color: context.colors.brandGreen,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      TextSpan(
-                        text: CommonKeys.currencySymbol.tr(),
-                        style: TextStyle(
-                          color: context.colors.brandGreen,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
           ),
         ],
       ),
@@ -432,52 +312,3 @@ class _SuccessSeal extends StatelessWidget {
   }
 }
 
-/// The `إظهار / إخفاء التفاصيل` control, centred in a hairline rule.
-class _DetailsToggle extends StatelessWidget {
-  const _DetailsToggle({required this.expanded, required this.onTap});
-
-  final bool expanded;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(child: Divider(color: context.colors.borderHairline)),
-        GestureDetector(
-          onTap: onTap,
-          behavior: HitTestBehavior.opaque,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.sm,
-              vertical: AppSpacing.xs,
-            ),
-            child: Row(
-              children: [
-                Text(
-                  expanded
-                      ? OrderDetailKeys.hideDetails.tr()
-                      : OrderDetailKeys.showDetails.tr(),
-                  style: TextStyle(
-                    color: context.colors.brandGreen,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.xs),
-                Icon(
-                  expanded
-                      ? Icons.visibility_off_outlined
-                      : Icons.visibility_outlined,
-                  color: context.colors.brandGreen,
-                  size: AppSizes.iconSm,
-                ),
-              ],
-            ),
-          ),
-        ),
-        Expanded(child: Divider(color: context.colors.borderHairline)),
-      ],
-    );
-  }
-}

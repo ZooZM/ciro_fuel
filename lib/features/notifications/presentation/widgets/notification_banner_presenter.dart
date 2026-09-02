@@ -5,10 +5,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/localization/translation_keys.dart';
 import '../../../../core/router/app_routes.dart';
-import '../../../../shared/enums/notification_type.dart';
 import '../../../../shared/enums/user_role.dart';
 import '../../../auth/presentation/cubit/session_cubit.dart';
 import '../../../auth/presentation/cubit/session_state.dart';
+import '../constants/notification_presentation.dart';
 import '../cubit/notifications_cubit.dart';
 import '../cubit/notifications_state.dart';
 
@@ -29,16 +29,6 @@ class NotificationBannerPresenter extends StatefulWidget {
 class _NotificationBannerPresenterState
     extends State<NotificationBannerPresenter> {
   String? _lastSeenId;
-
-  String _messageFor(NotificationType type) => switch (type) {
-    NotificationType.finalPriceReady => NotificationKeys.bannerFinalPriceReady,
-    NotificationType.paymentTimeout => NotificationKeys.bannerPaymentTimeout,
-    NotificationType.noEligibleDriver =>
-      NotificationKeys.bannerNoEligibleDriver,
-    NotificationType.deliveryCompleted =>
-      NotificationKeys.bannerDeliveryCompleted,
-    NotificationType.unknown => NotificationKeys.bannerUnknown,
-  }.tr();
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +55,7 @@ class _NotificationBannerPresenterState
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(_messageFor(head.type)),
+            content: Text(NotificationPresentation.message(head.type)),
             action: (orderId != null && role != null)
                 ? SnackBarAction(
                     label: NotificationKeys.bannerView.tr(),

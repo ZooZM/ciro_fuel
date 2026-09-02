@@ -146,7 +146,7 @@ class DriverNotificationsScreen extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(4.0),
         child: SvgPicture.asset(
-          'assets/Icons/truck.svg',
+          'assets/icons/truck.svg',
           colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
         ),
       ),

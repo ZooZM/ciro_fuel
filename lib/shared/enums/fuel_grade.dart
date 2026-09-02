@@ -12,14 +12,16 @@ import 'fuel_type.dart';
 /// a semantic brand token — so they live on the enum itself rather than in
 /// `AppColors`.
 ///
-/// [type] is null for grades the backend catalogue does not model yet
-/// (gasoline 98, kerosene).
+/// [type] is null for grades the backend catalogue does not model (gasoline
+/// 98 alone — kerosene IS modelled, as `FuelType.KEROSENE`). A null [type]
+/// can never match a company's sold set, so such a grade is never offered;
+/// only leave it null for a grade the backend genuinely cannot price.
 enum FuelGrade {
   gasoline91(FuelKeys.gasoline91, '91', Color(0xFFDC2626), FuelType.gasoline91),
   gasoline95(FuelKeys.gasoline95, '95', Color(0xFF9333EA), FuelType.gasoline95),
   gasoline98(FuelKeys.gasoline98, '98', Color(0xFF16A34A), null),
   diesel(FuelKeys.diesel, 'D', Color(0xFFF97316), FuelType.diesel),
-  kerosene(FuelKeys.kerosene, 'K', Color(0xFF2563EB), null);
+  kerosene(FuelKeys.kerosene, 'K', Color(0xFF2563EB), FuelType.kerosene);
 
   const FuelGrade(this.titleKey, this.badge, this.color, this.type);
 

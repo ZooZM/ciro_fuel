@@ -12,6 +12,9 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/theme_cubit.dart';
 import '../../../auth/domain/usecases/sign_out.dart';
 import '../../../auth/presentation/cubit/session_cubit.dart';
+import '../../../auth/presentation/cubit/session_state.dart';
+import '../../../stations/presentation/cubit/stations_cubit.dart';
+import '../../../stations/presentation/cubit/stations_state.dart';
 import '../widgets/app_lock_dialog.dart';
 
 class ClientMoreScreen extends StatefulWidget {
@@ -25,12 +28,30 @@ class _ClientMoreScreenState extends State<ClientMoreScreen> {
   bool _isNotificationsEnabled = true;
   bool _isLanguageExpanded = false;
 
+  /// Owns its own instance because `StationsCubit` is registered as a
+  /// factory (one per screen visit), so this screen closes what it creates.
+  /// The header's station count is the client's real registered total
+  /// (FR-036), not a fixed figure.
+  late final StationsCubit _stationsCubit;
+
   /// True while a sign-out is in flight, so a second tap cannot fire another.
   bool _isSigningOut = false;
 
   /// How the app is unlocked. Mock state for now, like the rest of this
   /// screen's switches — nothing is persisted yet.
   AppLockMethod _appLock = AppLockMethod.fingerprint;
+
+  @override
+  void initState() {
+    super.initState();
+    _stationsCubit = getIt<StationsCubit>()..load();
+  }
+
+  @override
+  void dispose() {
+    _stationsCubit.close();
+    super.dispose();
+  }
 
   String get _appLockLabel => switch (_appLock) {
     AppLockMethod.none => MoreKeys.appLockOff,
@@ -303,22 +324,44 @@ class _ClientMoreScreenState extends State<ClientMoreScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'محمد أحمد',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: context.colors.textPrimary,
+                // The signed-in client's real name, from the session already
+                // in memory — no extra fetch for one field. Resolved from
+                // getIt rather than an inherited provider, the same way this
+                // screen's sign-out resolves it.
+                BlocBuilder<SessionCubit, SessionState>(
+                  bloc: getIt<SessionCubit>(),
+                  builder: (context, session) => Text(
+                    session is SessionAuthenticated
+                        ? session.user.fullName
+                        : '',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: context.colors.textPrimary,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  MoreKeys.stationsCount.tr(namedArgs: {'count': '2'}),
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: AppColors.forestGreen,
-                    fontWeight: FontWeight.w600,
-                  ),
+                BlocBuilder<StationsCubit, StationsState>(
+                  bloc: _stationsCubit,
+                  builder: (context, state) {
+                    // Until the real count arrives the line is simply absent
+                    // — a placeholder figure here is what made this screen
+                    // claim every client had exactly one station.
+                    if (state is! StationsLoaded) {
+                      return const SizedBox.shrink();
+                    }
+                    return Text(
+                      MoreKeys.stationsCount.tr(
+                        namedArgs: {'count': '${state.stations.length}'},
+                      ),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: AppColors.forestGreen,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 8),
                 Container(

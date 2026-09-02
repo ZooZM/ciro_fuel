@@ -31,10 +31,16 @@ class TrackingStatsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // An em-dash, never an invented figure. These carried design
+    // placeholders — "12.7 km", a fixed "04:35 م", a 2024 date — which
+    // rendered as though they were live readings: the distance in
+    // particular is null exactly when the driver has reported no position
+    // yet, so a client with no tracking data saw a precise, wrong number.
+    const unknown = '—';
     final statusLabel = this.statusLabel ?? OrderDetailKeys.inDelivery.tr();
-    final distance = this.distance ?? '12.7 ${CommonKeys.km.tr()}';
-    final etaTime = this.etaTime ?? '04:35 م';
-    final etaDate = this.etaDate ?? '02/05/2024 ${CommonKeys.today.tr()}';
+    final distance = this.distance ?? unknown;
+    final etaTime = this.etaTime ?? unknown;
+    final etaDate = this.etaDate ?? unknown;
 
     return OrderCard(
       child: IntrinsicHeight(

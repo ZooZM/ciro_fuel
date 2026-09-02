@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 
+import 'error_codes.dart';
 import 'request_extras.dart';
 import 'token_store.dart';
 
@@ -23,7 +24,7 @@ class AuthInterceptor extends QueuedInterceptor {
   AuthInterceptor({
     required TokenStore tokenStore,
     required Dio refreshDio,
-    required Future<void> Function() onSessionExpired,
+    required Future<void> Function([String? cause]) onSessionExpired,
     Future<void> Function()? onTokenRefreshed,
   }) : _tokenStore = tokenStore,
        _refreshDio = refreshDio,
@@ -32,7 +33,13 @@ class AuthInterceptor extends QueuedInterceptor {
 
   final TokenStore _tokenStore;
   final Dio _refreshDio;
-  final Future<void> Function() _onSessionExpired;
+
+  /// spec 006 T082: `cause` is the failed request's `SessionRevocationCause`
+  /// wire value (e.g. `ACCOUNT_DEACTIVATED`) when the 401 that triggered
+  /// this was the structured `SESSION_REVOKED` shape, so the HTTP backstop
+  /// states the same reason the socket push would have (FR-036) — absent
+  /// for every other kind of session expiry (a token that merely aged out).
+  final Future<void> Function([String? cause]) _onSessionExpired;
 
   /// Fired after a *successful* silent refresh — e.g. so the `/tracking`
   /// socket can re-authenticate its handshake with the new token (FR-020,
@@ -77,8 +84,10 @@ class AuthInterceptor extends QueuedInterceptor {
     final alreadyRetried =
         requestOptions.extra[RequestExtraKeys.retried] == true;
     final skipAuth = requestOptions.extra[RequestExtraKeys.skipAuth] == true;
+    final skipAuthRefresh =
+        requestOptions.extra[RequestExtraKeys.skipAuthRefresh] == true;
 
-    if (!isUnauthorized || alreadyRetried || skipAuth) {
+    if (!isUnauthorized || alreadyRetried || skipAuth || skipAuthRefresh) {
       return handler.next(err);
     }
 
@@ -92,7 +101,7 @@ class AuthInterceptor extends QueuedInterceptor {
     if (freshToken == null) {
       if (!_sessionExpiredNotified) {
         _sessionExpiredNotified = true;
-        await _onSessionExpired();
+        await _onSessionExpired(_extractRevocationCause(err));
       }
       return handler.next(err);
     }
@@ -106,6 +115,15 @@ class AuthInterceptor extends QueuedInterceptor {
     } on DioException catch (retryError) {
       handler.next(retryError);
     }
+  }
+
+  /// Reads the raw response body — [ErrorInterceptor] (which turns this
+  /// into a [Failure]) runs after this interceptor, so the uniform
+  /// envelope's `error`/`cause` fields are still plain JSON here.
+  String? _extractRevocationCause(DioException err) {
+    final data = err.response?.data;
+    if (data is! Map || data['error'] != ErrorCodes.sessionRevoked) return null;
+    return data['cause'] as String?;
   }
 
   String? _bearerToken(RequestOptions options) {

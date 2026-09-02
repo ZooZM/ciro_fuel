@@ -12,7 +12,6 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/theme_cubit.dart';
 import '../../../auth/domain/usecases/sign_out.dart';
 import '../../../auth/presentation/cubit/session_cubit.dart';
-import '../../../more/presentation/widgets/app_lock_dialog.dart';
 
 class DriverProfileScreen extends StatefulWidget {
   const DriverProfileScreen({super.key});
@@ -27,22 +26,6 @@ class _DriverProfileScreenState extends State<DriverProfileScreen> {
 
   /// True while a sign-out is in flight, so a second tap cannot fire another.
   bool _isSigningOut = false;
-
-  /// How the app is unlocked. Mock state for now, like the rest of this
-  /// screen's switches — nothing is persisted yet.
-  AppLockMethod _appLock = AppLockMethod.fingerprint;
-
-  String get _appLockLabel => switch (_appLock) {
-    AppLockMethod.none => MoreKeys.appLockOff,
-    AppLockMethod.fingerprint => LoginKeys.fingerprint,
-    AppLockMethod.face => LoginKeys.faceId,
-    AppLockMethod.password => MoreKeys.appLockPassword,
-  };
-
-  Future<void> _pickAppLock() async {
-    final picked = await AppLockDialog.show(context, selected: _appLock);
-    if (picked != null) setState(() => _appLock = picked);
-  }
 
   /// Signing out is easy to mis-tap on a dense settings list and drops the
   /// session for real (the tokens are gone — the next launch lands on the
@@ -141,14 +124,10 @@ class _DriverProfileScreenState extends State<DriverProfileScreen> {
             _buildSectionTitle(MoreKeys.sectionApp.tr()),
             const SizedBox(height: 12),
             _buildCard([
-              _buildListItem(
-                title: MoreKeys.appLock.tr(),
-                iconPath: 'assets/more/icon1.svg',
-                iconColor: context.colors.textSecondary,
-                trailingText: _appLockLabel.tr(),
-                onTap: _pickAppLock,
-              ),
-              _buildDivider(),
+              // spec 006 FR-010: no control that disables or weakens the
+              // mandatory app lock may exist on the driver build — this
+              // used to be a mock toggle here (AppLockDialog), which is
+              // now not merely unpersisted but actually prohibited.
               _buildListItem(
                 title: MoreKeys.notifications.tr(),
                 iconPath: _isNotificationsEnabled

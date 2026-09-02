@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- spec 008 (research R5): required to read 13.56 MHz NFC tag
+	     identifiers. Reading tags additionally requires the "Near Field
+	     Communication Tag Reading" capability enabled on a paid Apple
+	     Developer Program account and this file wired into the Runner
+	     target's Code Signing Entitlements build setting in Xcode — neither
+	     of which can be done from a text edit alone. Until that signing step
+	     happens, iOS builds run entirely on the QR-code fallback, which is
+	     the primary path this feature was designed around for iOS anyway. -->
+	<key>com.apple.developer.nfc.readersession.formats</key>
+	<array>
+		<string>NDEF</string>
+		<string>TAG</string>
+	</array>
+</dict>
+</plist>

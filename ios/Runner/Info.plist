@@ -15,7 +15,38 @@
 		<string>location</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>Ciro Fuel requires camera access to scan delivery QR codes.</string>
+	<string>Ciro Fuel requires camera access to scan delivery QR codes and take a profile picture.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Ciro Fuel needs access to your photos to set a profile picture.</string>
+	<key>NFCReaderUsageDescription</key>
+	<string>Ciro Fuel reads your truck's NFC card to verify you are at the assigned vehicle before starting a delivery.</string>
+	<!-- spec 008 (research R5): truck cards are NFC Forum Type 4 (the NTAG424
+	     DNA family), which speak ISO 7816-4. iOS hands an ISO 7816 tag to an
+	     app ONLY if the tag answers one of the application identifiers listed
+	     here — with no list, the reader sheet opens, sees the card and
+	     silently withholds it, which looks exactly like a card that will not
+	     read. D2760000850101 is the NFC Forum's standard NDEF Tag Application
+	     AID, which every Type 4 tag answers to; the two NXP DESFire AIDs cover
+	     cards personalised into a proprietary application instead. -->
+	<key>com.apple.developer.nfc.readersession.iso7816.select-identifiers</key>
+	<array>
+		<string>D2760000850101</string>
+		<string>D2760000850100</string>
+		<string>A0000006472F0001</string>
+	</array>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>192.168.100.253</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<false/>
+			</dict>
+		</dict>
+	</dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

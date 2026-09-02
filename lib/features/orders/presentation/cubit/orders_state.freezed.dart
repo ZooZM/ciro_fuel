@@ -122,11 +122,11 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( List<Order> orders)?  loaded,TResult Function( Failure failure)?  failure,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( List<Order> orders,  String? nextCursor,  bool isLoadingMore,  bool loadMoreFailed)?  loaded,TResult Function( Failure failure)?  failure,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case OrdersLoading() when loading != null:
 return loading();case OrdersLoaded() when loaded != null:
-return loaded(_that.orders);case OrdersLoadFailure() when failure != null:
+return loaded(_that.orders,_that.nextCursor,_that.isLoadingMore,_that.loadMoreFailed);case OrdersLoadFailure() when failure != null:
 return failure(_that.failure);case _:
   return orElse();
 
@@ -145,11 +145,11 @@ return failure(_that.failure);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( List<Order> orders)  loaded,required TResult Function( Failure failure)  failure,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( List<Order> orders,  String? nextCursor,  bool isLoadingMore,  bool loadMoreFailed)  loaded,required TResult Function( Failure failure)  failure,}) {final _that = this;
 switch (_that) {
 case OrdersLoading():
 return loading();case OrdersLoaded():
-return loaded(_that.orders);case OrdersLoadFailure():
+return loaded(_that.orders,_that.nextCursor,_that.isLoadingMore,_that.loadMoreFailed);case OrdersLoadFailure():
 return failure(_that.failure);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -164,11 +164,11 @@ return failure(_that.failure);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( List<Order> orders)?  loaded,TResult? Function( Failure failure)?  failure,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( List<Order> orders,  String? nextCursor,  bool isLoadingMore,  bool loadMoreFailed)?  loaded,TResult? Function( Failure failure)?  failure,}) {final _that = this;
 switch (_that) {
 case OrdersLoading() when loading != null:
 return loading();case OrdersLoaded() when loaded != null:
-return loaded(_that.orders);case OrdersLoadFailure() when failure != null:
+return loaded(_that.orders,_that.nextCursor,_that.isLoadingMore,_that.loadMoreFailed);case OrdersLoadFailure() when failure != null:
 return failure(_that.failure);case _:
   return null;
 
@@ -213,7 +213,7 @@ String toString() {
 
 
 class OrdersLoaded implements OrdersState {
-  const OrdersLoaded(final  List<Order> orders): _orders = orders;
+  const OrdersLoaded(final  List<Order> orders, {this.nextCursor, this.isLoadingMore = false, this.loadMoreFailed = false}): _orders = orders;
   
 
  final  List<Order> _orders;
@@ -223,6 +223,9 @@ class OrdersLoaded implements OrdersState {
   return EqualUnmodifiableListView(_orders);
 }
 
+ final  String? nextCursor;
+@JsonKey() final  bool isLoadingMore;
+@JsonKey() final  bool loadMoreFailed;
 
 /// Create a copy of OrdersState
 /// with the given fields replaced by the non-null parameter values.
@@ -234,16 +237,16 @@ $OrdersLoadedCopyWith<OrdersLoaded> get copyWith => _$OrdersLoadedCopyWithImpl<O
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrdersLoaded&&const DeepCollectionEquality().equals(other._orders, _orders));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrdersLoaded&&const DeepCollectionEquality().equals(other._orders, _orders)&&(identical(other.nextCursor, nextCursor) || other.nextCursor == nextCursor)&&(identical(other.isLoadingMore, isLoadingMore) || other.isLoadingMore == isLoadingMore)&&(identical(other.loadMoreFailed, loadMoreFailed) || other.loadMoreFailed == loadMoreFailed));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_orders));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_orders),nextCursor,isLoadingMore,loadMoreFailed);
 
 @override
 String toString() {
-  return 'OrdersState.loaded(orders: $orders)';
+  return 'OrdersState.loaded(orders: $orders, nextCursor: $nextCursor, isLoadingMore: $isLoadingMore, loadMoreFailed: $loadMoreFailed)';
 }
 
 
@@ -254,7 +257,7 @@ abstract mixin class $OrdersLoadedCopyWith<$Res> implements $OrdersStateCopyWith
   factory $OrdersLoadedCopyWith(OrdersLoaded value, $Res Function(OrdersLoaded) _then) = _$OrdersLoadedCopyWithImpl;
 @useResult
 $Res call({
- List<Order> orders
+ List<Order> orders, String? nextCursor, bool isLoadingMore, bool loadMoreFailed
 });
 
 
@@ -271,10 +274,13 @@ class _$OrdersLoadedCopyWithImpl<$Res>
 
 /// Create a copy of OrdersState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? orders = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? orders = null,Object? nextCursor = freezed,Object? isLoadingMore = null,Object? loadMoreFailed = null,}) {
   return _then(OrdersLoaded(
 null == orders ? _self._orders : orders // ignore: cast_nullable_to_non_nullable
-as List<Order>,
+as List<Order>,nextCursor: freezed == nextCursor ? _self.nextCursor : nextCursor // ignore: cast_nullable_to_non_nullable
+as String?,isLoadingMore: null == isLoadingMore ? _self.isLoadingMore : isLoadingMore // ignore: cast_nullable_to_non_nullable
+as bool,loadMoreFailed: null == loadMoreFailed ? _self.loadMoreFailed : loadMoreFailed // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

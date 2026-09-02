@@ -4,45 +4,46 @@ import '../../../../../core/localization/translation_keys.dart';
 
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/order_card.dart';
-import 'mock_order_state.dart';
+import '../../constants/order_presentation.dart';
+import '../../../../../shared/enums/order_status.dart';
+import '../../../../../shared/enums/payment_method.dart';
 import '../../../../../core/theme/theme_context.dart';
 
 /// The plain status card carried by every state that already has a
-/// receipt (deferred, paid, delivered). Only delivery adds a follow-up
-/// action.
+/// receipt (deferred, credit, paid, delivered). Only delivery adds a
+/// follow-up action.
 class SettledOrderStatusCard extends StatelessWidget {
   const SettledOrderStatusCard({
-    required this.state,
-    this.orderReference,
+    required this.status,
+    required this.paymentMethod,
+    required this.orderReference,
+    this.onRedispatch,
     super.key,
   });
 
-  final MockOrderState state;
-  final String? orderReference;
+  final OrderStatus status;
+  final PaymentMethod paymentMethod;
+  final String orderReference;
 
-  // Keys, not copy — translated where the headline is drawn so it follows a
-  // locale switch.
-  static const _headlineKeys = {
-    MockOrderState.deferred: OrderDetailKeys.headlineDeferred,
-    MockOrderState.paid: OrderDetailKeys.headlinePaid,
-    MockOrderState.delivered: OrderDetailKeys.headlineDelivered,
-  };
+  /// Set only for a DIRECT order reverted to APPROVED after a payment
+  /// timeout (`order-state.service.ts`/FR-015a) — the one case a DIRECT
+  /// order genuinely rests at APPROVED, and the only one `POST
+  /// /orders/:id/redispatch` accepts. `null` elsewhere; the button is
+  /// omitted rather than shown disabled.
+  final VoidCallback? onRedispatch;
 
   @override
   Widget build(BuildContext context) {
-    final isAr = context.locale.languageCode == 'ar';
-    final resolvedReference = orderReference ?? 
-        (isAr ? 'ORD-2024-256 · 9 أغسطس 2024' : 'ORD-2024-256 · 9 August 2024');
+    final headlineKey = settledHeadlineKeyFor(status, paymentMethod);
+    final isDeferred = paymentMethod == PaymentMethod.deferred;
 
     return OrderCard(
       title: OrderDetailKeys.orderStatus.tr(),
-      subtitle: resolvedReference,
+      subtitle: orderReference,
       trailing: Text(
-        _headlineKeys[state]!.tr(),
+        headlineKey.tr(),
         style: TextStyle(
-          color: state == MockOrderState.deferred
-              ? context.colors.brandOrange
-              : context.colors.brandBlue,
+          color: isDeferred ? context.colors.brandOrange : context.colors.brandBlue,
           fontSize: 14,
           fontWeight: FontWeight.w800,
         ),
@@ -50,7 +51,7 @@ class SettledOrderStatusCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (state == MockOrderState.delivered) ...[
+          if (status == OrderStatus.delivered) ...[
             const SizedBox(height: AppSpacing.lg),
             SizedBox(
               width: double.infinity,
@@ -74,6 +75,35 @@ class SettledOrderStatusCard extends StatelessWidget {
                     color: context.colors.brandGreen,
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ],
+          if (onRedispatch != null) ...[
+            const SizedBox(height: AppSpacing.lg),
+            SizedBox(
+              width: double.infinity,
+              height: AppSizes.secondaryButtonHeight,
+              child: FilledButton.icon(
+                onPressed: onRedispatch,
+                style: FilledButton.styleFrom(
+                  backgroundColor: context.colors.brandBlue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadii.tile),
+                  ),
+                ),
+                icon: const Icon(
+                  Icons.refresh,
+                  color: Colors.white,
+                  size: AppSizes.iconMd,
+                ),
+                label: Text(
+                  OrderDetailKeys.retryPayment.tr(),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
                   ),
                 ),
               ),

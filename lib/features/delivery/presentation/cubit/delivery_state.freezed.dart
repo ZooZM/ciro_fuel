@@ -55,10 +55,11 @@ extension DeliveryStatePatterns on DeliveryState {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( DeliveryNoActiveOrder value)?  noActiveOrder,TResult Function( DeliveryActive value)?  active,TResult Function( DeliveryFailureState value)?  failure,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( DeliveryLoading value)?  loading,TResult Function( DeliveryNoActiveOrder value)?  noActiveOrder,TResult Function( DeliveryActive value)?  active,TResult Function( DeliveryFailureState value)?  failure,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
-case DeliveryNoActiveOrder() when noActiveOrder != null:
+case DeliveryLoading() when loading != null:
+return loading(_that);case DeliveryNoActiveOrder() when noActiveOrder != null:
 return noActiveOrder(_that);case DeliveryActive() when active != null:
 return active(_that);case DeliveryFailureState() when failure != null:
 return failure(_that);case _:
@@ -79,10 +80,11 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( DeliveryNoActiveOrder value)  noActiveOrder,required TResult Function( DeliveryActive value)  active,required TResult Function( DeliveryFailureState value)  failure,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( DeliveryLoading value)  loading,required TResult Function( DeliveryNoActiveOrder value)  noActiveOrder,required TResult Function( DeliveryActive value)  active,required TResult Function( DeliveryFailureState value)  failure,}){
 final _that = this;
 switch (_that) {
-case DeliveryNoActiveOrder():
+case DeliveryLoading():
+return loading(_that);case DeliveryNoActiveOrder():
 return noActiveOrder(_that);case DeliveryActive():
 return active(_that);case DeliveryFailureState():
 return failure(_that);}
@@ -99,10 +101,11 @@ return failure(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( DeliveryNoActiveOrder value)?  noActiveOrder,TResult? Function( DeliveryActive value)?  active,TResult? Function( DeliveryFailureState value)?  failure,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( DeliveryLoading value)?  loading,TResult? Function( DeliveryNoActiveOrder value)?  noActiveOrder,TResult? Function( DeliveryActive value)?  active,TResult? Function( DeliveryFailureState value)?  failure,}){
 final _that = this;
 switch (_that) {
-case DeliveryNoActiveOrder() when noActiveOrder != null:
+case DeliveryLoading() when loading != null:
+return loading(_that);case DeliveryNoActiveOrder() when noActiveOrder != null:
 return noActiveOrder(_that);case DeliveryActive() when active != null:
 return active(_that);case DeliveryFailureState() when failure != null:
 return failure(_that);case _:
@@ -122,9 +125,10 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  noActiveOrder,TResult Function( Order order,  bool streaming)?  active,TResult Function( Failure failure)?  failure,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function()?  noActiveOrder,TResult Function( Order order,  bool streaming)?  active,TResult Function( Failure failure)?  failure,required TResult orElse(),}) {final _that = this;
 switch (_that) {
-case DeliveryNoActiveOrder() when noActiveOrder != null:
+case DeliveryLoading() when loading != null:
+return loading();case DeliveryNoActiveOrder() when noActiveOrder != null:
 return noActiveOrder();case DeliveryActive() when active != null:
 return active(_that.order,_that.streaming);case DeliveryFailureState() when failure != null:
 return failure(_that.failure);case _:
@@ -145,9 +149,10 @@ return failure(_that.failure);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  noActiveOrder,required TResult Function( Order order,  bool streaming)  active,required TResult Function( Failure failure)  failure,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function()  noActiveOrder,required TResult Function( Order order,  bool streaming)  active,required TResult Function( Failure failure)  failure,}) {final _that = this;
 switch (_that) {
-case DeliveryNoActiveOrder():
+case DeliveryLoading():
+return loading();case DeliveryNoActiveOrder():
 return noActiveOrder();case DeliveryActive():
 return active(_that.order,_that.streaming);case DeliveryFailureState():
 return failure(_that.failure);}
@@ -164,9 +169,10 @@ return failure(_that.failure);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  noActiveOrder,TResult? Function( Order order,  bool streaming)?  active,TResult? Function( Failure failure)?  failure,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function()?  noActiveOrder,TResult? Function( Order order,  bool streaming)?  active,TResult? Function( Failure failure)?  failure,}) {final _that = this;
 switch (_that) {
-case DeliveryNoActiveOrder() when noActiveOrder != null:
+case DeliveryLoading() when loading != null:
+return loading();case DeliveryNoActiveOrder() when noActiveOrder != null:
 return noActiveOrder();case DeliveryActive() when active != null:
 return active(_that.order,_that.streaming);case DeliveryFailureState() when failure != null:
 return failure(_that.failure);case _:
@@ -176,6 +182,38 @@ return failure(_that.failure);case _:
 }
 
 }
+
+/// @nodoc
+
+
+class DeliveryLoading implements DeliveryState {
+  const DeliveryLoading();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryLoading);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'DeliveryState.loading()';
+}
+
+
+}
+
+
+
 
 /// @nodoc
 

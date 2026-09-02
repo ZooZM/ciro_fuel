@@ -1,8 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import '../../../../../core/localization/translation_keys.dart';
 
-import '../../../../../core/constants/app_assets.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/order_card.dart';
 import '../../../../../core/theme/theme_context.dart';
@@ -11,12 +11,18 @@ import '../../../../../core/theme/theme_context.dart';
 /// for the driver to verify the handover.
 class ReceiptCodeCard extends StatelessWidget {
   const ReceiptCodeCard({
-    this.code = '8 6 3 5 6 4',
-    this.timeRemaining = 'د 05:00',
+    required this.code,
+    required this.timeRemaining,
     super.key,
   });
 
-  /// Space-separated digits, one per box.
+  /// The raw handover code, unspaced — the card spaces it for the digit
+  /// boxes and encodes it verbatim in the QR.
+  ///
+  /// Required, with no default: this card used to fall back to a literal
+  /// `8 6 3 5 6 4` and a fixed `05:00`, which rendered as a real, live
+  /// pickup code on every in-transit order. A client showing it to a driver
+  /// would have been turned away.
   final String code;
   final String timeRemaining;
 
@@ -59,10 +65,12 @@ class ReceiptCodeCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.xs),
-                    Image.asset(
-                      AppAssets.qrCodeImage,
-                      width: AppSizes.orderQrImageSize,
-                      height: AppSizes.orderQrImageSize,
+                    QrImageView(
+                      data: code,
+                      version: QrVersions.auto,
+                      backgroundColor: Colors.white,
+                      errorCorrectionLevel: QrErrorCorrectLevel.M,
+                      size: AppSizes.orderQrImageSize,
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
@@ -108,7 +116,7 @@ class ReceiptCodeCard extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: code
-                            .split(' ')
+                            .split('')
                             .map(
                               (e) => Padding(
                                 padding: const EdgeInsets.symmetric(

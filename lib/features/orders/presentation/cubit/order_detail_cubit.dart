@@ -37,8 +37,14 @@ class OrderDetailCubit extends Cubit<OrderDetailState> {
   final TrackingSocket _socket;
 
   Future<void> load() async {
+    if (isClosed) return;
     emit(const OrderDetailState.loading());
     final result = await _getOrder(_orderId);
+    // The screen can be popped — or pull-to-refresh can rebuild it — while
+    // this is in flight, and the socket handlers below fire it without
+    // awaiting. `TrackingSocket` has no way to unregister a handler, so a
+    // closed cubit still receives pushes; emitting into one throws.
+    if (isClosed) return;
     result.fold(
       (failure) => emit(OrderDetailState.failure(failure)),
       (order) => emit(OrderDetailState.loaded(order)),
@@ -53,6 +59,7 @@ class OrderDetailCubit extends Cubit<OrderDetailState> {
   /// still in flight is not silently dropped.
   Future<void> loadCurrentOtp() async {
     final result = await _getCurrentOtp(_orderId);
+    if (isClosed) return;
     result.fold(
       (_) {}, // no active OTP yet; not an error condition worth surfacing
       (otp) {

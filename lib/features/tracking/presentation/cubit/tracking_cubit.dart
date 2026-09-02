@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:clock/clock.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/config/constants.dart';
@@ -35,10 +36,15 @@ class TrackingCubit extends Cubit<TrackingState> {
   Timer? _staleCheckTimer;
 
   Future<void> watch(String orderId) async {
+    if (isClosed) return;
     emit(const TrackingState.connecting());
     _watchedOrderId = orderId;
 
     final ack = await _socket.watchOrder(orderId);
+    // The reconnect handler re-issues this without awaiting, so an ack can
+    // land after the screen has gone. `TrackingSocket` cannot unregister a
+    // handler, so a closed cubit still gets called.
+    if (isClosed) return;
     if (ack['ok'] != true) {
       final error = ack['error'] as String?;
       if (error == SocketAckReasons.notTrackable) {
@@ -88,7 +94,7 @@ class TrackingCubit extends Cubit<TrackingState> {
     final current = state;
     if (current is! TrackingWatching || current.location == null) return;
 
-    final isStale = current.location!.isStale(DateTime.now());
+    final isStale = current.location!.isStale(clock.now());
     if (isStale != current.stale) {
       emit(current.copyWith(stale: isStale));
     }

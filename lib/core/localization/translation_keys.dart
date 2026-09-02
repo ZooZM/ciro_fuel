@@ -34,6 +34,9 @@ abstract final class CommonKeys {
   static const String contactSupport = 'common.contact_support';
   static const String searchByInvoiceCode = 'common.search_by_invoice_code';
   static const String searchByOrderCode = 'common.search_by_order_code';
+  static const String save = 'common.save';
+  static const String retry = 'common.retry';
+  static const String editName = 'common.edit_name';
 }
 
 abstract final class NavKeys {
@@ -183,6 +186,24 @@ abstract final class InvoicesKeys {
   static const String tabDeferred = 'invoices.tab_deferred';
   static const String tabPaid = 'invoices.tab_paid';
   static const String tabFailed = 'invoices.tab_failed';
+
+  /// The real `InvoiceState` values (spec 005 T078) — `tabDeferred`/
+  /// `tabFailed` above predate this feature and don't name an actual
+  /// backend state (ISSUED/SETTLED/VOID); kept only because
+  /// `driver_orders_screen.dart` still reuses them for its own, unrelated
+  /// mock tabs.
+  static const String tabOutstanding = 'invoices.tab_outstanding';
+  static const String tabVoided = 'invoices.tab_voided';
+
+  static const String detailTitle = 'invoices.detail_title';
+  static const String reference = 'invoices.reference';
+  static const String settledOn = 'invoices.settled_on';
+
+  /// The breakdown's consignment line, standing in for a specific fuel
+  /// grade/quantity — an invoice carries only the priced totals, not which
+  /// grade or how many litres they were for (that lives on its order,
+  /// which this screen doesn't also fetch).
+  static const String fuelCharge = 'invoices.fuel_charge';
 }
 
 abstract final class PaymentsKeys {
@@ -190,14 +211,17 @@ abstract final class PaymentsKeys {
 
   /// Takes a `count` named argument.
   static const String count = 'payments.count';
+
+  static const String empty = 'payments.empty';
 }
 
+/// spec 005 T110 — the client's real stations list. `title`/`defaultStation`
+/// are new; the pre-005 keys this class used to carry (`current_order`,
+/// `last_order`, `quick_glance`, `delivered_deferred_invoice`) belonged to
+/// this screen's old dashboard-style mock content, dropped along with it.
 abstract final class StationsKeys {
-  static const String currentOrder = 'stations.current_order';
-  static const String lastOrder = 'stations.last_order';
-  static const String quickGlance = 'stations.quick_glance';
-  static const String deliveredDeferredInvoice =
-      'stations.delivered_deferred_invoice';
+  static const String title = 'stations.title';
+  static const String defaultStation = 'stations.default_station';
 }
 
 abstract final class InvoicePaymentKeys {
@@ -214,6 +238,17 @@ abstract final class InvoicePaymentKeys {
   static const String deliveryFee = 'invoice_payment.delivery_fee';
   static const String serviceFee = 'invoice_payment.service_fee';
   static const String hideDetails = 'invoice_payment.hide_details';
+
+  /// FR-024: shown while the platform's own webhook confirmation is still
+  /// pending — the invoice is never treated as paid on the gateway's
+  /// return value alone (spec 005 T079).
+  static const String awaitingConfirmation =
+      'invoice_payment.awaiting_confirmation';
+
+  /// The payment window (`paymentDeadline`) lapsed before a confirmation
+  /// arrived — the order has already reverted server-side by the time this
+  /// shows.
+  static const String windowExpired = 'invoice_payment.window_expired';
 }
 
 abstract final class NotificationKeys {
@@ -221,6 +256,11 @@ abstract final class NotificationKeys {
   static const String filterOrders = 'notifications.filter_orders';
   static const String filterInvoices = 'notifications.filter_invoices';
   static const String filterSystem = 'notifications.filter_system';
+
+  /// spec 005 T088 — the one real, server-applied filter (`?unread=true`);
+  /// the three above predate the real `AppNotification` shape and no
+  /// longer drive anything.
+  static const String filterUnread = 'notifications.filter_unread';
 
   static const String markAllRead = 'notifications.mark_all_read';
 
@@ -240,17 +280,44 @@ abstract final class NotificationKeys {
   static const String yesterdayTime = 'notifications.yesterday_time';
 
   /// Copy for the in-app banner a push raises over whatever screen is open,
-  /// one per [NotificationType].
-  static const String bannerFinalPriceReady =
-      'notifications.banner_final_price_ready';
+  /// one per [NotificationType]. Corrected to the backend's real wire
+  /// values in spec 007 (research R10, `mobile_app/CLAUDE.md` debt #5).
+  static const String bannerOrderApprovedFinalPrice =
+      'notifications.banner_order_approved_final_price';
+  static const String bannerNoDriverAvailable =
+      'notifications.banner_no_driver_available';
   static const String bannerPaymentTimeout =
       'notifications.banner_payment_timeout';
-  static const String bannerNoEligibleDriver =
-      'notifications.banner_no_eligible_driver';
-  static const String bannerDeliveryCompleted =
-      'notifications.banner_delivery_completed';
+  static const String bannerOrderAssigned =
+      'notifications.banner_order_assigned';
+  static const String bannerOrderStatusChanged =
+      'notifications.banner_order_status_changed';
+  static const String bannerOtpIssued = 'notifications.banner_otp_issued';
+  static const String bannerPaymentReconciliationRequired =
+      'notifications.banner_payment_reconciliation_required';
+  static const String bannerOrderRoutedToTransport =
+      'notifications.banner_order_routed_to_transport';
+  static const String bannerSupportRequestRaised =
+      'notifications.banner_support_request_raised';
+  // spec 011: the in-app rendering of the stop prompt. The same
+  // notification ALSO raises a device-level alert (FR-004a) — this key is
+  // what the notifications list and banner show for it.
+  static const String bannerDriverStopDetected =
+      'notifications.banner_driver_stop_detected';
   static const String bannerUnknown = 'notifications.banner_unknown';
   static const String bannerView = 'notifications.banner_view';
+}
+
+/// The mandatory driver app lock (spec 006 US2/FR-010–018a). No "off"
+/// state and no settings screen — see `AppLockCubit`.
+abstract final class LockKeys {
+  /// The reason string shown inside the OS's own biometric/passcode
+  /// prompt (`local_auth`'s `localizedReason`), not this app's UI chrome.
+  static const String challengeReason = 'lock.challenge_reason';
+  static const String title = 'lock.title';
+  static const String retry = 'lock.retry';
+  static const String unavailableTitle = 'lock.unavailable_title';
+  static const String unavailableBody = 'lock.unavailable_body';
 }
 
 abstract final class MoreKeys {
@@ -327,6 +394,19 @@ abstract final class CreditLimitKeys {
   static const String requestYourLimit = 'credit_limit.request_your_limit';
 }
 
+/// spec 006 FR-002/003 — the driver-only company/truck section on
+/// `DriverProfileDetailsScreen`. Distinct from [ProfileKeys], which covers
+/// the sections shared with the client's own profile screen.
+abstract final class DriverProfileKeys {
+  static const String company = 'driver_profile.company';
+  static const String truckPlate = 'driver_profile.truck_plate';
+  static const String truckFuelTypes = 'driver_profile.truck_fuel_types';
+
+  /// FR-003: shown instead of a blank or invented row when the driver has
+  /// no truck assigned yet.
+  static const String noTruckAssigned = 'driver_profile.no_truck_assigned';
+}
+
 abstract final class ProfileKeys {
   static const String contactInfo = 'profile.contact_info';
   static const String linkedStations = 'profile.linked_stations';
@@ -335,11 +415,11 @@ abstract final class ProfileKeys {
   static const String stationsCount = 'profile.stations_count';
 
   static const String accountInfo = 'profile.account_info';
-  static const String accountCode = 'profile.account_code';
   static const String joinDate = 'profile.join_date';
   static const String active = 'profile.active';
   static const String changePhone = 'profile.change_phone';
   static const String verifiedAccount = 'profile.verified_account';
+  static const String noStations = 'profile.no_stations';
 }
 
 abstract final class ChangePhoneKeys {
@@ -358,8 +438,16 @@ abstract final class VerifyPhoneKeys {
   static const String sentTo = 'verify_phone.sent_to';
   static const String changeNumber = 'verify_phone.change_number';
 
-  /// Takes a `timer` named argument.
+  /// Takes a `timer` named argument (`mm:ss`), shown only while a resend
+  /// throttle's real `retryAfterSeconds` is counting down (spec 005 T102) —
+  /// never a client-fabricated cooldown.
   static const String resendIn = 'verify_phone.resend_in';
+
+  /// The tappable resend link, shown whenever no throttle countdown is
+  /// active.
+  static const String resendCode = 'verify_phone.resend_code';
+  static const String codeResent = 'verify_phone.code_resent';
+  static const String phoneVerified = 'verify_phone.phone_verified';
 }
 
 abstract final class SupportKeys {
@@ -395,6 +483,16 @@ abstract final class SupportKeys {
   static const String faqAnswer = 'support.faq_answer';
 
   static const String availability = 'support.availability';
+
+  // spec 005 T120/T121 — the order-problem card's real submission flow and
+  // the screen's own submitted/acknowledged history.
+  static const String selectOrder = 'support.select_order';
+  static const String noOrdersToAttach = 'support.no_orders_to_attach';
+  static const String requestSubmitted = 'support.request_submitted';
+  static const String myRequests = 'support.my_requests';
+  static const String noRequestsYet = 'support.no_requests_yet';
+  static const String stateSubmitted = 'support.state_submitted';
+  static const String stateAcknowledged = 'support.state_acknowledged';
 }
 
 /// The driver-side delivery screens.
@@ -417,6 +515,31 @@ abstract final class DriverKeys {
   /// does not follow a later language switch.
   static const String deliveryInProgress = 'driver.delivery_in_progress';
   static const String sharingLocation = 'driver.sharing_location';
+
+  // spec 011 FR-004a: the device-level alert shown when the platform
+  // notices this truck has stopped moving mid-delivery.
+  static const String stopDetectedTitle = 'driver.stop_detected_title';
+  static const String stopDetectedBody = 'driver.stop_detected_body';
+
+  // spec 011 US2. Reason labels are addressed by `StopReason.labelKey`
+  // rather than named individually here: the enum is the list, and a second
+  // hand-maintained list of the same seven values is a place for them to
+  // disagree.
+  static const String stopPromptTitle = 'driver.stop_prompt_title';
+  static const String stopPromptSubtitle = 'driver.stop_prompt_subtitle';
+  static const String stopReasonOtherHint = 'driver.stop_reason_other_hint';
+  static const String stopReasonOtherRequired = 'driver.stop_reason_other_required';
+  static const String stopReasonSubmit = 'driver.stop_reason_submit';
+  static const String stopReasonSent = 'driver.stop_reason_sent';
+  static const String stopReasonFailed = 'driver.stop_reason_failed';
+  static const String declareStop = 'driver.declare_stop';
+  static const String declareStopTitle = 'driver.declare_stop_title';
+  static const String declareStopSubtitle = 'driver.declare_stop_subtitle';
+  static const String declareStopDuration = 'driver.declare_stop_duration';
+  static const String declareStopMinutes = 'driver.declare_stop_minutes';
+  static const String declareStopSubmit = 'driver.declare_stop_submit';
+  static const String declareStopSent = 'driver.declare_stop_sent';
+  static const String declareStopFailed = 'driver.declare_stop_failed';
 
   static const String openDelivery = 'driver.open_delivery';
   static const String deliveryComplete = 'driver.delivery_complete';
@@ -470,8 +593,11 @@ abstract final class OrdersKeys {
 abstract final class OrderStatusKeys {
   static const String pendingApproval = 'order_status.pending_approval';
   static const String approved = 'order_status.approved';
+  static const String awaitingRouting = 'order_status.awaiting_routing';
+  static const String routedToTransport = 'order_status.routed_to_transport';
   static const String assignedToDriver = 'order_status.assigned_to_driver';
   static const String pendingPayment = 'order_status.pending_payment';
+  static const String loading = 'order_status.loading';
   static const String inTransit = 'order_status.in_transit';
   static const String unloading = 'order_status.unloading';
   static const String delivered = 'order_status.delivered';
@@ -484,6 +610,7 @@ abstract final class FuelTypeKeys {
   static const String diesel = 'fuel_type.diesel';
   static const String gasoline91 = 'fuel_type.gasoline_91';
   static const String gasoline95 = 'fuel_type.gasoline_95';
+  static const String kerosene = 'fuel_type.kerosene';
 }
 
 /// The create-order form.
@@ -533,6 +660,24 @@ abstract final class CreateOrderKeys {
   static const String enterValidQuantityFor =
       'order_create.enter_valid_quantity_for';
   static const String orderFailed = 'order_create.order_failed';
+
+  /// Shown in place of the station name while `GET /stations` is still
+  /// loading (spec 005 T058) — never a fabricated placeholder address.
+  static const String loadingStation = 'order_create.loading_station';
+  static const String selectStation = 'order_create.select_station';
+
+  /// QUOTE_STALE (spec 005 T062): the platform's price changed between the
+  /// quote and the order attempt — `{total}` is the new, current total.
+  static const String priceChangedTitle = 'order_create.price_changed_title';
+  static const String priceChangedMessage =
+      'order_create.price_changed_message';
+  static const String confirmNewPrice = 'order_create.confirm_new_price';
+
+  /// FR-028: a pre-submission courtesy warning only — `{shortfall}` is how
+  /// much the quote exceeds the client's available credit by. The server's
+  /// own check inside the order transaction remains authoritative.
+  static const String creditOverLimitWarning =
+      'order_create.credit_over_limit_warning';
 }
 
 /// The order-detail screen and every status card on it.
@@ -555,8 +700,10 @@ abstract final class OrderDetailKeys {
 
   static const String headlineDeferred = 'order_detail.headline_deferred';
   static const String headlinePaid = 'order_detail.headline_paid';
+  static const String headlineCredit = 'order_detail.headline_credit';
   static const String headlineDelivered = 'order_detail.headline_delivered';
   static const String orderAnother = 'order_detail.order_another';
+  static const String retryPayment = 'order_detail.retry_payment';
 
   static const String paidSuccessfully = 'order_detail.paid_successfully';
   static const String referenceNumber = 'order_detail.reference_number';
@@ -632,6 +779,8 @@ abstract final class TrackOrderKeys {
   static const String orderReference = 'track_order.order_reference';
 
   static const String onTheWay = 'track_order.on_the_way';
+  static const String mapUnavailable = 'track_order.map_unavailable';
+  static const String callUnavailable = 'track_order.call_unavailable';
   static const String remainingDistance = 'track_order.remaining_distance';
   static const String expectedArrival = 'track_order.expected_arrival';
 
@@ -646,6 +795,16 @@ abstract final class TrackOrderKeys {
   static const String orderStages = 'track_order.order_stages';
 
   static const String received = 'track_order.received';
+
+  /// FR-020: shown alongside the last known position once it has aged past
+  /// the staleness window — the position itself is still shown, never
+  /// hidden, this only qualifies it as possibly out of date.
+  static const String staleWarning = 'track_order.stale_warning';
+
+  /// FR-021: no driver assigned yet, or none has reported a position —
+  /// explanatory, not an error and not an empty map.
+  static const String notTrackableTitle = 'track_order.not_trackable_title';
+  static const String notTrackableBody = 'track_order.not_trackable_body';
 }
 
 /// User-facing failure copy. Deliberately non-enumerating: none of these
@@ -657,6 +816,59 @@ abstract final class ErrorKeys {
   static const String generic = 'errors.generic';
   static const String biometricUnavailable = 'errors.biometric_unavailable';
   static const String biometricFailed = 'errors.biometric_failed';
+
+  /// spec 005 — PHONE_IN_USE (contracts/mobile-integration.md: needs its own
+  /// Arabic/English message, not the generic validation fallback).
+  static const String phoneInUse = 'errors.phone_in_use';
+
+  /// spec 005 — SMS_SEND_FAILED.
+  static const String smsSendFailed = 'errors.sms_send_failed';
+
+  /// spec 005 — the confirm endpoint's one, non-enumerating 401 (FR-035):
+  /// wrong or expired code, never says which.
+  static const String wrongVerificationCode = 'errors.wrong_verification_code';
+
+  /// spec 006 FR-024 — one message for wrong/expired/superseded/attempt-
+  /// locked-out alike; distinguishing them would tell an attacker which
+  /// wall they hit.
+  static const String resetCodeInvalid = 'errors.reset_code_invalid';
+
+  /// spec 006 FR-025. Takes a `minutes` named argument.
+  static const String resetRateLimited = 'errors.reset_rate_limited';
+}
+
+/// Password recovery (spec 006 US3) — `ForgotPasswordScreen` (phone entry
+/// + code entry + resend) and `ResetPasswordScreen` (new password).
+abstract final class PasswordResetKeys {
+  static const String forgotTitle = 'password_reset.forgot_title';
+  static const String phoneIntro = 'password_reset.phone_intro';
+  static const String sendCode = 'password_reset.send_code';
+
+  /// Takes a `phone` named argument.
+  static const String codeSentTo = 'password_reset.code_sent_to';
+  static const String codeLabel = 'password_reset.code_label';
+  static const String verify = 'password_reset.verify';
+  static const String resend = 'password_reset.resend';
+  static const String changeNumber = 'password_reset.change_number';
+
+  static const String newPasswordTitle = 'password_reset.new_password_title';
+  static const String newPasswordLabel = 'password_reset.new_password_label';
+
+  /// Stated before submission, not only on rejection (FR-026).
+  static const String newPasswordRules = 'password_reset.new_password_rules';
+  static const String submit = 'password_reset.submit';
+  static const String completedMessage = 'password_reset.completed_message';
+}
+
+/// Session-ended messaging (spec 006 US5, FR-036) — one message per
+/// `SessionRevocationCause`, plus a generic fallback for an absent/
+/// unrecognised cause. The app maps the enum to these and MUST NOT match
+/// on the server's `message` text (Principle I/III).
+abstract final class SessionKeys {
+  static const String signedInElsewhere = 'session.signed_in_elsewhere';
+  static const String passwordReset = 'session.password_reset';
+  static const String accountDeactivated = 'session.account_deactivated';
+  static const String ended = 'session.ended';
 }
 
 /// The filter sheet the list screens share. Which sections it shows differs
@@ -691,8 +903,6 @@ abstract final class DriverNavigationKeys {
   static const String remainingDistance = 'driver_navigation.remaining_distance';
   static const String expectedTime = 'driver_navigation.expected_time';
   static const String fuelType = 'driver_navigation.fuel_type';
-  static const String stationName = 'driver_navigation.station_name';
-  static const String stationAddress = 'driver_navigation.station_address';
   static const String viewOnMap = 'driver_navigation.view_on_map';
   static const String contactCustomer = 'driver_navigation.contact_customer';
   static const String requestedTime = 'driver_navigation.requested_time';
@@ -705,6 +915,74 @@ abstract final class DriverNavigationKeys {
   static const String scanQr = 'driver_navigation.scan_qr';
   static const String pointCamera = 'driver_navigation.point_camera';
   static const String confirmDelivery = 'driver_navigation.confirm_delivery';
+  static const String codeNotRecognised = 'driver_navigation.code_not_recognised';
+  static const String codeTooManyAttempts = 'driver_navigation.code_too_many_attempts';
+  static const String codeConfirmFailed = 'driver_navigation.code_confirm_failed';
   static const String enterDeliveryCode = 'driver_navigation.enter_delivery_code';
-  static const String enter4DigitCode = 'driver_navigation.enter_4_digit_code';
+  // spec 007 T030: was "enter4DigitCode" — the backend's handover code is
+  // 6 digits (`OtpPrimitivesService.generateCode`); the 4-digit copy and
+  // input cap meant a typed code could never actually be submitted.
+  static const String enter6DigitCode = 'driver_navigation.enter_6_digit_code';
+  // spec 007 US2 — the two steps that issue the customer's code, shown at
+  // the delivery detail's real IN_TRANSIT/UNLOADING stages respectively.
+  static const String markArrived = 'driver_navigation.mark_arrived';
+  static const String requestDeliveryCode = 'driver_navigation.request_delivery_code';
+  static const String codeSentToCustomer = 'driver_navigation.code_sent_to_customer';
+}
+
+/// spec 008 US3 — the vehicle-verification screen (departure and loading
+/// stages both reuse this one screen and its copy).
+abstract final class DriverVerificationKeys {
+  static const String departureTitle = 'driver_verification.departure_title';
+  static const String loadingTitle = 'driver_verification.loading_title';
+  static const String tapCard = 'driver_verification.tap_card';
+  static const String tapCardHint = 'driver_verification.tap_card_hint';
+  static const String scanCodeInstead = 'driver_verification.scan_code_instead';
+  static const String useCardInstead = 'driver_verification.use_card_instead';
+  static const String pointCamera = 'driver_verification.point_camera';
+  static const String verifying = 'driver_verification.verifying';
+  static const String mismatch = 'driver_verification.mismatch';
+  static const String tryAgain = 'driver_verification.try_again';
+  static const String unreachable = 'driver_verification.unreachable';
+  static const String failed = 'driver_verification.failed';
+  static const String tooManyAttempts = 'driver_verification.too_many_attempts';
+  // FR-030a: the right truck, the wrong place — interpolates `distance`.
+  static const String notAtWarehouse = 'driver_verification.not_at_warehouse';
+  static const String notAtWarehouseUnknownDistance =
+      'driver_verification.not_at_warehouse_unknown_distance';
+  // FR-030c: the phone, not the depot, is what needs fixing here.
+  static const String locationUnavailable = 'driver_verification.location_unavailable';
+  // research R5: NFC unsupported is a normal state on iOS, never an error.
+  static const String nfcUnavailable = 'driver_verification.nfc_unavailable';
+  static const String verifyVehicle = 'driver_verification.verify_vehicle';
+}
+
+/// spec 008 US4 — the driver's warehouse-loading leg: tank identity, the
+/// depot destination, and the quantity-free confirmation action.
+abstract final class DriverLoadingKeys {
+  static const String destination = 'driver_loading.destination';
+  static const String tankDetails = 'driver_loading.tank_details';
+  static const String tankCode = 'driver_loading.tank_code';
+  static const String tankMaterial = 'driver_loading.tank_material';
+  static const String confirmLoading = 'driver_loading.confirm_loading';
+  static const String confirmLoadingFailed = 'driver_loading.confirm_loading_failed';
+  static const String materialIron = 'driver_loading.material_iron';
+  static const String materialAluminium = 'driver_loading.material_aluminium';
+  // FR-027: the depot as a destination, not just an address to read.
+  static const String navigateToWarehouse = 'driver_loading.navigate_to_warehouse';
+  static const String navigateFailed = 'driver_loading.navigate_failed';
+}
+
+/// spec 007 US6 (FR-037–FR-040): the client's own rating control on the
+/// delivered order card. `driver_summary.not_yet_rated` (T075's header
+/// state) is reused as-is for the driver-side "not yet rated" display
+/// (T094) rather than a duplicate string here.
+abstract final class RatingKeys {
+  static const String prompt = 'rating.prompt';
+  static const String reviewHint = 'rating.review_hint';
+  static const String submit = 'rating.submit';
+  static const String submitted = 'rating.submitted';
+  static const String alreadyRated = 'rating.already_rated';
+  static const String notDelivered = 'rating.not_delivered';
+  static const String submitFailed = 'rating.submit_failed';
 }

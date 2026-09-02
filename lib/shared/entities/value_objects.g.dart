@@ -16,12 +16,28 @@ Map<String, dynamic> _$MoneyToJson(_Money instance) => <String, dynamic>{
   'currency': instance.currency,
 };
 
-_GeoPoint _$GeoPointFromJson(Map<String, dynamic> json) => _GeoPoint(
-  lat: (json['lat'] as num).toDouble(),
-  lng: (json['lng'] as num).toDouble(),
-);
+_PriceBreakdown _$PriceBreakdownFromJson(Map<String, dynamic> json) =>
+    _PriceBreakdown(
+      fuelLineTotal: (json['fuelLineTotal'] as num).toDouble(),
+      deliveryFee: (json['deliveryFee'] as num).toDouble(),
+      serviceFee: (json['serviceFee'] as num).toDouble(),
+      tax: (json['tax'] as num).toDouble(),
+      total: (json['total'] as num).toDouble(),
+      unitPrice: (json['unitPrice'] as num).toDouble(),
+      serviceFeePercent: (json['serviceFeePercent'] as num).toDouble(),
+      taxRatePercent: (json['taxRatePercent'] as num).toDouble(),
+      currency: json['currency'] as String,
+    );
 
-Map<String, dynamic> _$GeoPointToJson(_GeoPoint instance) => <String, dynamic>{
-  'lat': instance.lat,
-  'lng': instance.lng,
-};
+Map<String, dynamic> _$PriceBreakdownToJson(_PriceBreakdown instance) =>
+    <String, dynamic>{
+      'fuelLineTotal': instance.fuelLineTotal,
+      'deliveryFee': instance.deliveryFee,
+      'serviceFee': instance.serviceFee,
+      'tax': instance.tax,
+      'total': instance.total,
+      'unitPrice': instance.unitPrice,
+      'serviceFeePercent': instance.serviceFeePercent,
+      'taxRatePercent': instance.taxRatePercent,
+      'currency': instance.currency,
+    };

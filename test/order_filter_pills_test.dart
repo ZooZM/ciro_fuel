@@ -6,6 +6,7 @@ import 'package:mobile_app/core/theme/app_theme.dart';
 import 'package:mobile_app/features/orders/presentation/view/orders_list_screen.dart';
 
 import 'helpers/localized_harness.dart';
+import 'support/orders_test_di.dart';
 
 /// The status pills used to sit in two rows of equal-width `Expanded` cells
 /// with a `FittedBox` inside each, so every label was scaled by a different
@@ -14,6 +15,10 @@ import 'helpers/localized_harness.dart';
 /// which put five on the first row under English and stranded two on the
 /// second.
 void main() {
+  // OrdersListScreen resolves OrdersCubit from getIt now (spec 005).
+  setUp(registerOrdersTestDi);
+  tearDown(resetOrdersTestDi);
+
   Finder pillLabels() => find.descendant(
     of: find.byKey(OrdersListScreen.pillsKey),
     matching: find.byType(Text),

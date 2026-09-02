@@ -10,7 +10,6 @@ import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/order_card.dart';
 import '../../../../../core/widgets/station_picker.dart';
 import '../../../../../shared/models/station_option.dart';
-import 'create_order_data.dart';
 import '../../../../../core/theme/theme_context.dart';
 
 /// "1. نوع الوقود" — the current-station summary plus favourite-station
@@ -21,57 +20,90 @@ class StationSection extends StatefulWidget {
   const StationSection({
     this.stationName,
     this.stationAddress,
-    this.favouriteStations = kFavouriteStations,
+    this.favouriteStations = const [],
     this.onChangeStation,
-    this.stations = kStationOptions,
-    this.selectedStationId = 'rehab',
+    this.onSelectStation,
+    this.onToggleFavourite,
+    this.stations = const [],
+    this.selectedStationId,
     super.key,
   });
 
   final String? stationName;
   final String? stationAddress;
-  final List<Station> favouriteStations;
+
+  /// The client's own real stations marked favourite (spec 005 D2) — a
+  /// subset of [stations], never fixed sample data.
+  final List<StationOption> favouriteStations;
 
   /// Still fired on tap, so callers can react; the section unfolds the picker
   /// itself.
   final VoidCallback? onChangeStation;
 
+  /// Fired when the client picks a different station in the expanded
+  /// picker — the parent screen owns which station a quote/order is
+  /// actually requested against (spec 005 US2), this section is display +
+  /// selection UI only.
+  final ValueChanged<StationOption>? onSelectStation;
+
+  /// Persists the flip through the backend (spec 005 T111/FR-037) — the
+  /// parent owns the real `Station` list and the usecase call; this section
+  /// only reports which one was tapped, same division of labour as
+  /// [onSelectStation].
+  final ValueChanged<StationOption>? onToggleFavourite;
+
+  /// The client's own registered stations (`GET /stations`) — never a list
+  /// fixed in the app (FR-036a).
   final List<StationOption> stations;
-  final String selectedStationId;
+
+  /// `null` until the client's stations have loaded.
+  final String? selectedStationId;
 
   @override
   State<StationSection> createState() => _StationSectionState();
 }
 
 class _StationSectionState extends State<StationSection> {
-  late List<StationOption> _stations = widget.stations;
-  late String _selectedId = widget.selectedStationId;
+  String? _selectedId;
   bool _expanded = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _selectedId = widget.selectedStationId;
+  }
+
+  @override
+  void didUpdateWidget(StationSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // The parent screen fetches the client's stations asynchronously, so
+    // this section is first built before they arrive — sync once they do,
+    // but never override a selection the client has since made themselves.
+    if (_selectedId == null && widget.selectedStationId != null) {
+      _selectedId = widget.selectedStationId;
+    }
+  }
+
   void _toggle() {
+    // spec 005 T113/FR-036d: a single-station client is never asked to
+    // choose — nothing to expand.
+    if (widget.stations.length <= 1) return;
     setState(() => _expanded = !_expanded);
     widget.onChangeStation?.call();
   }
 
-  void _toggleFavourite(StationOption station) {
-    setState(() {
-      _stations = [
-        for (final s in _stations)
-          s.id == station.id ? s.copyWith(isFavourite: !s.isFavourite) : s,
-      ];
-    });
+  void _selectStation(StationOption station) {
+    setState(() => _selectedId = station.id);
+    widget.onSelectStation?.call(station);
   }
 
   @override
   Widget build(BuildContext context) {
-    final isAr = context.locale.languageCode == 'ar';
-    final resolvedName =
-        widget.stationName ?? (isAr ? 'محطة الرحاب' : 'Al Rehab Station');
-    final resolvedAddress =
-        widget.stationAddress ??
-        (isAr
-            ? 'جدة - طريق مكة القديم - حي البوادي'
-            : 'Jeddah - Old Makkah Road - Al Bawadi District');
+    // Neither field is ever fabricated (spec 005 FR-001) — while the
+    // client's real stations are still loading, the label plainly says so
+    // rather than showing a placeholder that reads as a real address.
+    final resolvedName = widget.stationName ?? CreateOrderKeys.loadingStation.tr();
+    final resolvedAddress = widget.stationAddress ?? '';
 
     return OrderCard(
       title: CreateOrderKeys.sectionStation.tr(),
@@ -171,12 +203,12 @@ class _StationSectionState extends State<StationSection> {
               // under their own divider, because switching your default is a
               // different question from ordering.
               stations: [
-                for (final s in _stations)
+                for (final s in widget.stations)
                   if (s.isActive) s,
               ],
               selectedId: _selectedId,
-              onSelect: (s) => setState(() => _selectedId = s.id),
-              onToggleFavourite: _toggleFavourite,
+              onSelect: _selectStation,
+              onToggleFavourite: widget.onToggleFavourite,
             )
           else ...[
             Row(
@@ -219,29 +251,34 @@ class _StationSectionState extends State<StationSection> {
               ),
             ),
           ],
-          const SizedBox(height: AppSpacing.md),
-          GestureDetector(
-            onTap: _toggle,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text(
-                  CreateOrderKeys.changeStation.tr(),
-                  style: TextStyle(
-                    color: context.colors.brandGreen,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
+          // spec 005 T113/FR-036d: with only one registered station there is
+          // no choice to offer, so the affordance for making one is absent
+          // entirely — not merely disabled.
+          if (widget.stations.length > 1) ...[
+            const SizedBox(height: AppSpacing.md),
+            GestureDetector(
+              onTap: _toggle,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    CreateOrderKeys.changeStation.tr(),
+                    style: TextStyle(
+                      color: context.colors.brandGreen,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                ),
-                const SizedBox(width: AppSpacing.xs),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: AppSizes.iconSm,
-                  color: context.colors.brandGreen,
-                ),
-              ],
+                  const SizedBox(width: AppSpacing.xs),
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    size: AppSizes.iconSm,
+                    color: context.colors.brandGreen,
+                  ),
+                ],
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -251,7 +288,7 @@ class _StationSectionState extends State<StationSection> {
 class _FavouriteStationChip extends StatelessWidget {
   const _FavouriteStationChip({required this.station});
 
-  final Station station;
+  final StationOption station;
 
   @override
   Widget build(BuildContext context) {

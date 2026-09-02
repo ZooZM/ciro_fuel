@@ -19,7 +19,7 @@ BaseOptions _baseOptions() => BaseOptions(
 /// and recurse (research R5).
 Dio buildDioClient({
   required TokenStore tokenStore,
-  required Future<void> Function() onSessionExpired,
+  required Future<void> Function([String? cause]) onSessionExpired,
   Future<void> Function()? onTokenRefreshed,
 }) {
   final refreshDio = Dio(_baseOptions());

@@ -1,7 +1,6 @@
 // `hide TextDirection`: easy_localization re-exports intl, whose
 // TextDirection would shadow the one this screen lays out with.
-import 'package:easy_localization/easy_localization.dart'
-    hide TextDirection;
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -14,10 +13,13 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/number_formatting.dart';
+import '../../../../core/utils/phone_dialer.dart';
 import '../../../../shared/entities/order.dart';
 import '../../../../shared/enums/order_status.dart';
 import '../../../auth/presentation/cubit/session_cubit.dart';
 import '../../../auth/presentation/cubit/session_state.dart';
+import '../../../notifications/presentation/cubit/notifications_cubit.dart';
+import '../../../notifications/presentation/cubit/notifications_state.dart';
 import '../../../invoices/presentation/cubit/finance_cubit.dart';
 import '../../../invoices/presentation/cubit/finance_state.dart';
 import '../../../orders/presentation/constants/order_formatting.dart';
@@ -44,19 +46,12 @@ class ClientHomeScreen extends StatelessWidget {
       providers: [
         BlocProvider<OrdersCubit>(create: (_) => getIt<OrdersCubit>()..load()),
         BlocProvider<FinanceCubit>(
-          create: (context) => getIt<FinanceCubit>()
-            ..load(creditLimit: _creditLimitOf(context.read<SessionCubit>())),
+          create: (_) => getIt<FinanceCubit>()..load(),
         ),
       ],
       child: const _ClientHomeView(),
     );
   }
-
-  static double? _creditLimitOf(SessionCubit sessionCubit) =>
-      switch (sessionCubit.state) {
-        SessionAuthenticated(:final user) => user.creditLimit,
-        _ => null,
-      };
 }
 
 class _ClientHomeView extends StatelessWidget {
@@ -91,7 +86,7 @@ class _ClientHomeView extends StatelessWidget {
       OrderCountStat(
         labelKey: HomeKeys.statInDelivery,
         count:
-            '${count((o) => o.status == OrderStatus.assignedToDriver || o.status == OrderStatus.inTransit || o.status == OrderStatus.unloading)}',
+            '${count((o) => o.status == OrderStatus.assignedToDriver || o.status == OrderStatus.loading || o.status == OrderStatus.inTransit || o.status == OrderStatus.unloading)}',
         color: AppColors.blue,
         icon: Icons.access_time,
       ),
@@ -109,6 +104,9 @@ class _ClientHomeView extends StatelessWidget {
     fuelType: OrderPresentation.fuelLabel(order.fuelType),
     quantity: OrderFormatting.litres(order.quantityLiters),
     statusLabel: OrderPresentation.statusLabel(order.status),
+    statusColor: OrderPresentation.statusColor(order.status),
+    flowStep: OrderPresentation.flowStep(order.status),
+    isTrackable: OrderPresentation.isTrackable(order.status),
     driverName: order.driverSummary?.fullName ?? '—',
     truckPlate: order.driverSummary?.plateNumber ?? '—',
     progress: OrderPresentation.statusProgress(order.status),
@@ -130,34 +128,31 @@ class _ClientHomeView extends StatelessWidget {
           child: RefreshIndicator(
             onRefresh: () => Future.wait([
               context.read<OrdersCubit>().load(),
-              context.read<FinanceCubit>().load(
-                creditLimit: ClientHomeScreen._creditLimitOf(
-                  context.read<SessionCubit>(),
-                ),
-              ),
+              context.read<FinanceCubit>().load(),
             ]),
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.only(
                 left: AppSpacing.gutter,
                 right: AppSpacing.gutter,
-                top: AppSpacing.lg,
+                // top: AppSpacing.lg,
                 bottom: AppSpacing.dashboardNavBarClearance,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // TODO: the unread count is still the design's placeholder —
-                  // wiring it means depending on NotificationsCubit here.
                   AppTopBar(
                     showProfile: true,
-                    notificationCount: 3,
+                    notificationCount: context
+                        .watch<NotificationsCubit>()
+                        .state
+                        .unreadBadgeCount,
                     onNotificationTap: () =>
                         context.push(AppRoutes.notifications),
                   ),
-                  const SizedBox(height: AppSpacing.xl),
+                  const SizedBox(height: AppSpacing.md),
                   BlocBuilder<SessionCubit, SessionState>(
-                    builder: (context, state) => _buildStationCard(state),
+                    builder: _buildStationCard,
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   BlocBuilder<FinanceCubit, FinanceState>(
@@ -170,9 +165,13 @@ class _ClientHomeView extends StatelessWidget {
                           pendingInvoiceAmount: NumberFormatting.currency(
                             pendingInvoiceAmount,
                           ),
-                          availableBalanceAmount: NumberFormatting.currency(
-                            availableBalanceAmount,
-                          ),
+                          // No credit facility (FR-027) reads as "—", never a
+                          // fabricated "0.00" that looks like a real, empty one.
+                          availableBalanceAmount: availableBalanceAmount != null
+                              ? NumberFormatting.currency(
+                                  availableBalanceAmount,
+                                )
+                              : '—',
                         ),
                       _ => FinanceCardsRow(
                         pendingInvoiceAmount: NumberFormatting.currency(0),
@@ -226,7 +225,7 @@ class _ClientHomeView extends StatelessWidget {
     );
   }
 
-  Widget _buildStationCard(SessionState state) {
+  Widget _buildStationCard(BuildContext context, SessionState state) {
     final station = switch (state) {
       SessionAuthenticated(:final user) => user.station,
       _ => null,
@@ -234,7 +233,11 @@ class _ClientHomeView extends StatelessWidget {
     return CurrentStationCard(
       name: station?.name ?? HomeKeys.stationNameUnavailable.tr(),
       address: station?.addressText ?? HomeKeys.stationNameUnavailable.tr(),
-      onChangeStation: () {},
+      // spec 005 T112 — the dashboard shows only the client's default
+      // station (from the session's thin AuthUser); switching it, or
+      // favouriting another, happens on the full list (FR-036a/FR-037),
+      // not in place here.
+      onChangeStation: () => context.push(AppRoutes.clientStations),
     );
   }
 
@@ -245,8 +248,15 @@ class _ClientHomeView extends StatelessWidget {
     }
     return CurrentOrderCard(
       order: _summary(order),
+      onOpenOrder: () => context.push(AppRoutes.clientOrderDetail(order.id)),
       onTrackOrder: () => context.push(AppRoutes.clientOrderDetail(order.id)),
-      onContactDriver: () {},
+      onContactDriver: () async {
+        final placed = await PhoneDialer.call(order.driverSummary?.phone);
+        if (placed || !context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(TrackOrderKeys.callUnavailable.tr())),
+        );
+      },
     );
   }
 }

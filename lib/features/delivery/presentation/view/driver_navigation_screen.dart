@@ -10,14 +10,34 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../core/widgets/icon_card.dart';
 import '../../../../core/widgets/app_logo.dart';
+import '../../../orders/presentation/constants/order_presentation.dart';
 import '../widgets/driver_navigation_stats_card.dart';
 import '../widgets/driver_navigation_bottom_sheet.dart';
+import '../../../../shared/entities/order.dart';
 
+/// spec 007: was a fixed mock-up — station name, address, quantity, fuel
+/// type and the "12.7 km / 17 min" stats were all baked into translation
+/// strings rather than read off [order], and the destination/contact
+/// buttons were `onPressed: () {}` stubs. Fixed to read the real active
+/// delivery: distance/ETA are derived from `order.driverLocation` and
+/// `order.destination` and are `null` (never a guessed figure) until both
+/// are known, matching every other ETA/distance surface in the app.
 class DriverNavigationScreen extends StatelessWidget {
-  const DriverNavigationScreen({super.key});
+  const DriverNavigationScreen({required this.order, super.key});
+
+  final Order order;
 
   @override
   Widget build(BuildContext context) {
+    // deliveryAddressText is the snapshot taken at order creation (FR-009/
+    // FR-030); stationAddressText is only a fallback for an order placed
+    // before the station had one on file.
+    final stationLabel =
+        (order.stationName?.isNotEmpty ?? false) ? order.stationName! : null;
+    final addressLabel = order.deliveryAddressText?.isNotEmpty == true
+        ? order.deliveryAddressText!
+        : (order.stationAddressText ?? OrderPresentation.destinationLabel(order));
+
     return Directionality(
       textDirection: ui.TextDirection.rtl,
       child: Scaffold(
@@ -69,14 +89,25 @@ class DriverNavigationScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.lg),
-                    const DriverNavigationStatsCard(),
+                    DriverNavigationStatsCard(
+                      orderId: order.id,
+                      distance: OrderPresentation.distanceLabel(order.driverLocation, order.destination),
+                      expectedTime: OrderPresentation.etaLabel(order),
+                      fuelType: OrderPresentation.fuelLabel(order.fuelType),
+                    ),
                     const SizedBox(height: AppSpacing.lg),
                   ],
                 ),
               ),
             ),
 
-            // Full bleed map background (below the top area)
+            // spec 008 TODO: this is a static screenshot, not a live map —
+            // there is no route polyline or driver marker drawn here yet.
+            // A real one needs a `GoogleMap` widget plus the platform's own
+            // `GET /orders/:id/driving-route` (already built for the
+            // client's tracking screen) wired the same way. Tracked
+            // separately; the fix here is limited to making this screen's
+            // data and its one real action (navigate) honest.
             Positioned.fill(
               top: 140,
               child: Image.asset(AppAssets.orderMapImage, fit: BoxFit.cover),
@@ -101,11 +132,19 @@ class DriverNavigationScreen extends StatelessWidget {
             ),
 
             // Bottom Sheet Overlay
-            const Positioned(
+            Positioned(
               bottom: 0,
               left: 0,
               right: 0,
-              child: DriverNavigationBottomSheet(),
+              child: DriverNavigationBottomSheet(
+                stationLabel: stationLabel,
+                addressLabel: addressLabel,
+                phone: order.clientSummary?.phone,
+                quantityLiters: order.quantityLiters,
+                fuelTypeLabel: OrderPresentation.fuelLabel(order.fuelType),
+                etaLabel: OrderPresentation.etaLabel(order),
+                destination: order.destination,
+              ),
             ),
           ],
         ),

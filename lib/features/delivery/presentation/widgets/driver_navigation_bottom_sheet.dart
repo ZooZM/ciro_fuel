@@ -5,10 +5,39 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../../core/localization/translation_keys.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/theme_context.dart';
+import '../../../../../core/utils/map_navigator.dart';
+import '../../../../../core/utils/phone_dialer.dart';
+import '../../../orders/presentation/constants/order_formatting.dart';
+import '../../../../../shared/entities/value_objects.dart';
 import '../view/driver_scan_screen.dart';
 
+/// spec 007: every value here used to come from a translation key holding
+/// fake sample data ("Al Rehab Station", "20,000 لتر", …), and both action
+/// buttons were `onPressed: () {}` stubs — the driver could scan a QR code
+/// but had no way to actually get to the delivery. Now takes the real
+/// order's fields; "Start Navigation" opens the platform's own maps app on
+/// [destination], and the contact button dials [phone] — the same
+/// `MapNavigator`/`PhoneDialer` seams the loading screen and delivery
+/// detail screen already use.
 class DriverNavigationBottomSheet extends StatefulWidget {
-  const DriverNavigationBottomSheet({super.key});
+  const DriverNavigationBottomSheet({
+    required this.quantityLiters,
+    required this.fuelTypeLabel,
+    this.stationLabel,
+    this.addressLabel,
+    this.phone,
+    this.etaLabel,
+    this.destination,
+    super.key,
+  });
+
+  final String? stationLabel;
+  final String? addressLabel;
+  final String? phone;
+  final int quantityLiters;
+  final String fuelTypeLabel;
+  final String? etaLabel;
+  final GeoPoint? destination;
 
   @override
   State<DriverNavigationBottomSheet> createState() => _DriverNavigationBottomSheetState();
@@ -21,6 +50,22 @@ class _DriverNavigationBottomSheetState extends State<DriverNavigationBottomShee
     setState(() {
       _isExpanded = !_isExpanded;
     });
+  }
+
+  Future<void> _startNavigation(BuildContext context) async {
+    final destination = widget.destination;
+    if (destination == null) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final opened = await MapNavigator.navigateTo(
+      latitude: destination.lat,
+      longitude: destination.lng,
+      label: widget.stationLabel,
+    );
+    if (!opened && context.mounted) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(DriverLoadingKeys.navigateFailed.tr())),
+      );
+    }
   }
 
   @override
@@ -103,59 +148,75 @@ class _DriverNavigationBottomSheetState extends State<DriverNavigationBottomShee
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        DriverNavigationKeys.stationName.tr(),
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                          color: context.colors.textPrimary,
+                      // Absent for an order placed before spec 004's station
+                      // registration existed — the address alone still gets
+                      // the driver there, so this line is dropped rather
+                      // than shown blank or with an invented name.
+                      if (widget.stationLabel != null)
+                        Text(
+                          widget.stationLabel!,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                            color: context.colors.textPrimary,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 2),
+                      if (widget.stationLabel != null) const SizedBox(height: 2),
                       Text(
-                        DriverNavigationKeys.stationAddress.tr(),
+                        widget.addressLabel ?? '',
                         style: TextStyle(fontSize: 10, color: context.colors.textSecondary),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SvgPicture.asset('assets/driverOrderPage/map_pin.svg', width: 14, height: 14),
-                          const SizedBox(width: 4),
-                          Text(
-                            DriverNavigationKeys.viewOnMap.tr(),
-                            style: TextStyle(fontSize: 10, color: context.colors.brandGreen, fontWeight: FontWeight.w700),
-                          ),
-                        ],
+                      GestureDetector(
+                        onTap: () => _startNavigation(context),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SvgPicture.asset('assets/Order/pin.svg', width: 14, height: 14),
+                            const SizedBox(width: 4),
+                            Text(
+                              DriverNavigationKeys.viewOnMap.tr(),
+                              style: TextStyle(fontSize: 10, color: context.colors.brandGreen, fontWeight: FontWeight.w700),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(width: 12),
-                // Contact button (appears on LEFT in RTL)
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: context.colors.borderHairline),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SvgPicture.asset(
-                        'assets/driverOrderPage/phone.svg',
-                        width: 20,
-                        height: 20,
-                        colorFilter: ColorFilter.mode(context.colors.brandBlue, BlendMode.srcIn),
+                // Contact button (appears on LEFT in RTL) — hidden entirely
+                // when there is no number, same rule the delivery detail
+                // screen already applies, rather than a dead tap target.
+                if (widget.phone != null)
+                  GestureDetector(
+                    onTap: () => PhoneDialer.call(widget.phone),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: context.colors.borderHairline),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        DriverNavigationKeys.contactCustomer.tr(),
-                        style: TextStyle(color: context.colors.brandBlue, fontSize: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SvgPicture.asset(
+                            'assets/driverOrderPage/phone.svg',
+                            width: 20,
+                            height: 20,
+                            colorFilter: ColorFilter.mode(context.colors.brandBlue, BlendMode.srcIn),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            DriverNavigationKeys.contactCustomer.tr(),
+                            style: TextStyle(color: context.colors.brandBlue, fontSize: 8),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
               ],
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -171,14 +232,38 @@ class _DriverNavigationBottomSheetState extends State<DriverNavigationBottomShee
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // 3 Info Cards
+                        // 3 Info Cards. The first was "requested time" —
+                        // fabricated, since no such field exists on an
+                        // order — replaced with ETA, which is real and
+                        // belongs on a navigation screen regardless.
                         Row(
                           children: [
-                            Expanded(child: _InfoTile(icon: 'assets/driverOrderPage/date.svg', title: DriverNavigationKeys.requestedTime.tr(), value: 'اليوم, 04:30 م', color: const Color(0xFF22C55E))),
+                            Expanded(
+                              child: _InfoTile(
+                                icon: 'assets/driverOrderPage/date.svg',
+                                title: DriverNavigationKeys.expectedTime.tr(),
+                                value: widget.etaLabel ?? OrdersKeys.locationUnavailable.tr(),
+                                color: const Color(0xFF22C55E),
+                              ),
+                            ),
                             const SizedBox(width: 10),
-                            Expanded(child: _InfoTile(icon: 'assets/driverOrderPage/station 98.svg', title: DriverNavigationKeys.fuelType.tr(), value: 'بنزين 95', color: Colors.purple)),
+                            Expanded(
+                              child: _InfoTile(
+                                icon: 'assets/driverOrderPage/station 98.svg',
+                                title: DriverNavigationKeys.fuelType.tr(),
+                                value: widget.fuelTypeLabel,
+                                color: Colors.purple,
+                              ),
+                            ),
                             const SizedBox(width: 10),
-                            Expanded(child: _InfoTile(icon: 'assets/driverOrderPage/waterDrop.svg', title: DriverNavigationKeys.quantity.tr(), value: '20,000 لتر', color: Colors.orange)),
+                            Expanded(
+                              child: _InfoTile(
+                                icon: 'assets/driverOrderPage/waterDrop.svg',
+                                title: DriverNavigationKeys.quantity.tr(),
+                                value: OrderFormatting.litres(widget.quantityLiters),
+                                color: Colors.orange,
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: AppSpacing.lg),
@@ -234,7 +319,7 @@ class _DriverNavigationBottomSheetState extends State<DriverNavigationBottomShee
 
             // ===== Start Navigation Button =====
             FilledButton(
-              onPressed: () {},
+              onPressed: widget.destination == null ? null : () => _startNavigation(context),
               style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 backgroundColor: context.colors.brandBlue,

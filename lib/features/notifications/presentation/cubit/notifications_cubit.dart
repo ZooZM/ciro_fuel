@@ -29,9 +29,44 @@ class NotificationsCubit extends Cubit<NotificationsState> {
   Future<void> load() async {
     emit(const NotificationsState.loading());
     final result = await _getNotifications();
+    if (isClosed) return;
     result.fold(
       (failure) => emit(NotificationsState.failure(failure)),
-      (notifications) => emit(NotificationsState.loaded(notifications)),
+      (page) => emit(
+        NotificationsState.loaded(
+          page.items,
+          unreadCount: page.unreadCount,
+          nextCursor: page.nextCursor,
+        ),
+      ),
+    );
+  }
+
+  Future<void> refresh() => load();
+
+  Future<void> loadMore() async {
+    final current = state;
+    if (current is! NotificationsLoaded) return;
+    if (current.nextCursor == null) return;
+    if (current.isLoadingMore) return;
+
+    emit(current.copyWith(isLoadingMore: true, loadMoreFailed: false));
+    final result = await _getNotifications(cursor: current.nextCursor);
+    if (isClosed) return;
+    result.fold(
+      (failure) =>
+          emit(current.copyWith(isLoadingMore: false, loadMoreFailed: true)),
+      (page) => emit(
+        NotificationsState.loaded(
+          [...current.notifications, ...page.items],
+          // The whole-set count is re-read on every page too, so a
+          // notification that arrived (or was read elsewhere) between
+          // pages is still reflected — never held at the first page's
+          // stale figure.
+          unreadCount: page.unreadCount,
+          nextCursor: page.nextCursor,
+        ),
+      ),
     );
   }
 
@@ -48,13 +83,21 @@ class NotificationsCubit extends Cubit<NotificationsState> {
     final current = state;
     if (current is! NotificationsLoaded) return;
 
+    final target = current.notifications.where((n) => n.id == id).firstOrNull;
+    if (target == null || target.isRead) return;
+
     final result = await _markNotificationRead(id);
     result.fold((_) {}, (_) {
       final updated = [
         for (final n in current.notifications)
           if (n.id == id) n.copyWith(isRead: true) else n,
       ];
-      emit(NotificationsState.loaded(updated));
+      emit(
+        current.copyWith(
+          notifications: updated,
+          unreadCount: current.unreadCount > 0 ? current.unreadCount - 1 : 0,
+        ),
+      );
     });
   }
 
@@ -70,6 +113,15 @@ class NotificationsCubit extends Cubit<NotificationsState> {
     final existing = current is NotificationsLoaded
         ? current.notifications
         : const <AppNotification>[];
-    emit(NotificationsState.loaded([notification, ...existing]));
+    final unreadCount = current is NotificationsLoaded
+        ? current.unreadCount + 1
+        : 1;
+    emit(
+      NotificationsState.loaded(
+        [notification, ...existing],
+        unreadCount: unreadCount,
+        nextCursor: current is NotificationsLoaded ? current.nextCursor : null,
+      ),
+    );
   }
 }

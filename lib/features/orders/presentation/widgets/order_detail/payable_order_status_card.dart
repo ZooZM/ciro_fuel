@@ -15,6 +15,7 @@ import '../../../../../core/theme/theme_context.dart';
 /// wording.
 class PayableOrderStatusCard extends StatelessWidget {
   const PayableOrderStatusCard({
+    required this.orderId,
     required this.invoicePending,
     required this.onDeferPayment,
     this.orderReference,
@@ -23,6 +24,7 @@ class PayableOrderStatusCard extends StatelessWidget {
     super.key,
   });
 
+  final String orderId;
   final bool invoicePending;
   final String? orderReference;
 
@@ -59,7 +61,7 @@ class PayableOrderStatusCard extends StatelessWidget {
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute<void>(
-                          builder: (_) => const InvoicePaymentScreen(),
+                          builder: (_) => InvoicePaymentScreen(orderId: orderId),
                         ),
                       );
                     },

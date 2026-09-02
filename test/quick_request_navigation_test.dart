@@ -64,8 +64,13 @@ void main() {
         ),
         GoRoute(
           path: '/client/orders/new',
-          builder: (_, state) =>
-              CreateOrderScreen(initialGradeBadge: state.extra as String?),
+          // CreateOrderScreen also reads SessionCubit now (spec 005 T058 —
+          // it fetches the client's own stations/prices), so it needs the
+          // same ancestor provider the home route above gives itself.
+          builder: (_, state) => BlocProvider<SessionCubit>.value(
+            value: sampleAuthenticatedSessionCubit(),
+            child: CreateOrderScreen(initialGradeBadge: state.extra as String?),
+          ),
         ),
       ],
     );

@@ -9,6 +9,11 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- spec 008: tapping a truck's NFC card to verify it. `required="false"`
+         is load-bearing — a device with no NFC hardware still installs and
+         runs the app on the QR-code fallback (research R5). -->
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-feature android:name="android.hardware.nfc" android:required="false" />
 
     <application
         android:label="CiroFuel"

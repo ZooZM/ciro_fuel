@@ -29,7 +29,13 @@ class _FaceIdAuthenticator implements BiometricAuthenticator {
   Future<BiometricMethod> availableMethod() async => BiometricMethod.face;
 
   @override
-  Future<bool> authenticate({required String localizedReason}) async => false;
+  Future<bool> isDeviceLockAvailable() async => true;
+
+  @override
+  Future<bool> authenticate({
+    required String localizedReason,
+    bool allowDeviceCredential = false,
+  }) async => false;
 }
 
 void main() {

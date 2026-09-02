@@ -39,15 +39,50 @@ class BiometricAuthenticator {
     }
   }
 
+  /// Whether the device can satisfy *any* unlock challenge at all —
+  /// biometric or device passcode/PIN/pattern (spec 006 FR-013a).
+  ///
+  /// Deliberately distinct from [availableMethod]: that method answers
+  /// "which icon to show" and collapses to [BiometricMethod.none] the
+  /// moment nothing is *enrolled*, even on a device with a passcode set —
+  /// which is exactly the case [allowDeviceCredential] in [authenticate]
+  /// exists to still let through. `isDeviceSupported()` is `local_auth`'s
+  /// own device-capability check (biometric hardware OR a settable device
+  /// credential), independent of enrolment, so it is this method — not
+  /// [availableMethod] — that the mandatory lock's `unavailable` state
+  /// (FR-013a) must gate on. A device that fails this check has no
+  /// enrolled biometric AND no passcode: there is nothing for
+  /// `allowDeviceCredential: true` to fall back to either.
+  Future<bool> isDeviceLockAvailable() async {
+    try {
+      return await _localAuth.isDeviceSupported();
+    } on PlatformException {
+      return false;
+    } on MissingPluginException {
+      return false;
+    }
+  }
+
   /// Returns `true` only on a confirmed match. A cancel, lockout, or missing
   /// enrolment all return `false` — the caller cannot distinguish them, which
   /// keeps failure copy non-enumerating.
-  Future<bool> authenticate({required String localizedReason}) async {
+  ///
+  /// [allowDeviceCredential] defaults to `false`: unlocking a *stored*
+  /// session (login's biometric sign-in) with a device passcode is a
+  /// weaker proposition than unlocking a session already *running*, and
+  /// that call was made deliberately. The mandatory app lock (spec 006
+  /// FR-013) passes `true` — a failed or absent biometric must never
+  /// strand a driver mid-delivery, and the device passcode is still
+  /// device-level, still not driver-disableable.
+  Future<bool> authenticate({
+    required String localizedReason,
+    bool allowDeviceCredential = false,
+  }) async {
     try {
       return await _localAuth.authenticate(
         localizedReason: localizedReason,
-        options: const AuthenticationOptions(
-          biometricOnly: true,
+        options: AuthenticationOptions(
+          biometricOnly: !allowDeviceCredential,
           stickyAuth: true,
         ),
       );

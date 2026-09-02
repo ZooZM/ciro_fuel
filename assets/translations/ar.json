@@ -26,7 +26,10 @@
     "contact_driver": "تواصل مع السائق",
     "contact_support": "تواصل مع الدعم",
     "search_by_invoice_code": "ابحث بكود الفاتورة",
-    "search_by_order_code": "ابحث بكود الطلب"
+    "search_by_order_code": "ابحث بكود الطلب",
+    "save": "حفظ",
+    "retry": "إعادة المحاولة",
+    "edit_name": "تعديل الاسم"
   },
   "nav": {
     "payments": "المدفوعات",
@@ -151,8 +154,10 @@
     "final_total": "الإجمالي النهائي",
     "headline_deferred": "مؤجلة للمرة القادمة",
     "headline_paid": "تم السداد",
+    "headline_credit": "على الحساب الآجل",
     "headline_delivered": "تم التسليم",
     "order_another": "طلب أخر",
+    "retry_payment": "إعادة محاولة الدفع",
     "paid_successfully": "تم الدفع بنجاح",
     "reference_number": "الرقم المرجعي",
     "day": "اليوم",
@@ -212,7 +217,12 @@
     "fuel_tanker_truck": "شاحنة نقل وقود",
     "handover_note": "لضمان إستلام أمن و سريع، أعرض علي السائق التالي لإستكمال عملية الاستلام.",
     "order_stages": "مراحل الطلب",
-    "received": "تم الاستلام"
+    "received": "تم الاستلام",
+    "stale_warning": "قد يكون الموقع غير محدث",
+    "not_trackable_title": "التتبع المباشر غير متاح بعد",
+    "not_trackable_body": "سيظهر موقع الشاحنة هنا بمجرد انطلاقها.",
+    "map_unavailable": "الخريطة غير متاحة — لم يتم ضبط مفتاح خرائط Google لهذه النسخة. تفاصيل التتبع أدناه محدّثة.",
+    "call_unavailable": "الاتصال غير متاح على هذا الجهاز."
   },
   "orders_list": {
     "title": "كل الطلبات",
@@ -237,17 +247,22 @@
     "tab_all": "الكل",
     "tab_deferred": "مؤجلة",
     "tab_paid": "مدفوعة",
-    "tab_failed": "فشلت"
+    "tab_failed": "فشلت",
+    "tab_outstanding": "مستحقة",
+    "tab_voided": "ملغاة",
+    "detail_title": "الفاتورة",
+    "reference": "المرجع",
+    "settled_on": "تم السداد في",
+    "fuel_charge": "الوقود"
   },
   "payments": {
     "title": "كل الطلبات مستحقة الدفع",
-    "count": "{count} طلب إجمالاً"
+    "count": "{count} طلب إجمالاً",
+    "empty": "لا توجد مدفوعات بعد"
   },
   "stations": {
-    "current_order": "طلبك الحالي",
-    "last_order": "أخر طلب",
-    "quick_glance": "نظرة سريعة",
-    "delivered_deferred_invoice": "تم التسليم (الفاتورة مؤجلة)"
+    "title": "محطاتك",
+    "default_station": "المحطة الافتراضية"
   },
   "invoice_payment": {
     "sadad_note": "ادفع من تطبيق البنك عبر خدمة سداد بإدخال رقم المؤسسة ورقم الفاتورة، أو من أقرب صراف آلي.",
@@ -261,13 +276,16 @@
     "deferred_note": "يجب دفع الفاتورة المؤجلة لاستكمال العملية الحالية",
     "delivery_fee": "رسوم التوصيل",
     "service_fee": "رسوم خدمة",
-    "hide_details": "إخفاء التفاصيل"
+    "hide_details": "إخفاء التفاصيل",
+    "awaiting_confirmation": "بانتظار تأكيد الدفع...",
+    "window_expired": "انتهت مهلة الدفع. الرجاء الرجوع والمحاولة مرة أخرى."
   },
   "notifications": {
     "filter_all": "الكل",
     "filter_orders": "الطلبات",
     "filter_invoices": "الفواتير",
     "filter_system": "النظام",
+    "filter_unread": "غير مقروء",
     "mark_all_read": "تحديد الكل كمقروء",
     "order_accepted_title": "تم قبول طلبك",
     "invoice_due_title": "فاتورة مستحقة",
@@ -277,12 +295,18 @@
     "minutes_ago": "قبل 5 دقائق",
     "yesterday_time": "أمس, 09:35 ص",
     "system_body": "تم تحديث التطبيق إلى الإصدار الجديد مع تحسينات في الأداء والاستقرار.",
-    "banner_final_price_ready": "تم تسعير طلبك — الدفع جاهز.",
+    "banner_order_approved_final_price": "تم تسعير طلبك — الدفع جاهز.",
+    "banner_no_driver_available": "لا يوجد سائق متاح لأحد الطلبات حالياً.",
     "banner_payment_timeout": "انتهت مهلة الدفع لأحد طلباتك.",
-    "banner_no_eligible_driver": "لا يوجد سائق متاح لأحد الطلبات حالياً.",
-    "banner_delivery_completed": "تم إتمام عملية توصيل.",
+    "banner_order_assigned": "تم تعيينك لعملية توصيل جديدة.",
+    "banner_order_status_changed": "تغيرت حالة أحد طلباتك.",
+    "banner_otp_issued": "تم إرسال رمز التحقق لطلبك.",
+    "banner_payment_reconciliation_required": "هناك دفعة تحتاج إلى تسوية.",
+    "banner_order_routed_to_transport": "تم توجيه طلب إلى شركتكم.",
+    "banner_support_request_raised": "تم رفع طلب دعم جديد.",
     "banner_unknown": "لديك إشعار جديد.",
-    "banner_view": "عرض"
+    "banner_view": "عرض",
+    "banner_driver_stop_detected": "لم تتحرك شاحنتك منذ فترة — اضغط لإخبارنا بالسبب."
   },
   "more": {
     "section_account": "الحساب",
@@ -346,11 +370,11 @@
     "linked_stations": "المحطات المرتبطة بحسابك",
     "stations_count": "{count} محطات",
     "account_info": "معلومات الحساب",
-    "account_code": "كود الحساب",
     "join_date": "تاريخ الإنضمام",
     "active": "نشطة",
     "change_phone": "تغيير رقم الجوال",
-    "verified_account": "حساب موثوق"
+    "verified_account": "حساب موثوق",
+    "no_stations": "لا توجد محطات مرتبطة بحسابك بعد"
   },
   "change_phone": {
     "step_change_number": "تغيير الرقم",
@@ -363,9 +387,12 @@
   },
   "verify_phone": {
     "title": "أدخل رمز التحقق",
-    "sent_to": "تم إرسال رمز مكوّن من 4 أرقام إلى",
+    "sent_to": "تم إرسال رمز التحقق إلى",
     "change_number": "تغيير الرقم",
-    "resend_in": "إعادة الإرسال خلال {timer}"
+    "resend_in": "إعادة الإرسال خلال {timer}",
+    "resend_code": "إعادة إرسال الرمز",
+    "code_resent": "تم إرسال رمز جديد",
+    "phone_verified": "تم تحديث رقم هاتفك"
   },
   "support": {
     "contact_now": "تواصل معنا فوراً",
@@ -384,6 +411,13 @@
     "faq_question": "هل ممكن أطلب و أدفع مرة أخرى ؟",
     "faq_answer": "نعم تقدر تطلب شحنتك و فاتورة سداد تأجيل للشحنة القادمة",
     "availability": "فريق الدعم متاح يوميًا من 8 ص إلى 12 م",
+    "select_order": "اختر طلبًا",
+    "no_orders_to_attach": "ليس لديك طلبات لإرفاقها بعد",
+    "request_submitted": "تم استلام طلبك — سيتواصل معك الدعم قريبًا",
+    "my_requests": "طلباتك",
+    "no_requests_yet": "لم تقدّم أي طلبات بعد",
+    "state_submitted": "تم الإرسال",
+    "state_acknowledged": "تم الاطلاع",
     "brand_suffix": "FUEL",
     "whatsapp": "واتساب",
     "telegram": "تيليجرام",
@@ -409,7 +443,33 @@
     "verify": "تحقق",
     "throttled_in": "محاولات كثيرة. حاول مرة أخرى بعد {minutes} دقيقة.",
     "throttled": "محاولات كثيرة. انتظر قليلاً ثم حاول مرة أخرى.",
-    "code_rejected": "الكود غير صحيح. حاول مرة أخرى."
+    "code_rejected": "الكود غير صحيح. حاول مرة أخرى.",
+    "stop_detected_title": "هل توقفت؟",
+    "stop_detected_body": "لم تتحرك شاحنتك منذ فترة. اضغط لإخبارنا بالسبب.",
+    "stop_reason": {
+      "traffic": "ازدحام مروري",
+      "vehicleProblem": "عطل في المركبة",
+      "restOrPrayer": "استراحة أو صلاة",
+      "refuelling": "تعبئة وقود",
+      "roadClosure": "الطريق مغلق",
+      "accident": "حادث",
+      "other": "سبب آخر"
+    },
+    "stop_prompt_title": "لماذا توقفت؟",
+    "stop_prompt_subtitle": "اختر أقرب سبب. سيصل إلى شركة النقل.",
+    "stop_reason_other_hint": "اذكر باختصار ما حدث",
+    "stop_reason_other_required": "يرجى ذكر ما حدث.",
+    "stop_reason_submit": "إرسال",
+    "stop_reason_sent": "شكرًا — تم إبلاغ شركة النقل.",
+    "stop_reason_failed": "تعذّر الإرسال. حاول مرة أخرى.",
+    "declare_stop": "سأتوقف",
+    "declare_stop_title": "أخبرنا عن هذا التوقف",
+    "declare_stop_subtitle": "أبلغ شركة النقل قبل أن نسألك.",
+    "declare_stop_duration": "كم ستستغرق تقريبًا؟",
+    "declare_stop_minutes": "{minutes} دقيقة",
+    "declare_stop_submit": "إرسال",
+    "declare_stop_sent": "تم التسجيل — لن نسألك عن هذا التوقف.",
+    "declare_stop_failed": "تعذّر الإرسال. حاول مرة أخرى."
   },
   "orders": {
     "list_title": "الطلبات",
@@ -464,7 +524,13 @@
     "confirm_order": "تأكيد الطلب",
     "select_at_least_one_fuel_type": "الرجاء اختيار نوع وقود واحد على الأقل",
     "order_failed": "تعذر إرسال الطلب، حاول مرة أخرى",
-    "enter_valid_quantity_for": "أدخل كمية صحيحة لـ {grade}"
+    "enter_valid_quantity_for": "أدخل كمية صحيحة لـ {grade}",
+    "loading_station": "جارٍ تحميل محطتك...",
+    "select_station": "الرجاء اختيار محطة",
+    "price_changed_title": "تغير السعر",
+    "price_changed_message": "تغير السعر أثناء إتمام الطلب. الإجمالي الجديد هو {total}. هل تريد المتابعة بهذا السعر؟",
+    "confirm_new_price": "المتابعة بالسعر الجديد",
+    "credit_over_limit_warning": "يتجاوز هذا الطلب رصيدك الائتماني المتاح بمقدار {shortfall}. يمكنك إرساله، لكن سيتم رفض الموافقة عليه ما لم يكن ضمن حدك الائتماني."
   },
   "order_invoice": {
     "sadad_note": "ادفع من تطبيق البنك عبر خدمة سداد بإدخال رقم المؤسسة ورقم الفاتورة، أو من أقرب صراف آلي.",
@@ -480,7 +546,12 @@
     "network": "تحقق من اتصالك بالإنترنت ثم حاول مرة أخرى.",
     "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
     "biometric_unavailable": "لا توجد جلسة محفوظة على هذا الجهاز. سجل الدخول بكلمة المرور أولاً.",
-    "biometric_failed": "تعذر التحقق من هويتك. حاول مرة أخرى."
+    "biometric_failed": "تعذر التحقق من هويتك. حاول مرة أخرى.",
+    "phone_in_use": "رقم الهاتف هذا مسجل بالفعل لحساب آخر.",
+    "sms_send_failed": "تعذر إرسال رمز التحقق. يرجى المحاولة مرة أخرى.",
+    "wrong_verification_code": "الرمز غير صحيح أو منتهي الصلاحية. يرجى المحاولة مرة أخرى.",
+    "reset_code_invalid": "الرمز غير صحيح أو منتهي الصلاحية",
+    "reset_rate_limited": "محاولات كثيرة جدًا. يرجى المحاولة بعد {minutes} دقيقة"
   },
   "filter": {
     "title": "تصفية العناصر",
@@ -500,8 +571,11 @@
   "order_status": {
     "pending_approval": "قيد المراجعة",
     "approved": "تم التأكيد",
+    "awaiting_routing": "بانتظار شركة نقل",
+    "routed_to_transport": "تم تعيين شركة النقل",
     "assigned_to_driver": "تم تعيين سائق",
     "pending_payment": "بانتظار الدفع",
+    "loading": "جاري تحميل الوقود",
     "in_transit": "قيد التوصيل",
     "unloading": "جاري التفريغ",
     "delivered": "تم التسليم",
@@ -511,81 +585,39 @@
   "fuel_type": {
     "diesel": "ديزل",
     "gasoline_91": "بنزين 91",
-    "gasoline_95": "بنزين 95"
+    "gasoline_95": "بنزين 95",
+    "kerosene": "كيروسين"
   },
   "driver_order": {
     "order_details": "تفاصيل الطلب",
-    "status_completed": "مكتمل",
-    "status_assigned": "تم الأسناد",
-    "status_out_for_delivery": "قيد التوصيل",
     "time_to_arrival": "المتبقي للوصول",
     "minutes": "دقيقة",
-    "step_assigned": "الإسناد",
-    "step_loaded": "التحميل",
-    "step_in_transit": "التوصيل",
-    "step_delivered": "التسليم",
-    "customer_rating": "تقييم العميل",
     "contact_customer": "التواصل مع العميل",
-    "start_navigation_load": "أبدأ الملاحة للتحميل",
-    "start_navigation_station": "أبدأ الملاحة للمحطة",
-    "scan_delivery_code": "مسح كود التسليم",
-    "delivery_station": "محطة التسليم",
     "view_on_map": "عرض علي الخريطة",
     "shipment_details": "تفاصيل الشحنة",
     "fuel_type": "نوع الوقود",
     "quantity": "الكمية",
-    "requested_time": "الموعد المطلوب",
-    "distance": "المسافة",
-    "customer_notes": "ملاحظات العميل"
-  },
-  "driver_order_mock": {
-    "review_text": "سائق ممتاز و نفذ المطلوب في تعليمات الطلب.",
-    "user_name": "محمد أحمد",
-    "station_name": "محطة قو ستيشن",
-    "delivery_station_name": "محطة الرحاب",
-    "delivery_address": "جدة - طريق مكة القديم - حي البوادي",
-    "date": "9 صفر 1446",
-    "time": "06.30 صباحاً",
-    "fuel_type_98": "بنزين 98",
-    "quantity_val": "20,000 لتر",
-    "today_time": "اليوم، 04:30 م",
-    "distance_val": "12.7 كم",
-    "notes_text": "يرجى الاتصال قبل الوصول بـ 10 دقائق، والدخول من البوابة الخلفية للمحطة."
+    "destination": "الوجهة"
   },
   "driver_home": {
-    "active_order": "الطلب الحالي",
-    "orders_list": "قائمة الطلبات",
-    "view_all": "عرض الكل",
+    "active_order": "التوصيلة الحالية",
     "quick_actions": "إجراءات سريعة",
     "online": "انت متصل",
     "ready_to_receive": "جاهز لاستلام الطلبات",
     "rating": "التقييم",
     "orders_today": "الطلبات اليوم",
     "fuel_type": "نوع الوقود",
-    "fuel_95": "بنزين 95",
     "quantity": "الكمية",
-    "quantity_value": "20,000.00 لتر",
-    "station": "المحطة",
-    "driver_name": "محمد أحمد",
+    "customer": "العميل",
+    "customer_unavailable": "غير متاح",
     "time_remaining": "المتبقي للوصول",
     "minutes": "دقيقة",
-    "in_transit": "قيد التوصيل",
-    "today_time": "اليوم، 04:35 م",
-    "requested_time": "الموعد المطلوب",
-    "station_name": "محطة الرحاب ",
-    "station_address": "جدة - طريق مكة القديم - حي البوادي",
-    "contact_customer": "تواصل مع العميل",
-    "start_navigation": "بدء الملاحة",
+    "no_active_delivery": "لا توجد لديك توصيلة حالية.",
+    "view_delivery": "عرض التوصيلة",
     "nearby_stations": "المحطات القريبة",
     "support": "الدعم الفني",
     "delivery_report": "تقرير التسليم",
-    "scan_qr": "مسح كود\nالاستلام",
-    "tab_all": "جميع الطلبات",
-    "tab_delivering": "جاري التوصيل",
-    "tab_on_way": "في الطريق",
-    "tab_completed": "مكتملة",
-    "status_assigned": "تم الاسناد",
-    "status_completed": "مكتمل"
+    "scan_qr": "مسح كود\nالاستلام"
   },
   "driver_notifications": {
     "mark_all_read": "تحديد الكل كمقروء",
@@ -601,21 +633,6 @@
     "system_update_desc": "تم تحديث التطبيق إلى الإصدار الجديد مع تحسينات في الأداء والاستقرار.",
     "old_date": "14 أغسطس 2026",
     "yesterday_time": "أمس، 09:35 ص"
-  },
-  "driver_mock_extra": {
-    "date_aug": "14 أغسطس 2026",
-    "time_pm": "04:30 م",
-    "fuel_diesel": "ديزل",
-    "fuel_kero": "كيروسين",
-    "fuel_91": "بنزين 91",
-    "quantity_33": "33,000 لتر",
-    "quantity_23": "23,000 لتر",
-    "quantity_30": "30,000 لتر",
-    "quantity_28": "28,000 لتر",
-    "station_rehab": "محطة الرحاب - جدة",
-    "station_safa": "محطة الصفا - جدة",
-    "station_galala": "محطة الجلالة - جدة",
-    "station_yamama": "محطة اليمامة - جدة"
   },
   "driver_profile_details": {
     "contact_info": "بيانات التواصل",
@@ -645,8 +662,6 @@
     "remaining_distance": "المسافة المتبقية",
     "expected_time": "الوقت المتوقع",
     "fuel_type": "نوع الوقود",
-    "station_name": "محطة الرحاب",
-    "station_address": "جدة - طريق مكة القديم - حي البوادي",
     "view_on_map": "عرض علي الخريطة",
     "contact_customer": "تواصل مع العميل",
     "requested_time": "الموعد المطلوب",
@@ -660,6 +675,100 @@
     "point_camera": "وجه الكاميرا نحو رمز ال QR",
     "confirm_delivery": "تأكيد التسليم",
     "enter_delivery_code": "أدخل كود التسليم",
-    "enter_4_digit_code": "أدخل الكود المكوّن من 4 أرقام"
+    "enter_6_digit_code": "أدخل الكود المكوّن من 6 أرقام",
+    "mark_arrived": "لقد وصلت",
+    "request_delivery_code": "طلب كود التسليم",
+    "code_sent_to_customer": "تم إرسال الكود إلى العميل.",
+    "code_not_recognised": "لم يتم التعرف على الرمز. اطلب من العميل قراءته مرة أخرى.",
+    "code_too_many_attempts": "محاولات كثيرة. اطلب من العميل رمزاً جديداً.",
+    "code_confirm_failed": "تعذّر التأكيد الآن. حاول مرة أخرى."
+  },
+  "driver_verification": {
+    "departure_title": "تحقق من مركبتك",
+    "loading_title": "تحقق عند المستودع",
+    "tap_card": "قرّب بطاقة NFC",
+    "tap_card_hint": "قرّب بطاقة NFC الخاصة بالشاحنة من هاتفك",
+    "scan_code_instead": "امسح رمز QR بدلاً من ذلك",
+    "use_card_instead": "استخدم بطاقة NFC بدلاً من ذلك",
+    "point_camera": "وجّه الكاميرا نحو رمز QR الخاص بالشاحنة",
+    "verifying": "جارٍ التحقق...",
+    "mismatch": "هذه ليست المركبة المخصصة. تحقق من الشاحنة وحاول مرة أخرى.",
+    "try_again": "حاول مرة أخرى",
+    "unreachable": "تعذّر الوصول إلى المنصة — لم يتم تسجيل أي شيء. حاول مرة أخرى.",
+    "failed": "التحقق غير متاح الآن. حاول مرة أخرى.",
+    "too_many_attempts": "محاولات كثيرة جداً. انتظر بضع دقائق وحاول مرة أخرى.",
+    "nfc_unavailable": "تقنية NFC غير متاحة على هذا الجهاز — استخدم رمز QR بدلاً من ذلك.",
+    "verify_vehicle": "تحقق من المركبة",
+    "not_at_warehouse": "أنت على بعد {distance} كم من مستودع التحميل. أعد تمرير البطاقة عند الوصول.",
+    "not_at_warehouse_unknown_distance": "أنت بعيد عن مستودع التحميل. أعد تمرير البطاقة عند الوصول.",
+    "location_unavailable": "الموقع غير مُفعّل، لذا يتعذّر التحقق من التحميل. فعّل الموقع لتطبيق سيرو ثم أعد المحاولة."
+  },
+  "driver_loading": {
+    "destination": "المستودع",
+    "tank_details": "الخزان المخصص",
+    "tank_code": "رمز الخزان",
+    "tank_material": "الخامة",
+    "confirm_loading": "تأكيد اكتمال التحميل",
+    "confirm_loading_failed": "تعذّر تأكيد التحميل الآن. حاول مرة أخرى.",
+    "material_iron": "حديد",
+    "material_aluminium": "ألمنيوم",
+    "navigate_to_warehouse": "التوجّه إلى المستودع",
+    "navigate_failed": "تعذّر فتح تطبيق الخرائط على هذا الجهاز."
+  },
+  "driver_profile": {
+    "company": "الشركة",
+    "truck_plate": "رقم اللوحة",
+    "truck_fuel_types": "أنواع الوقود",
+    "no_truck_assigned": "لا توجد شاحنة مخصصة حاليًا"
+  },
+  "lock": {
+    "challenge_reason": "أثبت هويتك للمتابعة",
+    "title": "التطبيق مقفل",
+    "retry": "إعادة المحاولة",
+    "unavailable_title": "يتطلب التطبيق قفل جهاز",
+    "unavailable_body": "لأسباب أمنية، لا يمكن استخدام هذا التطبيق إلا على جهاز يحتوي على بصمة أو رمز قفل. يرجى إعداد قفل للجهاز من إعدادات هاتفك، أو تسجيل الخروج."
+  },
+  "password_reset": {
+    "forgot_title": "نسيت كلمة المرور",
+    "phone_intro": "أدخل رقم هاتفك المسجّل وسنرسل لك رمزًا لإعادة تعيين كلمة المرور",
+    "send_code": "إرسال الرمز",
+    "code_sent_to": "تم إرسال رمز إلى {phone}",
+    "code_label": "رمز التحقق",
+    "verify": "تحقق",
+    "resend": "إعادة إرسال الرمز",
+    "change_number": "تغيير الرقم",
+    "new_password_title": "كلمة مرور جديدة",
+    "new_password_label": "كلمة المرور الجديدة",
+    "new_password_rules": "يجب ألا تقل كلمة المرور عن 8 أحرف",
+    "submit": "تعيين كلمة المرور",
+    "completed_message": "تم تغيير كلمة المرور بنجاح. يرجى تسجيل الدخول"
+  },
+  "session": {
+    "signed_in_elsewhere": "تم تسجيل الدخول من جهاز آخر. يرجى تسجيل الدخول مرة أخرى.",
+    "password_reset": "تم إعادة تعيين كلمة المرور الخاصة بك. يرجى تسجيل الدخول مرة أخرى.",
+    "account_deactivated": "تم إيقاف حسابك. يرجى التواصل مع المسؤول لديك.",
+    "ended": "انتهت جلستك. يرجى تسجيل الدخول مرة أخرى."
+  },
+  "driver_orders": {
+    "tab_all": "الكل",
+    "tab_in_progress": "قيد التنفيذ",
+    "tab_completed": "مكتملة",
+    "tab_cancelled": "ملغاة",
+    "empty": "لا توجد توصيلات بعد."
+  },
+  "driver_summary": {
+    "not_yet_rated": "لم يتم التقييم بعد",
+    "off_duty": "غير متصل",
+    "not_receiving_orders": "لا يستقبل طلبات جديدة",
+    "could_not_load": "تعذر التحميل"
+  },
+  "rating": {
+    "prompt": "قيّم توصيلتك",
+    "review_hint": "شاركنا المزيد عن تجربتك (اختياري)",
+    "submit": "إرسال التقييم",
+    "submitted": "شكراً لتقييمك هذه التوصيلة.",
+    "already_rated": "لقد قمت بتقييم هذه التوصيلة بالفعل.",
+    "not_delivered": "لم يتم إتمام هذه التوصيلة بعد.",
+    "submit_failed": "تعذر إرسال تقييمك. حاول مرة أخرى."
   }
 }

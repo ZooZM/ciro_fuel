@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 
 import '../../../../core/error/failure.dart';
-import '../../domain/entities/app_notification.dart';
+import '../../domain/entities/notifications_page.dart';
 import '../../domain/repositories/notifications_repository.dart';
 import '../datasources/notifications_remote_data_source.dart';
 
@@ -12,9 +12,12 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
   final NotificationsRemoteDataSource _remoteDataSource;
 
   @override
-  Future<Either<Failure, List<AppNotification>>> getNotifications({
+  Future<Either<Failure, NotificationsPage>> getNotifications({
     bool? unread,
-  }) => _guard(() => _remoteDataSource.getNotifications(unread: unread));
+    String? cursor,
+  }) => _guard(
+    () => _remoteDataSource.getNotifications(unread: unread, cursor: cursor),
+  );
 
   @override
   Future<Either<Failure, void>> markRead(String id) =>
@@ -27,6 +30,10 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
       return Left(
         e.error is Failure ? e.error as Failure : const Failure.server(),
       );
+    } catch (_) {
+      // A parse/mapping throw must not escape: an escaping error leaves the
+      // awaiting cubit stuck on loading forever (FR-041/FR-003).
+      return const Left(Failure.server());
     }
   }
 }

@@ -131,13 +131,13 @@ return server(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  network,TResult Function( bool forbidden)?  auth,TResult Function()?  notFound,TResult Function( String message)?  validation,TResult Function( Duration? retryAfter)?  throttled,TResult Function()?  server,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  network,TResult Function( bool forbidden)?  auth,TResult Function()?  notFound,TResult Function( String message,  String? code,  Map<String, Object?>? extra)?  validation,TResult Function( Duration? retryAfter)?  throttled,TResult Function()?  server,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case NetworkFailure() when network != null:
 return network();case AuthFailure() when auth != null:
 return auth(_that.forbidden);case NotFoundFailure() when notFound != null:
 return notFound();case ValidationFailure() when validation != null:
-return validation(_that.message);case ThrottledFailure() when throttled != null:
+return validation(_that.message,_that.code,_that.extra);case ThrottledFailure() when throttled != null:
 return throttled(_that.retryAfter);case ServerFailure() when server != null:
 return server();case _:
   return orElse();
@@ -157,13 +157,13 @@ return server();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  network,required TResult Function( bool forbidden)  auth,required TResult Function()  notFound,required TResult Function( String message)  validation,required TResult Function( Duration? retryAfter)  throttled,required TResult Function()  server,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  network,required TResult Function( bool forbidden)  auth,required TResult Function()  notFound,required TResult Function( String message,  String? code,  Map<String, Object?>? extra)  validation,required TResult Function( Duration? retryAfter)  throttled,required TResult Function()  server,}) {final _that = this;
 switch (_that) {
 case NetworkFailure():
 return network();case AuthFailure():
 return auth(_that.forbidden);case NotFoundFailure():
 return notFound();case ValidationFailure():
-return validation(_that.message);case ThrottledFailure():
+return validation(_that.message,_that.code,_that.extra);case ThrottledFailure():
 return throttled(_that.retryAfter);case ServerFailure():
 return server();}
 }
@@ -179,13 +179,13 @@ return server();}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  network,TResult? Function( bool forbidden)?  auth,TResult? Function()?  notFound,TResult? Function( String message)?  validation,TResult? Function( Duration? retryAfter)?  throttled,TResult? Function()?  server,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  network,TResult? Function( bool forbidden)?  auth,TResult? Function()?  notFound,TResult? Function( String message,  String? code,  Map<String, Object?>? extra)?  validation,TResult? Function( Duration? retryAfter)?  throttled,TResult? Function()?  server,}) {final _that = this;
 switch (_that) {
 case NetworkFailure() when network != null:
 return network();case AuthFailure() when auth != null:
 return auth(_that.forbidden);case NotFoundFailure() when notFound != null:
 return notFound();case ValidationFailure() when validation != null:
-return validation(_that.message);case ThrottledFailure() when throttled != null:
+return validation(_that.message,_that.code,_that.extra);case ThrottledFailure() when throttled != null:
 return throttled(_that.retryAfter);case ServerFailure() when server != null:
 return server();case _:
   return null;
@@ -329,10 +329,20 @@ String toString() {
 
 
 class ValidationFailure implements Failure {
-  const ValidationFailure(this.message);
+  const ValidationFailure(this.message, {this.code, final  Map<String, Object?>? extra}): _extra = extra;
   
 
  final  String message;
+ final  String? code;
+ final  Map<String, Object?>? _extra;
+ Map<String, Object?>? get extra {
+  final value = _extra;
+  if (value == null) return null;
+  if (_extra is EqualUnmodifiableMapView) return _extra;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(value);
+}
+
 
 /// Create a copy of Failure
 /// with the given fields replaced by the non-null parameter values.
@@ -344,16 +354,16 @@ $ValidationFailureCopyWith<ValidationFailure> get copyWith => _$ValidationFailur
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ValidationFailure&&(identical(other.message, message) || other.message == message));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ValidationFailure&&(identical(other.message, message) || other.message == message)&&(identical(other.code, code) || other.code == code)&&const DeepCollectionEquality().equals(other._extra, _extra));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message);
+int get hashCode => Object.hash(runtimeType,message,code,const DeepCollectionEquality().hash(_extra));
 
 @override
 String toString() {
-  return 'Failure.validation(message: $message)';
+  return 'Failure.validation(message: $message, code: $code, extra: $extra)';
 }
 
 
@@ -364,7 +374,7 @@ abstract mixin class $ValidationFailureCopyWith<$Res> implements $FailureCopyWit
   factory $ValidationFailureCopyWith(ValidationFailure value, $Res Function(ValidationFailure) _then) = _$ValidationFailureCopyWithImpl;
 @useResult
 $Res call({
- String message
+ String message, String? code, Map<String, Object?>? extra
 });
 
 
@@ -381,10 +391,12 @@ class _$ValidationFailureCopyWithImpl<$Res>
 
 /// Create a copy of Failure
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? message = null,Object? code = freezed,Object? extra = freezed,}) {
   return _then(ValidationFailure(
 null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,
+as String,code: freezed == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String?,extra: freezed == extra ? _self._extra : extra // ignore: cast_nullable_to_non_nullable
+as Map<String, Object?>?,
   ));
 }
 

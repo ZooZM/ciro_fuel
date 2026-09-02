@@ -88,7 +88,7 @@ void main() {
           AuthInterceptor(
             tokenStore: tokenStore,
             refreshDio: refreshDio,
-            onSessionExpired: () async {},
+            onSessionExpired: ([cause]) async {},
             onTokenRefreshed: () async {
               refreshedCallCount++;
             },

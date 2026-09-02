@@ -30,6 +30,12 @@ abstract final class AppDurations {
   /// room-scoped `order:status` push cannot be relied on for the
   /// `pendingPayment -> inTransit` transition the client is waiting for.
   static const Duration paymentConfirmationPollInterval = Duration(seconds: 5);
+
+  /// Mandatory driver app-lock (spec 006 FR-012): once the app has been
+  /// backgrounded past this, the next foreground re-requires the unlock
+  /// challenge before any driver screen is shown. Also engaged on every
+  /// cold launch into an existing session, regardless of this threshold.
+  static const Duration appLockThreshold = Duration(minutes: 2);
 }
 
 abstract final class AppDistances {
