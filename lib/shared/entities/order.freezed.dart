@@ -1372,7 +1372,13 @@ mixin _$Order {
 // deliberately writes no verification record — read this, never
 // `driverSummary`'s mere presence, before ever presenting the vehicle
 // as "verified" to a customer.
- bool get vehicleVerified;
+ bool get vehicleVerified;// spec 011 / feature 013 US1: the delivery's stop events, as the
+// platform holds them. Returned to a DRIVER by `GET /orders/:id`;
+// `toRoleScopedShape` strips the key entirely for a CLIENT — so the
+// empty default is load-bearing, not tidiness: both personas share this
+// one entity and one parsing path, and a non-nullable field with no
+// default would make every client order fail to parse (FR-042).
+ List<StopEvent> get stopEvents;
 /// Create a copy of Order
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1383,16 +1389,16 @@ $OrderCopyWith<Order> get copyWith => _$OrderCopyWithImpl<Order>(this as Order, 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Order&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.fuelType, fuelType) || other.fuelType == fuelType)&&(identical(other.quantityLiters, quantityLiters) || other.quantityLiters == quantityLiters)&&(identical(other.estimatedPrice, estimatedPrice) || other.estimatedPrice == estimatedPrice)&&(identical(other.finalPrice, finalPrice) || other.finalPrice == finalPrice)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.invoiceId, invoiceId) || other.invoiceId == invoiceId)&&(identical(other.paymentDeadline, paymentDeadline) || other.paymentDeadline == paymentDeadline)&&(identical(other.driverId, driverId) || other.driverId == driverId)&&(identical(other.driverSummary, driverSummary) || other.driverSummary == driverSummary)&&(identical(other.clientSummary, clientSummary) || other.clientSummary == clientSummary)&&(identical(other.etaMinutes, etaMinutes) || other.etaMinutes == etaMinutes)&&(identical(other.driverLocation, driverLocation) || other.driverLocation == driverLocation)&&(identical(other.destination, destination) || other.destination == destination)&&(identical(other.deliveryAddressText, deliveryAddressText) || other.deliveryAddressText == deliveryAddressText)&&(identical(other.stationName, stationName) || other.stationName == stationName)&&(identical(other.stationAddressText, stationAddressText) || other.stationAddressText == stationAddressText)&&(identical(other.statusChangedAt, statusChangedAt) || other.statusChangedAt == statusChangedAt)&&(identical(other.priceBreakdown, priceBreakdown) || other.priceBreakdown == priceBreakdown)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.truckId, truckId) || other.truckId == truckId)&&(identical(other.tankSummary, tankSummary) || other.tankSummary == tankSummary)&&(identical(other.warehouseSummary, warehouseSummary) || other.warehouseSummary == warehouseSummary)&&(identical(other.loadingConfirmedAt, loadingConfirmedAt) || other.loadingConfirmedAt == loadingConfirmedAt)&&(identical(other.assignmentAcknowledgedAt, assignmentAcknowledgedAt) || other.assignmentAcknowledgedAt == assignmentAcknowledgedAt)&&(identical(other.vehicleVerified, vehicleVerified) || other.vehicleVerified == vehicleVerified));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Order&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.fuelType, fuelType) || other.fuelType == fuelType)&&(identical(other.quantityLiters, quantityLiters) || other.quantityLiters == quantityLiters)&&(identical(other.estimatedPrice, estimatedPrice) || other.estimatedPrice == estimatedPrice)&&(identical(other.finalPrice, finalPrice) || other.finalPrice == finalPrice)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.invoiceId, invoiceId) || other.invoiceId == invoiceId)&&(identical(other.paymentDeadline, paymentDeadline) || other.paymentDeadline == paymentDeadline)&&(identical(other.driverId, driverId) || other.driverId == driverId)&&(identical(other.driverSummary, driverSummary) || other.driverSummary == driverSummary)&&(identical(other.clientSummary, clientSummary) || other.clientSummary == clientSummary)&&(identical(other.etaMinutes, etaMinutes) || other.etaMinutes == etaMinutes)&&(identical(other.driverLocation, driverLocation) || other.driverLocation == driverLocation)&&(identical(other.destination, destination) || other.destination == destination)&&(identical(other.deliveryAddressText, deliveryAddressText) || other.deliveryAddressText == deliveryAddressText)&&(identical(other.stationName, stationName) || other.stationName == stationName)&&(identical(other.stationAddressText, stationAddressText) || other.stationAddressText == stationAddressText)&&(identical(other.statusChangedAt, statusChangedAt) || other.statusChangedAt == statusChangedAt)&&(identical(other.priceBreakdown, priceBreakdown) || other.priceBreakdown == priceBreakdown)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.truckId, truckId) || other.truckId == truckId)&&(identical(other.tankSummary, tankSummary) || other.tankSummary == tankSummary)&&(identical(other.warehouseSummary, warehouseSummary) || other.warehouseSummary == warehouseSummary)&&(identical(other.loadingConfirmedAt, loadingConfirmedAt) || other.loadingConfirmedAt == loadingConfirmedAt)&&(identical(other.assignmentAcknowledgedAt, assignmentAcknowledgedAt) || other.assignmentAcknowledgedAt == assignmentAcknowledgedAt)&&(identical(other.vehicleVerified, vehicleVerified) || other.vehicleVerified == vehicleVerified)&&const DeepCollectionEquality().equals(other.stopEvents, stopEvents));
 }
 
 
 @override
-int get hashCode => Object.hashAll([runtimeType,id,status,fuelType,quantityLiters,estimatedPrice,finalPrice,paymentMethod,invoiceId,paymentDeadline,driverId,driverSummary,clientSummary,etaMinutes,driverLocation,destination,deliveryAddressText,stationName,stationAddressText,statusChangedAt,priceBreakdown,rating,truckId,tankSummary,warehouseSummary,loadingConfirmedAt,assignmentAcknowledgedAt,vehicleVerified]);
+int get hashCode => Object.hashAll([runtimeType,id,status,fuelType,quantityLiters,estimatedPrice,finalPrice,paymentMethod,invoiceId,paymentDeadline,driverId,driverSummary,clientSummary,etaMinutes,driverLocation,destination,deliveryAddressText,stationName,stationAddressText,statusChangedAt,priceBreakdown,rating,truckId,tankSummary,warehouseSummary,loadingConfirmedAt,assignmentAcknowledgedAt,vehicleVerified,const DeepCollectionEquality().hash(stopEvents)]);
 
 @override
 String toString() {
-  return 'Order(id: $id, status: $status, fuelType: $fuelType, quantityLiters: $quantityLiters, estimatedPrice: $estimatedPrice, finalPrice: $finalPrice, paymentMethod: $paymentMethod, invoiceId: $invoiceId, paymentDeadline: $paymentDeadline, driverId: $driverId, driverSummary: $driverSummary, clientSummary: $clientSummary, etaMinutes: $etaMinutes, driverLocation: $driverLocation, destination: $destination, deliveryAddressText: $deliveryAddressText, stationName: $stationName, stationAddressText: $stationAddressText, statusChangedAt: $statusChangedAt, priceBreakdown: $priceBreakdown, rating: $rating, truckId: $truckId, tankSummary: $tankSummary, warehouseSummary: $warehouseSummary, loadingConfirmedAt: $loadingConfirmedAt, assignmentAcknowledgedAt: $assignmentAcknowledgedAt, vehicleVerified: $vehicleVerified)';
+  return 'Order(id: $id, status: $status, fuelType: $fuelType, quantityLiters: $quantityLiters, estimatedPrice: $estimatedPrice, finalPrice: $finalPrice, paymentMethod: $paymentMethod, invoiceId: $invoiceId, paymentDeadline: $paymentDeadline, driverId: $driverId, driverSummary: $driverSummary, clientSummary: $clientSummary, etaMinutes: $etaMinutes, driverLocation: $driverLocation, destination: $destination, deliveryAddressText: $deliveryAddressText, stationName: $stationName, stationAddressText: $stationAddressText, statusChangedAt: $statusChangedAt, priceBreakdown: $priceBreakdown, rating: $rating, truckId: $truckId, tankSummary: $tankSummary, warehouseSummary: $warehouseSummary, loadingConfirmedAt: $loadingConfirmedAt, assignmentAcknowledgedAt: $assignmentAcknowledgedAt, vehicleVerified: $vehicleVerified, stopEvents: $stopEvents)';
 }
 
 
@@ -1403,7 +1409,7 @@ abstract mixin class $OrderCopyWith<$Res>  {
   factory $OrderCopyWith(Order value, $Res Function(Order) _then) = _$OrderCopyWithImpl;
 @useResult
 $Res call({
- String id, OrderStatus status, FuelType fuelType, int quantityLiters, Money? estimatedPrice, Money? finalPrice, PaymentMethod? paymentMethod, String? invoiceId, DateTime? paymentDeadline, String? driverId, DriverSummary? driverSummary, ClientSummary? clientSummary, int? etaMinutes, GeoPoint? driverLocation, GeoPoint? destination, String? deliveryAddressText, String? stationName, String? stationAddressText, DateTime statusChangedAt, PriceBreakdown? priceBreakdown, OrderRating? rating, String? truckId, TankSummary? tankSummary, WarehouseSummary? warehouseSummary, DateTime? loadingConfirmedAt, DateTime? assignmentAcknowledgedAt, bool vehicleVerified
+ String id, OrderStatus status, FuelType fuelType, int quantityLiters, Money? estimatedPrice, Money? finalPrice, PaymentMethod? paymentMethod, String? invoiceId, DateTime? paymentDeadline, String? driverId, DriverSummary? driverSummary, ClientSummary? clientSummary, int? etaMinutes, GeoPoint? driverLocation, GeoPoint? destination, String? deliveryAddressText, String? stationName, String? stationAddressText, DateTime statusChangedAt, PriceBreakdown? priceBreakdown, OrderRating? rating, String? truckId, TankSummary? tankSummary, WarehouseSummary? warehouseSummary, DateTime? loadingConfirmedAt, DateTime? assignmentAcknowledgedAt, bool vehicleVerified, List<StopEvent> stopEvents
 });
 
 
@@ -1420,7 +1426,7 @@ class _$OrderCopyWithImpl<$Res>
 
 /// Create a copy of Order
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? status = null,Object? fuelType = null,Object? quantityLiters = null,Object? estimatedPrice = freezed,Object? finalPrice = freezed,Object? paymentMethod = freezed,Object? invoiceId = freezed,Object? paymentDeadline = freezed,Object? driverId = freezed,Object? driverSummary = freezed,Object? clientSummary = freezed,Object? etaMinutes = freezed,Object? driverLocation = freezed,Object? destination = freezed,Object? deliveryAddressText = freezed,Object? stationName = freezed,Object? stationAddressText = freezed,Object? statusChangedAt = null,Object? priceBreakdown = freezed,Object? rating = freezed,Object? truckId = freezed,Object? tankSummary = freezed,Object? warehouseSummary = freezed,Object? loadingConfirmedAt = freezed,Object? assignmentAcknowledgedAt = freezed,Object? vehicleVerified = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? status = null,Object? fuelType = null,Object? quantityLiters = null,Object? estimatedPrice = freezed,Object? finalPrice = freezed,Object? paymentMethod = freezed,Object? invoiceId = freezed,Object? paymentDeadline = freezed,Object? driverId = freezed,Object? driverSummary = freezed,Object? clientSummary = freezed,Object? etaMinutes = freezed,Object? driverLocation = freezed,Object? destination = freezed,Object? deliveryAddressText = freezed,Object? stationName = freezed,Object? stationAddressText = freezed,Object? statusChangedAt = null,Object? priceBreakdown = freezed,Object? rating = freezed,Object? truckId = freezed,Object? tankSummary = freezed,Object? warehouseSummary = freezed,Object? loadingConfirmedAt = freezed,Object? assignmentAcknowledgedAt = freezed,Object? vehicleVerified = null,Object? stopEvents = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
@@ -1449,7 +1455,8 @@ as TankSummary?,warehouseSummary: freezed == warehouseSummary ? _self.warehouseS
 as WarehouseSummary?,loadingConfirmedAt: freezed == loadingConfirmedAt ? _self.loadingConfirmedAt : loadingConfirmedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,assignmentAcknowledgedAt: freezed == assignmentAcknowledgedAt ? _self.assignmentAcknowledgedAt : assignmentAcknowledgedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,vehicleVerified: null == vehicleVerified ? _self.vehicleVerified : vehicleVerified // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,stopEvents: null == stopEvents ? _self.stopEvents : stopEvents // ignore: cast_nullable_to_non_nullable
+as List<StopEvent>,
   ));
 }
 /// Create a copy of Order
@@ -1654,10 +1661,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  OrderStatus status,  FuelType fuelType,  int quantityLiters,  Money? estimatedPrice,  Money? finalPrice,  PaymentMethod? paymentMethod,  String? invoiceId,  DateTime? paymentDeadline,  String? driverId,  DriverSummary? driverSummary,  ClientSummary? clientSummary,  int? etaMinutes,  GeoPoint? driverLocation,  GeoPoint? destination,  String? deliveryAddressText,  String? stationName,  String? stationAddressText,  DateTime statusChangedAt,  PriceBreakdown? priceBreakdown,  OrderRating? rating,  String? truckId,  TankSummary? tankSummary,  WarehouseSummary? warehouseSummary,  DateTime? loadingConfirmedAt,  DateTime? assignmentAcknowledgedAt,  bool vehicleVerified)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  OrderStatus status,  FuelType fuelType,  int quantityLiters,  Money? estimatedPrice,  Money? finalPrice,  PaymentMethod? paymentMethod,  String? invoiceId,  DateTime? paymentDeadline,  String? driverId,  DriverSummary? driverSummary,  ClientSummary? clientSummary,  int? etaMinutes,  GeoPoint? driverLocation,  GeoPoint? destination,  String? deliveryAddressText,  String? stationName,  String? stationAddressText,  DateTime statusChangedAt,  PriceBreakdown? priceBreakdown,  OrderRating? rating,  String? truckId,  TankSummary? tankSummary,  WarehouseSummary? warehouseSummary,  DateTime? loadingConfirmedAt,  DateTime? assignmentAcknowledgedAt,  bool vehicleVerified,  List<StopEvent> stopEvents)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Order() when $default != null:
-return $default(_that.id,_that.status,_that.fuelType,_that.quantityLiters,_that.estimatedPrice,_that.finalPrice,_that.paymentMethod,_that.invoiceId,_that.paymentDeadline,_that.driverId,_that.driverSummary,_that.clientSummary,_that.etaMinutes,_that.driverLocation,_that.destination,_that.deliveryAddressText,_that.stationName,_that.stationAddressText,_that.statusChangedAt,_that.priceBreakdown,_that.rating,_that.truckId,_that.tankSummary,_that.warehouseSummary,_that.loadingConfirmedAt,_that.assignmentAcknowledgedAt,_that.vehicleVerified);case _:
+return $default(_that.id,_that.status,_that.fuelType,_that.quantityLiters,_that.estimatedPrice,_that.finalPrice,_that.paymentMethod,_that.invoiceId,_that.paymentDeadline,_that.driverId,_that.driverSummary,_that.clientSummary,_that.etaMinutes,_that.driverLocation,_that.destination,_that.deliveryAddressText,_that.stationName,_that.stationAddressText,_that.statusChangedAt,_that.priceBreakdown,_that.rating,_that.truckId,_that.tankSummary,_that.warehouseSummary,_that.loadingConfirmedAt,_that.assignmentAcknowledgedAt,_that.vehicleVerified,_that.stopEvents);case _:
   return orElse();
 
 }
@@ -1675,10 +1682,10 @@ return $default(_that.id,_that.status,_that.fuelType,_that.quantityLiters,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  OrderStatus status,  FuelType fuelType,  int quantityLiters,  Money? estimatedPrice,  Money? finalPrice,  PaymentMethod? paymentMethod,  String? invoiceId,  DateTime? paymentDeadline,  String? driverId,  DriverSummary? driverSummary,  ClientSummary? clientSummary,  int? etaMinutes,  GeoPoint? driverLocation,  GeoPoint? destination,  String? deliveryAddressText,  String? stationName,  String? stationAddressText,  DateTime statusChangedAt,  PriceBreakdown? priceBreakdown,  OrderRating? rating,  String? truckId,  TankSummary? tankSummary,  WarehouseSummary? warehouseSummary,  DateTime? loadingConfirmedAt,  DateTime? assignmentAcknowledgedAt,  bool vehicleVerified)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  OrderStatus status,  FuelType fuelType,  int quantityLiters,  Money? estimatedPrice,  Money? finalPrice,  PaymentMethod? paymentMethod,  String? invoiceId,  DateTime? paymentDeadline,  String? driverId,  DriverSummary? driverSummary,  ClientSummary? clientSummary,  int? etaMinutes,  GeoPoint? driverLocation,  GeoPoint? destination,  String? deliveryAddressText,  String? stationName,  String? stationAddressText,  DateTime statusChangedAt,  PriceBreakdown? priceBreakdown,  OrderRating? rating,  String? truckId,  TankSummary? tankSummary,  WarehouseSummary? warehouseSummary,  DateTime? loadingConfirmedAt,  DateTime? assignmentAcknowledgedAt,  bool vehicleVerified,  List<StopEvent> stopEvents)  $default,) {final _that = this;
 switch (_that) {
 case _Order():
-return $default(_that.id,_that.status,_that.fuelType,_that.quantityLiters,_that.estimatedPrice,_that.finalPrice,_that.paymentMethod,_that.invoiceId,_that.paymentDeadline,_that.driverId,_that.driverSummary,_that.clientSummary,_that.etaMinutes,_that.driverLocation,_that.destination,_that.deliveryAddressText,_that.stationName,_that.stationAddressText,_that.statusChangedAt,_that.priceBreakdown,_that.rating,_that.truckId,_that.tankSummary,_that.warehouseSummary,_that.loadingConfirmedAt,_that.assignmentAcknowledgedAt,_that.vehicleVerified);case _:
+return $default(_that.id,_that.status,_that.fuelType,_that.quantityLiters,_that.estimatedPrice,_that.finalPrice,_that.paymentMethod,_that.invoiceId,_that.paymentDeadline,_that.driverId,_that.driverSummary,_that.clientSummary,_that.etaMinutes,_that.driverLocation,_that.destination,_that.deliveryAddressText,_that.stationName,_that.stationAddressText,_that.statusChangedAt,_that.priceBreakdown,_that.rating,_that.truckId,_that.tankSummary,_that.warehouseSummary,_that.loadingConfirmedAt,_that.assignmentAcknowledgedAt,_that.vehicleVerified,_that.stopEvents);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1695,10 +1702,10 @@ return $default(_that.id,_that.status,_that.fuelType,_that.quantityLiters,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  OrderStatus status,  FuelType fuelType,  int quantityLiters,  Money? estimatedPrice,  Money? finalPrice,  PaymentMethod? paymentMethod,  String? invoiceId,  DateTime? paymentDeadline,  String? driverId,  DriverSummary? driverSummary,  ClientSummary? clientSummary,  int? etaMinutes,  GeoPoint? driverLocation,  GeoPoint? destination,  String? deliveryAddressText,  String? stationName,  String? stationAddressText,  DateTime statusChangedAt,  PriceBreakdown? priceBreakdown,  OrderRating? rating,  String? truckId,  TankSummary? tankSummary,  WarehouseSummary? warehouseSummary,  DateTime? loadingConfirmedAt,  DateTime? assignmentAcknowledgedAt,  bool vehicleVerified)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  OrderStatus status,  FuelType fuelType,  int quantityLiters,  Money? estimatedPrice,  Money? finalPrice,  PaymentMethod? paymentMethod,  String? invoiceId,  DateTime? paymentDeadline,  String? driverId,  DriverSummary? driverSummary,  ClientSummary? clientSummary,  int? etaMinutes,  GeoPoint? driverLocation,  GeoPoint? destination,  String? deliveryAddressText,  String? stationName,  String? stationAddressText,  DateTime statusChangedAt,  PriceBreakdown? priceBreakdown,  OrderRating? rating,  String? truckId,  TankSummary? tankSummary,  WarehouseSummary? warehouseSummary,  DateTime? loadingConfirmedAt,  DateTime? assignmentAcknowledgedAt,  bool vehicleVerified,  List<StopEvent> stopEvents)?  $default,) {final _that = this;
 switch (_that) {
 case _Order() when $default != null:
-return $default(_that.id,_that.status,_that.fuelType,_that.quantityLiters,_that.estimatedPrice,_that.finalPrice,_that.paymentMethod,_that.invoiceId,_that.paymentDeadline,_that.driverId,_that.driverSummary,_that.clientSummary,_that.etaMinutes,_that.driverLocation,_that.destination,_that.deliveryAddressText,_that.stationName,_that.stationAddressText,_that.statusChangedAt,_that.priceBreakdown,_that.rating,_that.truckId,_that.tankSummary,_that.warehouseSummary,_that.loadingConfirmedAt,_that.assignmentAcknowledgedAt,_that.vehicleVerified);case _:
+return $default(_that.id,_that.status,_that.fuelType,_that.quantityLiters,_that.estimatedPrice,_that.finalPrice,_that.paymentMethod,_that.invoiceId,_that.paymentDeadline,_that.driverId,_that.driverSummary,_that.clientSummary,_that.etaMinutes,_that.driverLocation,_that.destination,_that.deliveryAddressText,_that.stationName,_that.stationAddressText,_that.statusChangedAt,_that.priceBreakdown,_that.rating,_that.truckId,_that.tankSummary,_that.warehouseSummary,_that.loadingConfirmedAt,_that.assignmentAcknowledgedAt,_that.vehicleVerified,_that.stopEvents);case _:
   return null;
 
 }
@@ -1709,8 +1716,8 @@ return $default(_that.id,_that.status,_that.fuelType,_that.quantityLiters,_that.
 /// @nodoc
 
 
-class _Order implements Order {
-  const _Order({required this.id, required this.status, required this.fuelType, required this.quantityLiters, this.estimatedPrice, this.finalPrice, this.paymentMethod, this.invoiceId, this.paymentDeadline, this.driverId, this.driverSummary, this.clientSummary, this.etaMinutes, this.driverLocation, this.destination, this.deliveryAddressText, this.stationName, this.stationAddressText, required this.statusChangedAt, this.priceBreakdown, this.rating, this.truckId, this.tankSummary, this.warehouseSummary, this.loadingConfirmedAt, this.assignmentAcknowledgedAt, this.vehicleVerified = false});
+class _Order extends Order {
+  const _Order({required this.id, required this.status, required this.fuelType, required this.quantityLiters, this.estimatedPrice, this.finalPrice, this.paymentMethod, this.invoiceId, this.paymentDeadline, this.driverId, this.driverSummary, this.clientSummary, this.etaMinutes, this.driverLocation, this.destination, this.deliveryAddressText, this.stationName, this.stationAddressText, required this.statusChangedAt, this.priceBreakdown, this.rating, this.truckId, this.tankSummary, this.warehouseSummary, this.loadingConfirmedAt, this.assignmentAcknowledgedAt, this.vehicleVerified = false, final  List<StopEvent> stopEvents = const <StopEvent>[]}): _stopEvents = stopEvents,super._();
   
 
 @override final  String id;
@@ -1774,6 +1781,25 @@ class _Order implements Order {
 // `driverSummary`'s mere presence, before ever presenting the vehicle
 // as "verified" to a customer.
 @override@JsonKey() final  bool vehicleVerified;
+// spec 011 / feature 013 US1: the delivery's stop events, as the
+// platform holds them. Returned to a DRIVER by `GET /orders/:id`;
+// `toRoleScopedShape` strips the key entirely for a CLIENT — so the
+// empty default is load-bearing, not tidiness: both personas share this
+// one entity and one parsing path, and a non-nullable field with no
+// default would make every client order fail to parse (FR-042).
+ final  List<StopEvent> _stopEvents;
+// spec 011 / feature 013 US1: the delivery's stop events, as the
+// platform holds them. Returned to a DRIVER by `GET /orders/:id`;
+// `toRoleScopedShape` strips the key entirely for a CLIENT — so the
+// empty default is load-bearing, not tidiness: both personas share this
+// one entity and one parsing path, and a non-nullable field with no
+// default would make every client order fail to parse (FR-042).
+@override@JsonKey() List<StopEvent> get stopEvents {
+  if (_stopEvents is EqualUnmodifiableListView) return _stopEvents;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_stopEvents);
+}
+
 
 /// Create a copy of Order
 /// with the given fields replaced by the non-null parameter values.
@@ -1785,16 +1811,16 @@ _$OrderCopyWith<_Order> get copyWith => __$OrderCopyWithImpl<_Order>(this, _$ide
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Order&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.fuelType, fuelType) || other.fuelType == fuelType)&&(identical(other.quantityLiters, quantityLiters) || other.quantityLiters == quantityLiters)&&(identical(other.estimatedPrice, estimatedPrice) || other.estimatedPrice == estimatedPrice)&&(identical(other.finalPrice, finalPrice) || other.finalPrice == finalPrice)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.invoiceId, invoiceId) || other.invoiceId == invoiceId)&&(identical(other.paymentDeadline, paymentDeadline) || other.paymentDeadline == paymentDeadline)&&(identical(other.driverId, driverId) || other.driverId == driverId)&&(identical(other.driverSummary, driverSummary) || other.driverSummary == driverSummary)&&(identical(other.clientSummary, clientSummary) || other.clientSummary == clientSummary)&&(identical(other.etaMinutes, etaMinutes) || other.etaMinutes == etaMinutes)&&(identical(other.driverLocation, driverLocation) || other.driverLocation == driverLocation)&&(identical(other.destination, destination) || other.destination == destination)&&(identical(other.deliveryAddressText, deliveryAddressText) || other.deliveryAddressText == deliveryAddressText)&&(identical(other.stationName, stationName) || other.stationName == stationName)&&(identical(other.stationAddressText, stationAddressText) || other.stationAddressText == stationAddressText)&&(identical(other.statusChangedAt, statusChangedAt) || other.statusChangedAt == statusChangedAt)&&(identical(other.priceBreakdown, priceBreakdown) || other.priceBreakdown == priceBreakdown)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.truckId, truckId) || other.truckId == truckId)&&(identical(other.tankSummary, tankSummary) || other.tankSummary == tankSummary)&&(identical(other.warehouseSummary, warehouseSummary) || other.warehouseSummary == warehouseSummary)&&(identical(other.loadingConfirmedAt, loadingConfirmedAt) || other.loadingConfirmedAt == loadingConfirmedAt)&&(identical(other.assignmentAcknowledgedAt, assignmentAcknowledgedAt) || other.assignmentAcknowledgedAt == assignmentAcknowledgedAt)&&(identical(other.vehicleVerified, vehicleVerified) || other.vehicleVerified == vehicleVerified));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Order&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.fuelType, fuelType) || other.fuelType == fuelType)&&(identical(other.quantityLiters, quantityLiters) || other.quantityLiters == quantityLiters)&&(identical(other.estimatedPrice, estimatedPrice) || other.estimatedPrice == estimatedPrice)&&(identical(other.finalPrice, finalPrice) || other.finalPrice == finalPrice)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.invoiceId, invoiceId) || other.invoiceId == invoiceId)&&(identical(other.paymentDeadline, paymentDeadline) || other.paymentDeadline == paymentDeadline)&&(identical(other.driverId, driverId) || other.driverId == driverId)&&(identical(other.driverSummary, driverSummary) || other.driverSummary == driverSummary)&&(identical(other.clientSummary, clientSummary) || other.clientSummary == clientSummary)&&(identical(other.etaMinutes, etaMinutes) || other.etaMinutes == etaMinutes)&&(identical(other.driverLocation, driverLocation) || other.driverLocation == driverLocation)&&(identical(other.destination, destination) || other.destination == destination)&&(identical(other.deliveryAddressText, deliveryAddressText) || other.deliveryAddressText == deliveryAddressText)&&(identical(other.stationName, stationName) || other.stationName == stationName)&&(identical(other.stationAddressText, stationAddressText) || other.stationAddressText == stationAddressText)&&(identical(other.statusChangedAt, statusChangedAt) || other.statusChangedAt == statusChangedAt)&&(identical(other.priceBreakdown, priceBreakdown) || other.priceBreakdown == priceBreakdown)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.truckId, truckId) || other.truckId == truckId)&&(identical(other.tankSummary, tankSummary) || other.tankSummary == tankSummary)&&(identical(other.warehouseSummary, warehouseSummary) || other.warehouseSummary == warehouseSummary)&&(identical(other.loadingConfirmedAt, loadingConfirmedAt) || other.loadingConfirmedAt == loadingConfirmedAt)&&(identical(other.assignmentAcknowledgedAt, assignmentAcknowledgedAt) || other.assignmentAcknowledgedAt == assignmentAcknowledgedAt)&&(identical(other.vehicleVerified, vehicleVerified) || other.vehicleVerified == vehicleVerified)&&const DeepCollectionEquality().equals(other._stopEvents, _stopEvents));
 }
 
 
 @override
-int get hashCode => Object.hashAll([runtimeType,id,status,fuelType,quantityLiters,estimatedPrice,finalPrice,paymentMethod,invoiceId,paymentDeadline,driverId,driverSummary,clientSummary,etaMinutes,driverLocation,destination,deliveryAddressText,stationName,stationAddressText,statusChangedAt,priceBreakdown,rating,truckId,tankSummary,warehouseSummary,loadingConfirmedAt,assignmentAcknowledgedAt,vehicleVerified]);
+int get hashCode => Object.hashAll([runtimeType,id,status,fuelType,quantityLiters,estimatedPrice,finalPrice,paymentMethod,invoiceId,paymentDeadline,driverId,driverSummary,clientSummary,etaMinutes,driverLocation,destination,deliveryAddressText,stationName,stationAddressText,statusChangedAt,priceBreakdown,rating,truckId,tankSummary,warehouseSummary,loadingConfirmedAt,assignmentAcknowledgedAt,vehicleVerified,const DeepCollectionEquality().hash(_stopEvents)]);
 
 @override
 String toString() {
-  return 'Order(id: $id, status: $status, fuelType: $fuelType, quantityLiters: $quantityLiters, estimatedPrice: $estimatedPrice, finalPrice: $finalPrice, paymentMethod: $paymentMethod, invoiceId: $invoiceId, paymentDeadline: $paymentDeadline, driverId: $driverId, driverSummary: $driverSummary, clientSummary: $clientSummary, etaMinutes: $etaMinutes, driverLocation: $driverLocation, destination: $destination, deliveryAddressText: $deliveryAddressText, stationName: $stationName, stationAddressText: $stationAddressText, statusChangedAt: $statusChangedAt, priceBreakdown: $priceBreakdown, rating: $rating, truckId: $truckId, tankSummary: $tankSummary, warehouseSummary: $warehouseSummary, loadingConfirmedAt: $loadingConfirmedAt, assignmentAcknowledgedAt: $assignmentAcknowledgedAt, vehicleVerified: $vehicleVerified)';
+  return 'Order(id: $id, status: $status, fuelType: $fuelType, quantityLiters: $quantityLiters, estimatedPrice: $estimatedPrice, finalPrice: $finalPrice, paymentMethod: $paymentMethod, invoiceId: $invoiceId, paymentDeadline: $paymentDeadline, driverId: $driverId, driverSummary: $driverSummary, clientSummary: $clientSummary, etaMinutes: $etaMinutes, driverLocation: $driverLocation, destination: $destination, deliveryAddressText: $deliveryAddressText, stationName: $stationName, stationAddressText: $stationAddressText, statusChangedAt: $statusChangedAt, priceBreakdown: $priceBreakdown, rating: $rating, truckId: $truckId, tankSummary: $tankSummary, warehouseSummary: $warehouseSummary, loadingConfirmedAt: $loadingConfirmedAt, assignmentAcknowledgedAt: $assignmentAcknowledgedAt, vehicleVerified: $vehicleVerified, stopEvents: $stopEvents)';
 }
 
 
@@ -1805,7 +1831,7 @@ abstract mixin class _$OrderCopyWith<$Res> implements $OrderCopyWith<$Res> {
   factory _$OrderCopyWith(_Order value, $Res Function(_Order) _then) = __$OrderCopyWithImpl;
 @override @useResult
 $Res call({
- String id, OrderStatus status, FuelType fuelType, int quantityLiters, Money? estimatedPrice, Money? finalPrice, PaymentMethod? paymentMethod, String? invoiceId, DateTime? paymentDeadline, String? driverId, DriverSummary? driverSummary, ClientSummary? clientSummary, int? etaMinutes, GeoPoint? driverLocation, GeoPoint? destination, String? deliveryAddressText, String? stationName, String? stationAddressText, DateTime statusChangedAt, PriceBreakdown? priceBreakdown, OrderRating? rating, String? truckId, TankSummary? tankSummary, WarehouseSummary? warehouseSummary, DateTime? loadingConfirmedAt, DateTime? assignmentAcknowledgedAt, bool vehicleVerified
+ String id, OrderStatus status, FuelType fuelType, int quantityLiters, Money? estimatedPrice, Money? finalPrice, PaymentMethod? paymentMethod, String? invoiceId, DateTime? paymentDeadline, String? driverId, DriverSummary? driverSummary, ClientSummary? clientSummary, int? etaMinutes, GeoPoint? driverLocation, GeoPoint? destination, String? deliveryAddressText, String? stationName, String? stationAddressText, DateTime statusChangedAt, PriceBreakdown? priceBreakdown, OrderRating? rating, String? truckId, TankSummary? tankSummary, WarehouseSummary? warehouseSummary, DateTime? loadingConfirmedAt, DateTime? assignmentAcknowledgedAt, bool vehicleVerified, List<StopEvent> stopEvents
 });
 
 
@@ -1822,7 +1848,7 @@ class __$OrderCopyWithImpl<$Res>
 
 /// Create a copy of Order
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? status = null,Object? fuelType = null,Object? quantityLiters = null,Object? estimatedPrice = freezed,Object? finalPrice = freezed,Object? paymentMethod = freezed,Object? invoiceId = freezed,Object? paymentDeadline = freezed,Object? driverId = freezed,Object? driverSummary = freezed,Object? clientSummary = freezed,Object? etaMinutes = freezed,Object? driverLocation = freezed,Object? destination = freezed,Object? deliveryAddressText = freezed,Object? stationName = freezed,Object? stationAddressText = freezed,Object? statusChangedAt = null,Object? priceBreakdown = freezed,Object? rating = freezed,Object? truckId = freezed,Object? tankSummary = freezed,Object? warehouseSummary = freezed,Object? loadingConfirmedAt = freezed,Object? assignmentAcknowledgedAt = freezed,Object? vehicleVerified = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? status = null,Object? fuelType = null,Object? quantityLiters = null,Object? estimatedPrice = freezed,Object? finalPrice = freezed,Object? paymentMethod = freezed,Object? invoiceId = freezed,Object? paymentDeadline = freezed,Object? driverId = freezed,Object? driverSummary = freezed,Object? clientSummary = freezed,Object? etaMinutes = freezed,Object? driverLocation = freezed,Object? destination = freezed,Object? deliveryAddressText = freezed,Object? stationName = freezed,Object? stationAddressText = freezed,Object? statusChangedAt = null,Object? priceBreakdown = freezed,Object? rating = freezed,Object? truckId = freezed,Object? tankSummary = freezed,Object? warehouseSummary = freezed,Object? loadingConfirmedAt = freezed,Object? assignmentAcknowledgedAt = freezed,Object? vehicleVerified = null,Object? stopEvents = null,}) {
   return _then(_Order(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
@@ -1851,7 +1877,8 @@ as TankSummary?,warehouseSummary: freezed == warehouseSummary ? _self.warehouseS
 as WarehouseSummary?,loadingConfirmedAt: freezed == loadingConfirmedAt ? _self.loadingConfirmedAt : loadingConfirmedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,assignmentAcknowledgedAt: freezed == assignmentAcknowledgedAt ? _self.assignmentAcknowledgedAt : assignmentAcknowledgedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,vehicleVerified: null == vehicleVerified ? _self.vehicleVerified : vehicleVerified // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,stopEvents: null == stopEvents ? _self._stopEvents : stopEvents // ignore: cast_nullable_to_non_nullable
+as List<StopEvent>,
   ));
 }
 

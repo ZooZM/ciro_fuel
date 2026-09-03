@@ -41,4 +41,9 @@ abstract final class ErrorCodes {
   // (FR-030c): the device could not say where it was, so the attempt could
   // not be judged and nothing was recorded against the delivery.
   static const String locationRequired = 'LOCATION_REQUIRED';
+
+  // spec 011 / feature 013 US5a: the delivery already carries an unresolved
+  // stop — a declare or a blocked report is refused rather than opening a
+  // second one. A stated outcome on the driver's screen, not a crash.
+  static const String stopAlreadyOpen = 'STOP_ALREADY_OPEN';
 }

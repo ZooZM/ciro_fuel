@@ -306,7 +306,8 @@
     "banner_support_request_raised": "A new support request has been raised.",
     "banner_unknown": "You have a new notification.",
     "banner_view": "View",
-    "banner_driver_stop_detected": "Your truck hasn't moved for a while — tap to tell us why."
+    "banner_driver_stop_detected": "Your truck hasn't moved for a while — tap to tell us why.",
+    "banner_driver_blocked": "A driver reported they cannot reach the destination."
   },
   "more": {
     "section_account": "Account",
@@ -421,7 +422,9 @@
     "brand_suffix": "FUEL",
     "whatsapp": "WhatsApp",
     "telegram": "Telegram",
-    "facebook": "Facebook"
+    "facebook": "Facebook",
+    "hotline": "920000000",
+    "call_unavailable": "Calling is not available on this device."
   },
   "driver": {
     "my_delivery": "My delivery",
@@ -469,7 +472,17 @@
     "declare_stop_minutes": "{minutes} min",
     "declare_stop_submit": "Send",
     "declare_stop_sent": "Noted — we won't ask you about this stop.",
-    "declare_stop_failed": "Could not send that. Please try again."
+    "declare_stop_failed": "Could not send that. Please try again.",
+    "outstanding_stop_title": "A stop question is waiting for your answer",
+    "outstanding_stop_body": "The platform noticed the truck stopped and asked why. Answer here — it doesn't matter which device the alert reached.",
+    "outstanding_stop_answer": "Answer now",
+    "untracked_title": "This delivery is not being tracked",
+    "untracked_body": "Location sharing is off, so the customer can't see the truck move. Turn on location permission for Ciro Fuel in your device settings.",
+    "blocked_report_title": "Why can't you reach the destination?",
+    "blocked_report_sent": "Reported. Your transport office has been notified.",
+    "blocked_report_failed": "Could not send that. Please try again.",
+    "blocked_report_already_open": "A stop is already open on this delivery — deal with that one first.",
+    "blocked_report_submit": "Send"
   },
   "orders": {
     "list_title": "Orders",
@@ -619,21 +632,6 @@
     "delivery_report": "Delivery Report",
     "scan_qr": "Scan\nQR Code"
   },
-  "driver_notifications": {
-    "mark_all_read": "Mark all as read",
-    "tab_all": "All",
-    "tab_orders": "Orders",
-    "tab_system": "System",
-    "today": "Today",
-    "order_assigned_title": "Order Assigned",
-    "five_mins_ago": "5 mins ago",
-    "order_assigned_desc": "Fuel order ORD-2024-256 has been assigned. The shipment is being prepared. Head to the depot to load.",
-    "yesterday": "Yesterday",
-    "system_update_title": "System Update",
-    "system_update_desc": "The app has been updated to the latest version with performance and stability improvements.",
-    "old_date": "14 Aug 2026",
-    "yesterday_time": "Yesterday, 09:35 AM"
-  },
   "driver_profile_details": {
     "contact_info": "Contact Information",
     "associated_company": "Associated Company",
@@ -644,16 +642,6 @@
     "account_code": "Account Code",
     "join_date": "Join Date",
     "change_phone": "Change Phone Number"
-  },
-  "driver_mock_profile": {
-    "station_alhamd": "Al-Hamd for Land Transport",
-    "driver_name_mohamed": "Mohamed Ahmed",
-    "company_diesel": "Diesel for Commercial Transport",
-    "date_sept_12": "September 12, 2024",
-    "date_sept_9": "September 9, 2024",
-    "anas_road": "Anas Bin Malik Road, Al Malqa District",
-    "rafah": "Rafah, Al Khaleej Riyadh",
-    "mazaya": "Mazaya Fuel Makkah Al-Bibaan"
   },
   "driver_navigation": {
     "title": "Start Navigation",

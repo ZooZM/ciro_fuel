@@ -2,9 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../../../core/constants/app_assets.dart';
 import '../../../../core/localization/translation_keys.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/theme_context.dart';
@@ -101,35 +99,11 @@ class DriverNavigationScreen extends StatelessWidget {
               ),
             ),
 
-            // spec 008 TODO: this is a static screenshot, not a live map —
-            // there is no route polyline or driver marker drawn here yet.
-            // A real one needs a `GoogleMap` widget plus the platform's own
-            // `GET /orders/:id/driving-route` (already built for the
-            // client's tracking screen) wired the same way. Tracked
-            // separately; the fix here is limited to making this screen's
-            // data and its one real action (navigate) honest.
-            Positioned.fill(
-              top: 140,
-              child: Image.asset(AppAssets.orderMapImage, fit: BoxFit.cover),
-            ),
-
-            // Map floating controls
-            Positioned(
-              left: AppSpacing.lg,
-              top: 160,
-              child: const Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _MapButton(AppAssets.orderMapReloadIcon),
-                  SizedBox(height: 12),
-                  _MapButton(AppAssets.orderMapZoomInIcon),
-                  SizedBox(height: 12),
-                  _MapButton(AppAssets.orderMapZoomOutIcon),
-                  SizedBox(height: 12),
-                  _MapButton(AppAssets.orderMapShareIcon),
-                ],
-              ),
-            ),
+            // feature 013 US5b (FR-041): the fixed screenshot that used to sit
+            // here — with four inert zoom/reload/share controls floating over
+            // it — presented as a live map and was not one. Removed rather
+            // than faked: turn-by-turn stays with the device's own maps app
+            // (FR-041a), reached by "Start Navigation" in the sheet below.
 
             // Bottom Sheet Overlay
             Positioned(
@@ -137,6 +111,7 @@ class DriverNavigationScreen extends StatelessWidget {
               left: 0,
               right: 0,
               child: DriverNavigationBottomSheet(
+                orderId: order.id,
                 stationLabel: stationLabel,
                 addressLabel: addressLabel,
                 phone: order.clientSummary?.phone,
@@ -153,19 +128,3 @@ class DriverNavigationScreen extends StatelessWidget {
   }
 }
 
-class _MapButton extends StatelessWidget {
-  const _MapButton(this.asset);
-  final String asset;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {},
-      child: SvgPicture.asset(
-        asset,
-        width: 44,
-        height: 44,
-      ),
-    );
-  }
-}

@@ -4,6 +4,7 @@ import '../enums/fuel_type.dart';
 import '../enums/order_status.dart';
 import '../enums/payment_method.dart';
 import '../enums/tank_material.dart';
+import 'stop_event.dart';
 import 'value_objects.dart';
 
 part 'order.freezed.dart';
@@ -137,5 +138,23 @@ abstract class Order with _$Order {
     // `driverSummary`'s mere presence, before ever presenting the vehicle
     // as "verified" to a customer.
     @Default(false) bool vehicleVerified,
+    // spec 011 / feature 013 US1: the delivery's stop events, as the
+    // platform holds them. Returned to a DRIVER by `GET /orders/:id`;
+    // `toRoleScopedShape` strips the key entirely for a CLIENT — so the
+    // empty default is load-bearing, not tidiness: both personas share this
+    // one entity and one parsing path, and a non-nullable field with no
+    // default would make every client order fail to parse (FR-042).
+    @Default(<StopEvent>[]) List<StopEvent> stopEvents,
   }) = _Order;
+
+  const Order._();
+
+  /// The one stop still awaiting the driver's answer, if any — unresolved
+  /// **and** unanswered, mirroring the platform's own `unblockedStopFilter`
+  /// rather than approximating it (feature 013 FR-005/FR-006). `resolvedAt ==
+  /// null` alone would re-ask a stop the driver already answered;
+  /// `reasonGivenAt == null` alone would re-ask one an administrator already
+  /// closed. A `DECLARED` stop arrives with both set and never qualifies.
+  StopEvent? get outstandingStop =>
+      stopEvents.where((s) => s.isOutstanding).firstOrNull;
 }

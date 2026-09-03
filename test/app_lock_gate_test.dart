@@ -10,6 +10,7 @@ import 'package:mobile_app/features/auth/presentation/cubit/app_lock_cubit.dart'
 import 'package:mobile_app/features/auth/presentation/cubit/session_cubit.dart';
 import 'package:mobile_app/features/auth/presentation/view/app_lock_gate.dart';
 import 'package:mobile_app/features/notifications/domain/usecases/get_notifications.dart';
+import 'package:mobile_app/features/notifications/domain/usecases/mark_all_notifications_read.dart';
 import 'package:mobile_app/features/notifications/domain/usecases/mark_notification_read.dart';
 import 'package:mobile_app/features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:mobile_app/features/notifications/presentation/widgets/notification_banner_presenter.dart';
@@ -28,6 +29,9 @@ class _MockGetNotifications extends Mock implements GetNotifications {}
 
 class _MockMarkNotificationRead extends Mock
     implements MarkNotificationRead {}
+
+class _MockMarkAllNotificationsRead extends Mock
+    implements MarkAllNotificationsRead {}
 
 const _driver = AuthUser(
   id: 'd1',
@@ -164,6 +168,7 @@ void main() {
       final notificationsCubit = NotificationsCubit(
         getNotifications: _MockGetNotifications(),
         markNotificationRead: _MockMarkNotificationRead(),
+        markAllNotificationsRead: _MockMarkAllNotificationsRead(),
         socket: _MockTrackingSocket(),
       );
       addTearDown(notificationsCubit.close);

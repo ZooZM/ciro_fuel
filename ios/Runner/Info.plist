@@ -18,6 +18,14 @@
 	<string>Ciro Fuel requires camera access to scan delivery QR codes and take a profile picture.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Ciro Fuel needs access to your photos to set a profile picture.</string>
+	<!-- spec 006 (FR-013): the mandatory app lock and the login screen's
+	     biometric sign-in both call LAContext.evaluatePolicy. iOS TERMINATES
+	     the process on the first Face ID evaluation when this key is absent —
+	     it is a native abort, not a catchable PlatformException, so
+	     BiometricAuthenticator's try/catch never sees it. This is why pressing
+	     the Face ID control on the login screen crashed the app. -->
+	<key>NSFaceIDUsageDescription</key>
+	<string>Ciro Fuel uses Face ID to unlock your saved session and the app lock while a delivery is active.</string>
 	<key>NFCReaderUsageDescription</key>
 	<string>Ciro Fuel reads your truck's NFC card to verify you are at the assigned vehicle before starting a delivery.</string>
 	<!-- spec 008 (research R5): truck cards are NFC Forum Type 4 (the NTAG424

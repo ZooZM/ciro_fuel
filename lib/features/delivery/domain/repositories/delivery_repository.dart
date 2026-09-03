@@ -54,6 +54,16 @@ abstract interface class DeliveryRepository {
     required int expectedDurationMinutes,
   });
 
+  /// feature 013 US5a (FR-039): the driver cannot reach the destination.
+  /// A `409 STOP_ALREADY_OPEN` comes back as `Failure.validation(code:
+  /// ErrorCodes.stopAlreadyOpen)` — a stated outcome for the caller, not a
+  /// crash.
+  Future<Either<Failure, void>> reportBlocked({
+    required String orderId,
+    required StopReason reason,
+    String? reasonText,
+  });
+
   /// spec 011 FR-007/FR-010: the driver answers a detected stop. A late
   /// answer is an ordinary success on the backend, never an error, so this
   /// needs no special handling for the escalated case.

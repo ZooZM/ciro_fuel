@@ -1,14 +1,23 @@
+import 'package:dartz/dartz.dart' hide Order;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mobile_app/core/di/injector.dart';
+import 'package:mobile_app/core/error/failure.dart';
+import 'package:mobile_app/core/network/error_codes.dart';
 import 'package:mobile_app/core/utils/map_navigator.dart';
 import 'package:mobile_app/core/utils/phone_dialer.dart';
+import 'package:mobile_app/features/delivery/domain/usecases/report_blocked.dart';
 import 'package:mobile_app/features/delivery/presentation/view/driver_navigation_screen.dart';
 import 'package:mobile_app/shared/entities/order.dart';
 import 'package:mobile_app/shared/entities/value_objects.dart';
 import 'package:mobile_app/shared/enums/fuel_type.dart';
 import 'package:mobile_app/shared/enums/order_status.dart';
+import 'package:mobile_app/shared/enums/stop_reason.dart';
+import 'package:mocktail/mocktail.dart';
 
 import '../helpers/localized_harness.dart';
+
+class _MockReportBlocked extends Mock implements ReportBlocked {}
 
 /// spec 007 fix (2026-08-27, field-test report): `DriverNavigationScreen`
 /// was a static mock-up — station name/address/quantity/fuel were fake
@@ -118,5 +127,85 @@ void main() {
     expect(find.text('Contact Customer'), findsNothing);
     // Silence the unused-var lint without weakening the case above.
     expect(noPhone.clientSummary?.phone, '');
+  });
+
+  group('feature 013 US5a — the "I cannot reach" report', () {
+    late _MockReportBlocked reportBlocked;
+
+    setUp(() {
+      reportBlocked = _MockReportBlocked();
+      if (getIt.isRegistered<ReportBlocked>()) getIt.unregister<ReportBlocked>();
+      getIt.registerSingleton<ReportBlocked>(reportBlocked);
+    });
+
+    tearDown(() {
+      if (getIt.isRegistered<ReportBlocked>()) getIt.unregister<ReportBlocked>();
+    });
+
+    setUpAll(() => registerFallbackValue(StopReason.roadClosure));
+
+    testWidgets('picks a reason and reports it — the transporter is told', (tester) async {
+      when(
+        () => reportBlocked(
+          orderId: any(named: 'orderId'),
+          reason: any(named: 'reason'),
+          reasonText: any(named: 'reasonText'),
+        ),
+      ).thenAnswer((_) async => const Right(null));
+
+      await pumpLocalized(
+        tester,
+        DriverNavigationScreen(order: order),
+        locale: const Locale('en'),
+      );
+      await tester.pump();
+
+      await tester.tap(find.text("I Cannot Reach"));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Road closed'));
+      await tester.pumpAndSettle();
+
+      final captured = verify(
+        () => reportBlocked(
+          orderId: 'order-nav-1',
+          reason: captureAny(named: 'reason'),
+          reasonText: any(named: 'reasonText'),
+        ),
+      ).captured;
+      expect(captured.single, StopReason.roadClosure);
+      expect(find.text('Reported. Your transport office has been notified.'), findsOneWidget);
+    });
+
+    testWidgets('a 409 STOP_ALREADY_OPEN is a stated message, not a failure screen', (tester) async {
+      when(
+        () => reportBlocked(
+          orderId: any(named: 'orderId'),
+          reason: any(named: 'reason'),
+          reasonText: any(named: 'reasonText'),
+        ),
+      ).thenAnswer(
+        (_) async => const Left(
+          Failure.validation('open', code: ErrorCodes.stopAlreadyOpen),
+        ),
+      );
+
+      await pumpLocalized(
+        tester,
+        DriverNavigationScreen(order: order),
+        locale: const Locale('en'),
+      );
+      await tester.pump();
+
+      await tester.tap(find.text("I Cannot Reach"));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Accident'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('A stop is already open on this delivery — deal with that one first.'),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+    });
   });
 }

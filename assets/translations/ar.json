@@ -306,7 +306,8 @@
     "banner_support_request_raised": "تم رفع طلب دعم جديد.",
     "banner_unknown": "لديك إشعار جديد.",
     "banner_view": "عرض",
-    "banner_driver_stop_detected": "لم تتحرك شاحنتك منذ فترة — اضغط لإخبارنا بالسبب."
+    "banner_driver_stop_detected": "لم تتحرك شاحنتك منذ فترة — اضغط لإخبارنا بالسبب.",
+    "banner_driver_blocked": "أبلغ سائق بأنه لا يستطيع الوصول إلى الوجهة."
   },
   "more": {
     "section_account": "الحساب",
@@ -421,7 +422,9 @@
     "brand_suffix": "FUEL",
     "whatsapp": "واتساب",
     "telegram": "تيليجرام",
-    "facebook": "فيسبوك"
+    "facebook": "فيسبوك",
+    "hotline": "920000000",
+    "call_unavailable": "الاتصال غير متاح على هذا الجهاز."
   },
   "driver": {
     "my_delivery": "توصيلتي",
@@ -469,7 +472,17 @@
     "declare_stop_minutes": "{minutes} دقيقة",
     "declare_stop_submit": "إرسال",
     "declare_stop_sent": "تم التسجيل — لن نسألك عن هذا التوقف.",
-    "declare_stop_failed": "تعذّر الإرسال. حاول مرة أخرى."
+    "declare_stop_failed": "تعذّر الإرسال. حاول مرة أخرى.",
+    "outstanding_stop_title": "يوجد سؤال عن التوقف بانتظار ردّك",
+    "outstanding_stop_body": "لاحظت المنصة توقف الشاحنة وسألت عن السبب. أجب من هنا — لا يهم على أي جهاز وصل التنبيه.",
+    "outstanding_stop_answer": "أجب الآن",
+    "untracked_title": "لا يتم تتبّع هذا التوصيل",
+    "untracked_body": "مشاركة الموقع متوقفة، لذا لا يستطيع العميل رؤية تحرّك الشاحنة. فعّل إذن الموقع لتطبيق سيرو فيول من إعدادات جهازك.",
+    "blocked_report_title": "لماذا لا تستطيع الوصول إلى الوجهة؟",
+    "blocked_report_sent": "تم الإبلاغ. تم إخطار مكتب النقل الخاص بك.",
+    "blocked_report_failed": "تعذّر الإرسال. حاول مرة أخرى.",
+    "blocked_report_already_open": "يوجد توقف مفتوح بالفعل على هذا التوصيل — تعامل معه أولاً.",
+    "blocked_report_submit": "إرسال"
   },
   "orders": {
     "list_title": "الطلبات",
@@ -619,21 +632,6 @@
     "delivery_report": "تقرير التسليم",
     "scan_qr": "مسح كود\nالاستلام"
   },
-  "driver_notifications": {
-    "mark_all_read": "تحديد الكل كمقروء",
-    "tab_all": "الكل",
-    "tab_orders": "الطلبات",
-    "tab_system": "النظام",
-    "today": "اليوم",
-    "order_assigned_title": "تم تعيينك لطلب",
-    "five_mins_ago": "قبل 5 دقائق",
-    "order_assigned_desc": "تم تعيين طلب الوقود ORD-2024-256 وجاري تحضير الشحنة الآن، أذهب للمخزن للتحميل.",
-    "yesterday": "أمس",
-    "system_update_title": "تحديث النظام",
-    "system_update_desc": "تم تحديث التطبيق إلى الإصدار الجديد مع تحسينات في الأداء والاستقرار.",
-    "old_date": "14 أغسطس 2026",
-    "yesterday_time": "أمس، 09:35 ص"
-  },
   "driver_profile_details": {
     "contact_info": "بيانات التواصل",
     "associated_company": "الشركة التابع لها",
@@ -644,16 +642,6 @@
     "account_code": "كود الحساب",
     "join_date": "تاريخ الإنضمام",
     "change_phone": "تغيير رقم الجوال"
-  },
-  "driver_mock_profile": {
-    "station_alhamd": "الحمد للنقل البري",
-    "driver_name_mohamed": "محمد أحمد",
-    "company_diesel": "الديزل للنقل التجاري",
-    "date_sept_12": "12 سبتمبر 2024",
-    "date_sept_9": "9 سبتمبر 2024",
-    "anas_road": "طريق أنس بن مالك، حي الملقا",
-    "rafah": "رفح، الخليج الرياض",
-    "mazaya": "مزايا فيول مكة البيبان"
   },
   "driver_navigation": {
     "title": "أبدأ الملاحة",

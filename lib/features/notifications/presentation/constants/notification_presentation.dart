@@ -34,6 +34,8 @@ abstract final class NotificationPresentation {
     // of it, so a driver who missed the alert still finds it here.
     NotificationType.driverStopDetected =>
       NotificationKeys.bannerDriverStopDetected,
+    NotificationType.orderDriverBlocked =>
+      NotificationKeys.bannerDriverBlocked,
     NotificationType.unknown => NotificationKeys.bannerUnknown,
   };
 }

@@ -177,6 +177,10 @@ class _DeliveryDetailBody extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.lg),
 
+        // FR-005/FR-006: an unanswered stop question, reachable here on a
+        // device that never received the alert.
+        _OutstandingStopBanner(order: order),
+
         _DriverOrderProgressCard(order: order),
         const SizedBox(height: AppSpacing.lg),
 
@@ -185,6 +189,82 @@ class _DeliveryDetailBody extends StatelessWidget {
 
         _DriverShipmentDetailsCard(order: order),
       ],
+    );
+  }
+}
+
+/// FR-005/FR-006: the stop question, rendered from `order.stopEvents` rather
+/// than only reachable from the device notification the alert arrived on.
+/// Opens the existing `showStopReasonSheet` — a second entry point to the
+/// same sheet `StopAlertRouter` opens from a notification tap, never a second
+/// sheet — and reloads afterwards so the question clears without a manual
+/// refresh (FR-006).
+class _OutstandingStopBanner extends StatelessWidget {
+  const _OutstandingStopBanner({required this.order});
+  final Order order;
+
+  @override
+  Widget build(BuildContext context) {
+    final stop = order.outstandingStop;
+    if (stop == null) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: BoxDecoration(
+          color: context.colors.blueTint,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: context.colors.brandBlue.withValues(alpha: 0.3)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              DriverKeys.outstandingStopTitle.tr(),
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                color: context.colors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              DriverKeys.outstandingStopBody.tr(),
+              style: TextStyle(fontSize: 11, color: context.colors.textSecondary, height: 1.4),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: () {
+                  final detailCubit = context.read<OrderDetailCubit>();
+                  unawaited(
+                    showStopReasonSheet(
+                      context,
+                      orderId: order.id,
+                      stopId: stop.id,
+                    ).then((_) {
+                      // Clear this screen's banner without a manual refresh
+                      // (FR-006); the sheet itself reloads the app-wide
+                      // `DeliveryCubit`.
+                      detailCubit.load();
+                    }),
+                  );
+                },
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  backgroundColor: context.colors.brandBlue,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: Text(
+                  DriverKeys.outstandingStopAnswer.tr(),
+                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

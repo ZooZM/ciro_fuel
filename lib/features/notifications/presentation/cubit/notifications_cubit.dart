@@ -4,6 +4,7 @@ import '../../../../core/realtime/tracking_socket.dart';
 import '../../../../shared/enums/notification_type.dart';
 import '../../domain/entities/app_notification.dart';
 import '../../domain/usecases/get_notifications.dart';
+import '../../domain/usecases/mark_all_notifications_read.dart';
 import '../../domain/usecases/mark_notification_read.dart';
 import 'notifications_state.dart';
 
@@ -14,9 +15,11 @@ class NotificationsCubit extends Cubit<NotificationsState> {
   NotificationsCubit({
     required GetNotifications getNotifications,
     required MarkNotificationRead markNotificationRead,
+    required MarkAllNotificationsRead markAllNotificationsRead,
     required TrackingSocket socket,
   }) : _getNotifications = getNotifications,
        _markNotificationRead = markNotificationRead,
+       _markAllNotificationsRead = markAllNotificationsRead,
        _socket = socket,
        super(const NotificationsState.loading()) {
     _socket.onNotification(_handleNew);
@@ -24,6 +27,7 @@ class NotificationsCubit extends Cubit<NotificationsState> {
 
   final GetNotifications _getNotifications;
   final MarkNotificationRead _markNotificationRead;
+  final MarkAllNotificationsRead _markAllNotificationsRead;
   final TrackingSocket _socket;
 
   Future<void> load() async {
@@ -96,6 +100,29 @@ class NotificationsCubit extends Cubit<NotificationsState> {
         current.copyWith(
           notifications: updated,
           unreadCount: current.unreadCount > 0 ? current.unreadCount - 1 : 0,
+        ),
+      );
+    });
+  }
+
+  /// feature 013 US3 (FR-025/FR-026): marks every notification read in one
+  /// request, then folds the result into the loaded state so the list and
+  /// the badge cannot disagree. A press with nothing unread is a no-op that
+  /// shows no error.
+  Future<void> markAllRead() async {
+    final current = state;
+    if (current is! NotificationsLoaded) return;
+    if (current.unreadCount == 0) return;
+
+    final result = await _markAllNotificationsRead();
+    if (isClosed) return;
+    result.fold((_) {}, (_) {
+      emit(
+        current.copyWith(
+          notifications: [
+            for (final n in current.notifications) n.copyWith(isRead: true),
+          ],
+          unreadCount: 0,
         ),
       );
     });

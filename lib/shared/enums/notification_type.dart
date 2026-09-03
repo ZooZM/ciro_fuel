@@ -25,6 +25,10 @@ enum NotificationType {
   // for. Every other type is content for the in-app list, which a driver
   // mid-drive never looks at — which is the whole reason this one differs.
   driverStopDetected('DRIVER_STOP_DETECTED'),
+  // feature 013 US5a: addressed to a transport-company admin, not a
+  // mobile persona — mirrored here only to keep the parity guard
+  // exhaustive against the backend enum.
+  orderDriverBlocked('ORDER_DRIVER_BLOCKED'),
   unknown('UNKNOWN');
 
   const NotificationType(this.wire);
@@ -43,6 +47,7 @@ enum NotificationType {
     'ORDER_ROUTED_TO_TRANSPORT' => NotificationType.orderRoutedToTransport,
     'SUPPORT_REQUEST_RAISED' => NotificationType.supportRequestRaised,
     'DRIVER_STOP_DETECTED' => NotificationType.driverStopDetected,
+    'ORDER_DRIVER_BLOCKED' => NotificationType.orderDriverBlocked,
     _ => NotificationType.unknown,
   };
 

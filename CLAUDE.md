@@ -143,6 +143,23 @@ Both personas share the mandatory app lock (`AppLockGate`, DRIVER-only per FR-01
 client's own lock stays optional/`more/`-configurable) and password recovery
 (`ForgotPasswordScreen`/`ResetPasswordScreen`, reachable pre-login).
 
+**Biometrics depend on two platform settings that no widget test can see, and both were wrong until
+2026-09-03** (found from a user report: pressing Face ID on the login screen crashed the app).
+`BiometricAuthenticator` catches `PlatformException`/`MissingPluginException` and degrades to
+"unavailable", which hides almost every biometric failure — but not these two:
+· **iOS** *terminates the process* on the first Face ID `evaluatePolicy` call when
+`NSFaceIDUsageDescription` is missing from `ios/Runner/Info.plist`. It is a native abort, so no Dart
+`catch` runs and the "password form remains the path in" contract does not hold — the app just
+disappears.
+· **Android** shows the prompt through the AndroidX fragment manager, so `MainActivity` **must** extend
+`FlutterFragmentActivity`. Under a plain `FlutterActivity` every `authenticate()` fails with
+`no_fragment_activity` — which *is* caught, so the lock and biometric sign-in were silently inert with
+no crash and no error to follow.
+Both are now guarded by `test/unit/biometric_platform_config_test.dart`. **Still open, disclosed:**
+`LaunchTheme`/`NormalTheme` descend from `@android:style/Theme.*`, not AppCompat, which
+`androidx.biometric`'s pre-API-28 fallback dialog wants; `minSdk` is 26, so API 26–27 devices can still
+hit that path.
+
 `AppRouter._redirect` gates on `SessionCubit` and bounces a driver off
 `/client/*` and a client off `/driver/*`. Server-side role scoping is the real
 enforcement; the router is UX only.
@@ -226,32 +243,33 @@ Live issues an agent will trip over. Fix in place; don't work around.
    to `unknown`. `test/unit/notification_type_test.dart` guards them from
    drifting apart again.
 
-6. **`NotificationsCubit` never receives socket pushes — root cause still
-   live.** It registers its handler in its constructor, an eager singleton
-   built before `TrackingSocket.connect()`, so `_socket` is still null and
-   `onNotification` is a silent `?.` no-op; a fresh socket object is
-   created on each connect, so the handler is never attached. Spec 007
-   worked around this same failure mode for the driver persona —
-   `DeliveryCubit` (T006) no longer registers its own handler, and an
-   external `DeliveryListener` (T007/T008) attaches every handler *after*
-   `connect()` resolves — but that is a per-cubit discipline, not a fix to
-   `TrackingSocket` itself: any future code that registers a handler from a
-   constructor still silently no-ops the same way `NotificationsCubit`
-   does today. The actual fix — `TrackingSocket` queueing handlers
-   registered before `connect()` and flushing them once the real socket
-   exists — would retire this debt for both personas at once instead of
-   requiring every new cubit to remember the external-listener pattern.
+6. **✅ Fixed (spec 013 Slice 0).** `TrackingSocket` now keeps a durable
+   `(event, handler)` registry: `on*` records into it and attaches
+   immediately only if a socket already exists; `connect()` flushes the whole
+   registry onto the socket it builds; `dispose()` tears down the socket but
+   **keeps the registry** (an app-lifetime singleton like `NotificationsCubit`
+   registers once, in its constructor, and must survive a sign-out/sign-in).
+   A handler registered before `connect()` — the exact case that silently
+   subscribed to nothing — now fires. `test/unit/tracking_socket_registry_test.dart`
+   guards it. `SessionRevocationListener`/`DeliveryListener` remain but attach
+   **once** (an `injector.dart` guard) since the registry re-flushes them per
+   connect; re-attaching would stack duplicate handlers.
 
 7. **`order_mock_data.dart` / `mock_order_state.dart` are still wired into
-   real screens** (`OrderDetailScreen(mockState:)`, `OrderTopBar`
-   notification counts). Not all order-detail UI is backed by the API yet.
-   The driver-side instance of this same pattern —
-   `delivery_detail_screen.dart`'s local `_OrderMockState` enum
-   (`assigned` · `outForDelivery` · `completed`), advanced by a tap
-   gesture rather than any real order status — is **fixed** (spec 007
-   T055/T056): deleted outright, the screen now derives its displayed
-   stage from the order's real `OrderStatus`. The client-side instance
-   (`OrderDetailScreen(mockState:)`) remains open.
+   real screens** — the **client-side** `OrderDetailScreen(mockState:)`
+   instance remains open; not all client order-detail UI is API-backed yet.
+   The driver-side instances of this pattern are now all closed:
+   `delivery_detail_screen.dart`'s `_OrderMockState` enum (spec 007), and
+   spec 013 US3's rewrite of `driver_notifications_screen.dart` against the
+   app-wide `NotificationsCubit` — it had been a `StatelessWidget` with
+   hardcoded rows (`ORD-2024-256`, "5 mins ago") and three category tabs; the
+   tabs are gone (a driver receives only `ORDER_ASSIGNED` and
+   `DRIVER_STOP_DETECTED`, both order-related), replaced by the All/Unread
+   filter. spec 013 also removed the fabricated identity on the driver "more"
+   tab (`driver_mock_profile.*` name/station → real `ProfileCubit`), the
+   fixed screenshot posing as a live map in `driver_navigation_screen.dart`,
+   and every inert `onPressed: () {}` on a driver screen (guarded by
+   `test/no_dead_controls_sweep_test.dart`).
 
 ---
 

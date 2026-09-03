@@ -1,8 +1,11 @@
 import '../../../../shared/entities/order.dart';
+import '../../../../shared/entities/stop_event.dart';
 import '../../../../shared/entities/value_objects.dart';
 import '../../../../shared/enums/fuel_type.dart';
 import '../../../../shared/enums/order_status.dart';
 import '../../../../shared/enums/payment_method.dart';
+import '../../../../shared/enums/stop_origin.dart';
+import '../../../../shared/enums/stop_reason.dart';
 import '../../../../shared/enums/tank_material.dart';
 
 /// Bridges the backend's `/orders` wire shape to the clean [Order] entity.
@@ -45,7 +48,41 @@ abstract final class OrderMapper {
     loadingConfirmedAt: _dateOrNull(json['loadingConfirmedAt']),
     assignmentAcknowledgedAt: _dateOrNull(json['assignmentAcknowledgedAt']),
     vehicleVerified: json['vehicleVerified'] as bool? ?? false,
+    stopEvents: _stopEventsFromJson(json['stopEvents']),
   );
+
+  /// `GET /orders/:id` returns this array to a DRIVER; a CLIENT's response
+  /// omits the key entirely (`toRoleScopedShape`), so an absent or malformed
+  /// value parses to an empty list rather than throwing — both personas
+  /// share this parser.
+  static List<StopEvent> _stopEventsFromJson(Object? value) {
+    if (value is! List) return const [];
+    final events = <StopEvent>[];
+    for (final raw in value) {
+      if (raw is! Map) continue;
+      final map = raw.cast<String, Object?>();
+      final id = (map['_id'] ?? map['id']);
+      final origin = map['origin'];
+      final detectedAt = map['detectedAt'];
+      if (id is! String || origin is! String || detectedAt is! String) continue;
+      events.add(
+        StopEvent(
+          id: id,
+          origin: StopOrigin.fromWire(origin),
+          detectedAt: DateTime.parse(detectedAt),
+          reason: map['reason'] is String
+              ? StopReason.fromWire(map['reason']! as String)
+              : null,
+          reasonText: map['reasonText'] as String?,
+          reasonGivenAt: _dateOrNull(map['reasonGivenAt']),
+          suppressedUntil: _dateOrNull(map['suppressedUntil']),
+          escalatedAt: _dateOrNull(map['escalatedAt']),
+          resolvedAt: _dateOrNull(map['resolvedAt']),
+        ),
+      );
+    }
+    return events;
+  }
 
   static TankSummary? _tankSummaryFromJson(Object? value) {
     if (value is! Map<String, Object?>) return null;

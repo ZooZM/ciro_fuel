@@ -62,6 +62,19 @@ class DeliveryRepositoryImpl implements DeliveryRepository {
   );
 
   @override
+  Future<Either<Failure, void>> reportBlocked({
+    required String orderId,
+    required StopReason reason,
+    String? reasonText,
+  }) => _guard(
+    () => _remoteDataSource.reportBlocked(
+      orderId: orderId,
+      reason: reason,
+      reasonText: reasonText,
+    ),
+  );
+
+  @override
   Future<Either<Failure, void>> submitStopReason({
     required String orderId,
     required String stopId,

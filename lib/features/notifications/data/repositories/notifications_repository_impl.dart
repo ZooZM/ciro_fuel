@@ -23,6 +23,10 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
   Future<Either<Failure, void>> markRead(String id) =>
       _guard(() => _remoteDataSource.markRead(id));
 
+  @override
+  Future<Either<Failure, int>> markAllRead() =>
+      _guard(_remoteDataSource.markAllRead);
+
   Future<Either<Failure, T>> _guard<T>(Future<T> Function() call) async {
     try {
       return Right(await call());

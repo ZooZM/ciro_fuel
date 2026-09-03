@@ -26,31 +26,37 @@ class SignInButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        ElevatedButton(
-          onPressed: isLoading ? null : onPressed,
-          child: isLoading
-              ? SizedBox.square(
-                  dimension: AppSizes.progressDiameter,
-                  child: CircularProgressIndicator(
-                    strokeWidth: AppSizes.progressStrokeWidth,
-                    color: context.colors.surface,
+        // Expanded so the CTA keeps its full-width footprint (LoginCard's
+        // Column stretches it) and, more importantly, so the Row bounds the
+        // button's width — a bare ElevatedButton here is handed an unbounded
+        // width by the surrounding IntrinsicHeight and throws.
+        Expanded(
+          child: ElevatedButton(
+            onPressed: isLoading ? null : onPressed,
+            child: isLoading
+                ? SizedBox.square(
+                    dimension: AppSizes.progressDiameter,
+                    child: CircularProgressIndicator(
+                      strokeWidth: AppSizes.progressStrokeWidth,
+                      color: context.colors.surface,
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(LoginKeys.submit.tr()),
+                      const SizedBox(width: AppSpacing.sm),
+                      const Icon(Icons.arrow_forward, size: AppSizes.iconLg),
+                    ],
                   ),
-                )
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(LoginKeys.submit.tr()),
-                    const SizedBox(width: AppSpacing.sm),
-                    const Icon(Icons.arrow_forward, size: AppSizes.iconLg),
-                  ],
-                ),
+          ),
         ),
         if (form.supportsBiometrics) ...[
+          const SizedBox(width: AppSpacing.md),
           BiometricButton(
             method: form.biometricMethod,
             onPressed: signInWithBiometrics,
           ),
-          // const SizedBox(height: AppSpacing.lg),
         ],
       ],
     );

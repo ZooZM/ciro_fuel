@@ -304,6 +304,11 @@ abstract final class NotificationKeys {
   // what the notifications list and banner show for it.
   static const String bannerDriverStopDetected =
       'notifications.banner_driver_stop_detected';
+  // feature 013 US5a: a driver reported they cannot reach the destination.
+  // Addressed to a transport admin (not a mobile persona) — this key exists
+  // only so the shared presentation map stays exhaustive.
+  static const String bannerDriverBlocked =
+      'notifications.banner_driver_blocked';
   static const String bannerUnknown = 'notifications.banner_unknown';
   static const String bannerView = 'notifications.banner_view';
 }
@@ -463,6 +468,11 @@ abstract final class SupportKeys {
 
   static const String contactNow = 'support.contact_now';
   static const String directCall = 'support.direct_call';
+  // feature 013 T084: the number the "Direct call" button dials. A Saudi
+  // 920 unified-number placeholder — ops fills the real one; it is a config
+  // value, not identity.
+  static const String hotline = 'support.hotline';
+  static const String callUnavailable = 'support.call_unavailable';
   static const String orVia = 'support.or_via';
 
   static const String orderIssueTitle = 'support.order_issue_title';
@@ -540,6 +550,26 @@ abstract final class DriverKeys {
   static const String declareStopSubmit = 'driver.declare_stop_submit';
   static const String declareStopSent = 'driver.declare_stop_sent';
   static const String declareStopFailed = 'driver.declare_stop_failed';
+
+  // feature 013 US1: an unanswered stop question shown ON the delivery, so
+  // it is reachable on a device that never received the alert (FR-005/FR-006).
+  static const String outstandingStopTitle = 'driver.outstanding_stop_title';
+  static const String outstandingStopBody = 'driver.outstanding_stop_body';
+  static const String outstandingStopAnswer = 'driver.outstanding_stop_answer';
+
+  // feature 013 US1 (FR-011): the delivery is active but the platform is
+  // receiving no position — location permission is off. On `main` the screen
+  // looked completely normal in this state.
+  static const String untrackedTitle = 'driver.untracked_title';
+  static const String untrackedBody = 'driver.untracked_body';
+
+  // feature 013 US5a: the driver reports they cannot reach the destination.
+  static const String blockedReportTitle = 'driver.blocked_report_title';
+  static const String blockedReportSubmit = 'driver.blocked_report_submit';
+  static const String blockedReportSent = 'driver.blocked_report_sent';
+  static const String blockedReportFailed = 'driver.blocked_report_failed';
+  static const String blockedReportAlreadyOpen =
+      'driver.blocked_report_already_open';
 
   static const String openDelivery = 'driver.open_delivery';
   static const String deliveryComplete = 'driver.delivery_complete';

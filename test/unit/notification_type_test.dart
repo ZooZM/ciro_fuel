@@ -28,6 +28,9 @@ void main() {
     // device-level alert for (FR-004a) — but as far as this parity check is
     // concerned it is an ordinary wire value like any other.
     'DRIVER_STOP_DETECTED',
+    // feature 013 US5a: a transport-admin notification, mirrored so
+    // this parity check stays exhaustive.
+    'ORDER_DRIVER_BLOCKED',
   ];
 
   test('every backend wire value maps to a named member, never unknown', () {

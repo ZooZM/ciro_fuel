@@ -9,6 +9,7 @@ import '../../../../core/localization/translation_keys.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../shared/enums/stop_reason.dart';
+import '../cubit/delivery_cubit.dart';
 import '../cubit/stop_reason_cubit.dart';
 import '../cubit/stop_reason_state.dart';
 
@@ -83,6 +84,15 @@ class _StopReasonSheetState extends State<_StopReasonSheet> {
       listener: (context, state) {
         if (state is StopReasonSent) {
           Navigator.of(context).pop();
+          // feature 013 FR-006: whichever entry point opened this sheet — a
+          // notification tap, the delivery screen's outstanding-stop banner,
+          // or the declare button — the driver's active delivery reloads so
+          // the question clears without a manual refresh. `DeliveryCubit` is
+          // the app-scoped singleton in production; guarded for the widget
+          // tests that pump this sheet without the full DI graph.
+          if (getIt.isRegistered<DeliveryCubit>()) {
+            unawaited(getIt<DeliveryCubit>().load());
+          }
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(

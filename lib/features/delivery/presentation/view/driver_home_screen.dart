@@ -68,9 +68,8 @@ class DriverHomeScreen extends StatelessWidget {
                       failure: failure,
                       onRetry: () => context.read<DeliveryCubit>().load(),
                     ),
-                    DeliveryActive(:final order) => _ActiveDeliveryCard(
-                      order: order,
-                    ),
+                    DeliveryActive(:final order, :final streaming) =>
+                      _ActiveDeliveryCard(order: order, streaming: streaming),
                   },
                 ),
                 const SizedBox(height: AppSpacing.xl),
@@ -353,9 +352,16 @@ class _ActiveDeliveryErrorCard extends StatelessWidget {
 /// figure rather than kept as a fabricated animation (Constitution
 /// Principle I / FR-006).
 class _ActiveDeliveryCard extends StatelessWidget {
-  const _ActiveDeliveryCard({required this.order});
+  const _ActiveDeliveryCard({required this.order, this.streaming = false});
 
   final Order order;
+
+  /// FR-011: `DeliveryActive.streaming` — whether the platform is actually
+  /// receiving this delivery's position. Computed by `DeliveryCubit` since
+  /// spec 007 and, until now, read by nothing: a driver who refused the
+  /// location permission saw a completely normal delivery card while the
+  /// customer's map stayed frozen.
+  final bool streaming;
 
   @override
   Widget build(BuildContext context) {
@@ -363,6 +369,10 @@ class _ActiveDeliveryCard extends StatelessWidget {
     return OrderCard(
       child: Column(
         children: [
+          if (!streaming) ...[
+            _UntrackedStrip(),
+            const SizedBox(height: AppSpacing.md),
+          ],
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -512,6 +522,54 @@ class _ActiveDeliveryCard extends StatelessWidget {
             child: Text(
               'driver_home.view_delivery'.tr(),
               style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// FR-011: shown on the active-delivery card when the platform is receiving
+/// no position for it — location sharing is off. States what to do about it
+/// rather than only that something is wrong.
+class _UntrackedStrip extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.sm),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: context.colors.borderHairline),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.location_off, size: 18, color: context.colors.textSecondary),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  DriverKeys.untrackedTitle.tr(),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: context.colors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  DriverKeys.untrackedBody.tr(),
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: context.colors.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

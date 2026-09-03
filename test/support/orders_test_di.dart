@@ -18,6 +18,7 @@ import 'package:mobile_app/features/notifications/domain/entities/app_notificati
 import 'package:mobile_app/features/notifications/domain/entities/notifications_page.dart';
 import 'package:mobile_app/features/notifications/domain/repositories/notifications_repository.dart';
 import 'package:mobile_app/features/notifications/domain/usecases/get_notifications.dart';
+import 'package:mobile_app/features/notifications/domain/usecases/mark_all_notifications_read.dart';
 import 'package:mobile_app/features/notifications/domain/usecases/mark_notification_read.dart';
 import 'package:mobile_app/features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:mobile_app/features/payments/domain/entities/payment.dart';
@@ -204,6 +205,11 @@ class FakeNotificationsRepository implements NotificationsRepository {
 
   @override
   Future<Either<Failure, void>> markRead(String id) async => const Right(null);
+
+  @override
+  Future<Either<Failure, int>> markAllRead() async => Right(
+        _notifications.where((n) => !n.isRead).length,
+      );
 }
 
 /// Serves a fixed (empty by default) list, same fail-loud philosophy as
@@ -388,10 +394,14 @@ void registerOrdersTestDi({
   getIt.registerLazySingleton(
     () => MarkNotificationRead(getIt<NotificationsRepository>()),
   );
+  getIt.registerLazySingleton(
+    () => MarkAllNotificationsRead(getIt<NotificationsRepository>()),
+  );
   getIt.registerLazySingleton<NotificationsCubit>(
     () => NotificationsCubit(
       getNotifications: getIt<GetNotifications>(),
       markNotificationRead: getIt<MarkNotificationRead>(),
+      markAllNotificationsRead: getIt<MarkAllNotificationsRead>(),
       socket: getIt<TrackingSocket>(),
     ),
   );
@@ -406,6 +416,9 @@ void resetOrdersTestDi() {
   }
   if (getIt.isRegistered<MarkNotificationRead>()) {
     getIt.unregister<MarkNotificationRead>();
+  }
+  if (getIt.isRegistered<MarkAllNotificationsRead>()) {
+    getIt.unregister<MarkAllNotificationsRead>();
   }
   if (getIt.isRegistered<GetNotifications>()) {
     getIt.unregister<GetNotifications>();

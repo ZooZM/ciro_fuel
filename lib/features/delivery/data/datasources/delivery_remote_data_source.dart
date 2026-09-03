@@ -57,6 +57,13 @@ abstract interface class DeliveryRemoteDataSource {
     required int expectedDurationMinutes,
   });
 
+  /// feature 013 US5a: report the driver cannot reach the destination.
+  Future<void> reportBlocked({
+    required String orderId,
+    required StopReason reason,
+    String? reasonText,
+  });
+
   /// spec 011 FR-007: answer a stop the platform detected.
   Future<void> submitStopReason({
     required String orderId,
@@ -159,6 +166,19 @@ class DeliveryRemoteDataSourceImpl implements DeliveryRemoteDataSource {
       // one-tap answer into a 400.
       if (reasonText != null && reasonText.isNotEmpty) 'reasonText': reasonText,
       'expectedDurationMinutes': expectedDurationMinutes,
+    },
+  );
+
+  @override
+  Future<void> reportBlocked({
+    required String orderId,
+    required StopReason reason,
+    String? reasonText,
+  }) => _dio.post<void>(
+    '/orders/$orderId/stops/blocked',
+    data: {
+      'reason': reason.toWire(),
+      if (reasonText != null && reasonText.isNotEmpty) 'reasonText': reasonText,
     },
   );
 

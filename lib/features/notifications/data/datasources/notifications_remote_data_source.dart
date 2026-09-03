@@ -7,6 +7,9 @@ abstract interface class NotificationsRemoteDataSource {
   Future<NotificationsPage> getNotifications({bool? unread, String? cursor});
 
   Future<void> markRead(String id);
+
+  /// Returns the count actually marked read (`{ updated }`).
+  Future<int> markAllRead();
 }
 
 class NotificationsRemoteDataSourceImpl
@@ -39,4 +42,12 @@ class NotificationsRemoteDataSourceImpl
   @override
   Future<void> markRead(String id) =>
       _dio.patch<void>('/notifications/$id/read');
+
+  @override
+  Future<int> markAllRead() async {
+    final response = await _dio.patch<Map<String, dynamic>>(
+      '/notifications/read-all',
+    );
+    return (response.data?['updated'] as int?) ?? 0;
+  }
 }

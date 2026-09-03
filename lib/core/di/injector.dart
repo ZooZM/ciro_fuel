@@ -37,6 +37,7 @@ import '../../features/delivery/presentation/cubit/otp_verify_cubit.dart';
 import '../../features/delivery/domain/usecases/mark_arrived.dart';
 import '../../features/delivery/domain/usecases/acknowledge_assignment.dart';
 import '../../features/delivery/domain/usecases/declare_stop.dart';
+import '../../features/delivery/domain/usecases/report_blocked.dart';
 import '../../features/delivery/domain/usecases/submit_stop_reason.dart';
 import '../notifications/notification_presenter.dart';
 import '../notifications/stop_alert_router.dart';
@@ -100,6 +101,7 @@ import '../../features/notifications/data/datasources/notifications_remote_data_
 import '../../features/notifications/data/repositories/notifications_repository_impl.dart';
 import '../../features/notifications/domain/repositories/notifications_repository.dart';
 import '../../features/notifications/domain/usecases/get_notifications.dart';
+import '../../features/notifications/domain/usecases/mark_all_notifications_read.dart';
 import '../../features/notifications/domain/usecases/mark_notification_read.dart';
 import '../../features/notifications/presentation/cubit/notifications_cubit.dart';
 import '../../features/profile/data/datasources/phone_verification_remote_data_source.dart';
@@ -183,30 +185,38 @@ void _registerCore() {
   // The /tracking handshake needs a valid JWT, so the socket connects only
   // once authenticated and disconnects on sign-out. Registered before
   // hydration runs (below) so the resulting state change is not missed.
+  var socketListenersAttached = false;
   sessionCubit.stream.listen((state) async {
     switch (state) {
       case SessionAuthenticated(:final user):
         // Awaited (spec 006 T080): `connect()` only assigns the underlying
-        // socket after its own internal await (reading the access token),
-        // so attaching the revocation listener without waiting for it here
-        // would attach to a still-null socket and silently never fire —
-        // exactly the bug `mobile_app/CLAUDE.md` debt #6 already records
-        // for `NotificationsCubit`, which wires its handler from its own
-        // constructor, before any socket exists at all.
+        // socket after its own internal await (reading the access token) —
+        // though feature 013 Slice 0 made a handler registered before that
+        // await safe anyway, by recording it in `TrackingSocket`'s durable
+        // registry rather than dropping it (`mobile_app/CLAUDE.md` debt #6).
         await trackingSocket.connect();
-        SessionRevocationListener(
-          trackingSocket: trackingSocket,
-          tokenStore: tokenStore,
-          sessionCubit: sessionCubit,
-        ).attach();
-        // spec 007: same ordering requirement as the listener above — a
-        // driver can never receive order:status at all otherwise (research
-        // R1/R2).
-        DeliveryListener(
-          trackingSocket: trackingSocket,
-          deliveryCubit: getIt<DeliveryCubit>(),
-          notificationPresenter: getIt<NotificationPresenter>(),
-        ).attach();
+        // feature 013 Slice 0: `TrackingSocket` now keeps that registry
+        // across `dispose()` and re-flushes it onto the fresh socket every
+        // `connect()`, so these two socket listeners attach exactly once —
+        // re-attaching them on each sign-in would stack duplicate handlers
+        // (a second device-level stop alert, a double active-delivery
+        // reload) that would only surface after a sign-out/sign-in without
+        // an app restart.
+        if (!socketListenersAttached) {
+          socketListenersAttached = true;
+          SessionRevocationListener(
+            trackingSocket: trackingSocket,
+            tokenStore: tokenStore,
+            sessionCubit: sessionCubit,
+          ).attach();
+          // spec 007: a driver can never receive order:status any other way
+          // (research R1/R2).
+          DeliveryListener(
+            trackingSocket: trackingSocket,
+            deliveryCubit: getIt<DeliveryCubit>(),
+            notificationPresenter: getIt<NotificationPresenter>(),
+          ).attach();
+        }
         // spec 011 T028: the tap side of that same alert — attached here so
         // it shares the listener's lifetime, and only for a signed-in
         // session, since there is nothing to route to before one exists.
@@ -423,6 +433,7 @@ void _registerDeliveryFeature() {
   getIt.registerLazySingleton(() => AcknowledgeAssignment(getIt()));
   // spec 011 US2: the driver's two stop actions.
   getIt.registerLazySingleton(() => DeclareStop(getIt()));
+  getIt.registerLazySingleton(() => ReportBlocked(getIt()));
   getIt.registerLazySingleton(() => SubmitStopReason(getIt()));
   getIt.registerLazySingleton(() => VerifyArrivalOtp(getIt()));
   getIt.registerLazySingleton(() => RequestDeliveryOtp(getIt()));
@@ -508,6 +519,7 @@ void _registerNotificationsFeature() {
   );
   getIt.registerLazySingleton(() => GetNotifications(getIt()));
   getIt.registerLazySingleton(() => MarkNotificationRead(getIt()));
+  getIt.registerLazySingleton(() => MarkAllNotificationsRead(getIt()));
 
   // Eager singleton, not lazy: it must be alive and listening to
   // `notification:new` from app start (app.dart provides it at the root),
@@ -516,6 +528,7 @@ void _registerNotificationsFeature() {
     NotificationsCubit(
       getNotifications: getIt(),
       markNotificationRead: getIt(),
+      markAllNotificationsRead: getIt(),
       socket: socket,
     ),
   );

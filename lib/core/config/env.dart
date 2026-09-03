@@ -9,12 +9,12 @@
 abstract final class Env {
   static const String apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'https://vella-niftier-gertrude.ngrok-free.dev/api/v1',
+    defaultValue: 'https://firstly-perforative-jaylah.ngrok-free.dev/api/v1',
   );
 
   static const String wsBaseUrl = String.fromEnvironment(
     'WS_BASE_URL',
-    defaultValue: 'https://vella-niftier-gertrude.ngrok-free.dev',
+    defaultValue: 'https://firstly-perforative-jaylah.ngrok-free.dev',
   );
 
   static const String googleMapsApiKey = String.fromEnvironment(

@@ -12,6 +12,10 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/theme_cubit.dart';
 import '../../../auth/domain/usecases/sign_out.dart';
 import '../../../auth/presentation/cubit/session_cubit.dart';
+import '../../../auth/presentation/cubit/session_state.dart';
+import '../cubit/profile_cubit.dart';
+import '../cubit/profile_state.dart';
+import '../widgets/profile_identity.dart';
 
 class DriverProfileScreen extends StatefulWidget {
   const DriverProfileScreen({super.key});
@@ -26,6 +30,26 @@ class _DriverProfileScreenState extends State<DriverProfileScreen> {
 
   /// True while a sign-out is in flight, so a second tap cannot fire another.
   bool _isSigningOut = false;
+
+  /// feature 013 US4: the "more" card now shows the signed-in driver's real
+  /// identity, resolved through the same `ProfileCubit` the details screen
+  /// uses — never the `driver_mock_profile.*` fabricated name/station.
+  ProfileCubit? _profileCubit;
+
+  @override
+  void initState() {
+    super.initState();
+    final session = context.read<SessionCubit>().state;
+    if (session is SessionAuthenticated) {
+      _profileCubit = getIt<ProfileCubit>(param1: session.user.id)..load();
+    }
+  }
+
+  @override
+  void dispose() {
+    _profileCubit?.close();
+    super.dispose();
+  }
 
   /// Signing out is easy to mis-tap on a dense settings list and drops the
   /// session for real (the tokens are gone — the next launch lands on the
@@ -211,7 +235,12 @@ class _DriverProfileScreenState extends State<DriverProfileScreen> {
                 title: MoreKeys.terms.tr(),
                 iconPath: 'assets/more/icon5.svg',
                 iconColor: context.colors.textSecondary,
-                onTap: () => context.push(AppRoutes.clientTerms), // TODO: Update to driver terms if different
+                // feature 013 T082: the terms clauses (intro, data accuracy,
+                // credentials, lawful use, system protection) are
+                // role-agnostic — the same screen the client uses is the
+                // driver-addressed terms. No separate driver copy exists or
+                // is needed; the old "TODO: driver terms" is resolved here.
+                onTap: () => context.push(AppRoutes.clientTerms),
               ),
               _buildDivider(),
               _buildListItem(
@@ -219,7 +248,14 @@ class _DriverProfileScreenState extends State<DriverProfileScreen> {
                 iconPath: 'assets/more/info-circle.svg',
                 iconColor: context.colors.textSecondary,
                 trailingText: MoreKeys.appVersion.tr(),
-                onTap: () {},
+                // feature 013 T081: was an inert `onTap: () {}`. Opens
+                // Flutter's built-in about dialog, showing the app name, the
+                // running version and the bundled licences — an observable
+                // effect, not a dead control.
+                onTap: () => showAboutDialog(
+                  context: context,
+                  applicationVersion: MoreKeys.appVersion.tr(),
+                ),
               ),
             ]),
             const SizedBox(height: 24),
@@ -232,6 +268,61 @@ class _DriverProfileScreenState extends State<DriverProfileScreen> {
   }
 
   Widget _buildProfileCard() {
+    final cubit = _profileCubit;
+    if (cubit == null) {
+      return _profileShell(child: const SizedBox(height: 24));
+    }
+    return BlocProvider<ProfileCubit>.value(
+      value: cubit,
+      child: BlocBuilder<ProfileCubit, ProfileState>(
+        builder: (context, state) => switch (state) {
+          ProfileLoading() => _profileShell(
+            child: const SizedBox(
+              height: 24,
+              child: Center(
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+            ),
+          ),
+          ProfileFailureState() => _profileShell(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    OrdersKeys.loadFailed.tr(),
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: context.colors.textSecondary,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => context.read<ProfileCubit>().load(),
+                  child: Text(CommonKeys.retry.tr()),
+                ),
+              ],
+            ),
+          ),
+          ProfileLoaded() => _profileShell(
+            child: ProfileIdentity(
+              // The signed-in driver's own name — never the
+              // `driver_mock_profile` fabrication. No station line: a driver
+              // belongs to a transport company, not a client station.
+              name: state.user.fullName,
+              avatarBytes: state.avatarBytes,
+            ),
+          ),
+        },
+      ),
+    );
+  }
+
+  /// The green card chrome the "more" identity block sits in, in every state.
+  Widget _profileShell({required Widget child}) {
     final colors = context.colors;
     return Container(
       padding: const EdgeInsets.all(16.0),
@@ -242,104 +333,8 @@ class _DriverProfileScreenState extends State<DriverProfileScreen> {
       ),
       child: Row(
         children: [
-          // Profile image on the right (start in RTL) with rounded rectangle
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              image: const DecorationImage(
-                image: AssetImage('assets/driverHomePage/driver.jpg'),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          // Name + details in center
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'driver_mock_profile.driver_name_mohamed'.tr(),
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: context.colors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'driver_mock_profile.station_alhamd'.tr(),
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: AppColors.forestGreen,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colors.surface,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: colors.brandGreen.withValues(alpha: 0.3),
-                        ),
-                      ),
-                      child: const Text(
-                        'GS-MA-526',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.forestGreen,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colors.surface,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: colors.brandGreen.withValues(alpha: 0.3),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Transform.translate(
-                            offset: const Offset(0, -1.5),
-                            child: const Icon(Icons.star, color: Colors.orange, size: 14),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '4.8',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: context.colors.textPrimary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
+          Expanded(child: child),
           const SizedBox(width: 8),
-          // Arrow on the left (end in RTL)
           const Icon(
             Icons.arrow_forward_ios,
             color: AppColors.forestGreen,
@@ -349,6 +344,7 @@ class _DriverProfileScreenState extends State<DriverProfileScreen> {
       ),
     );
   }
+
 
   Widget _buildLanguageItem() {
     return Column(

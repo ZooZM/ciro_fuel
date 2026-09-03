@@ -28,6 +28,7 @@ import 'package:mobile_app/features/notifications/domain/entities/app_notificati
 import 'package:mobile_app/features/notifications/domain/entities/notifications_page.dart';
 import 'package:mobile_app/features/notifications/domain/repositories/notifications_repository.dart';
 import 'package:mobile_app/features/notifications/domain/usecases/get_notifications.dart';
+import 'package:mobile_app/features/notifications/domain/usecases/mark_all_notifications_read.dart';
 import 'package:mobile_app/features/notifications/domain/usecases/mark_notification_read.dart';
 import 'package:mobile_app/features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:mobile_app/features/notifications/presentation/cubit/notifications_state.dart';
@@ -320,6 +321,7 @@ void main() {
     final cubit = NotificationsCubit(
       getNotifications: GetNotifications(notificationsRepository),
       markNotificationRead: MarkNotificationRead(notificationsRepository),
+      markAllNotificationsRead: MarkAllNotificationsRead(notificationsRepository),
       socket: _OfflineTrackingSocket(),
     );
     addTearDown(cubit.close);

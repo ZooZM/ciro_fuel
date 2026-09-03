@@ -26,6 +26,7 @@ import 'package:mobile_app/features/auth/presentation/widgets/phone_field.dart';
 import 'package:mobile_app/features/notifications/data/datasources/notifications_remote_data_source.dart';
 import 'package:mobile_app/features/notifications/data/repositories/notifications_repository_impl.dart';
 import 'package:mobile_app/features/notifications/domain/usecases/get_notifications.dart';
+import 'package:mobile_app/features/notifications/domain/usecases/mark_all_notifications_read.dart';
 import 'package:mobile_app/features/notifications/domain/usecases/mark_notification_read.dart';
 import 'package:mobile_app/features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:mobile_app/features/orders/data/datasources/orders_remote_data_source.dart';
@@ -100,6 +101,7 @@ class _Harness {
     final trackingSocket = TrackingSocket(tokenStore: tokenStore);
     final getNotifications = GetNotifications(notificationsRepository);
     final markNotificationRead = MarkNotificationRead(notificationsRepository);
+    final markAllNotificationsRead = MarkAllNotificationsRead(notificationsRepository);
 
     getIt
       ..registerSingleton<TokenStore>(tokenStore)
@@ -120,6 +122,7 @@ class _Harness {
         NotificationsCubit(
           getNotifications: getNotifications,
           markNotificationRead: markNotificationRead,
+          markAllNotificationsRead: markAllNotificationsRead,
           socket: trackingSocket,
         ),
       )

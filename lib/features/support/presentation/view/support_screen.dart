@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/injector.dart';
 import '../../../../core/localization/translation_keys.dart';
+import '../../../../core/utils/phone_dialer.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -62,7 +63,22 @@ class SupportScreen extends StatelessWidget {
                 ),
                 _SectionTitle(SupportKeys.contactNow.tr()),
                 const SizedBox(height: AppSpacing.lg),
-                SupportCallButton(onTap: () {}),
+                // feature 013 T084: was an inert `onTap: () {}` on a shared
+                // screen (both personas). Dials the support hotline through
+                // the same `PhoneDialer` seam the delivery screens use.
+                SupportCallButton(
+                  onTap: () async {
+                    final messenger = ScaffoldMessenger.of(context);
+                    final ok = await PhoneDialer.call(SupportKeys.hotline.tr());
+                    if (!ok) {
+                      messenger.showSnackBar(
+                        SnackBar(
+                          content: Text(SupportKeys.callUnavailable.tr()),
+                        ),
+                      );
+                    }
+                  },
+                ),
                 const SizedBox(height: AppSpacing.xl),
                 const SupportChannelsRow(),
                 const SizedBox(height: AppSpacing.space48),

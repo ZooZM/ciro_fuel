@@ -2,13 +2,18 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../../../core/di/injector.dart';
+import '../../../../../core/error/failure.dart';
 import '../../../../../core/localization/translation_keys.dart';
+import '../../../../../core/network/error_codes.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/theme_context.dart';
 import '../../../../../core/utils/map_navigator.dart';
 import '../../../../../core/utils/phone_dialer.dart';
 import '../../../orders/presentation/constants/order_formatting.dart';
 import '../../../../../shared/entities/value_objects.dart';
+import '../../../../../shared/enums/stop_reason.dart';
+import '../../domain/usecases/report_blocked.dart';
 import '../view/driver_scan_screen.dart';
 
 /// spec 007: every value here used to come from a translation key holding
@@ -21,6 +26,7 @@ import '../view/driver_scan_screen.dart';
 /// detail screen already use.
 class DriverNavigationBottomSheet extends StatefulWidget {
   const DriverNavigationBottomSheet({
+    required this.orderId,
     required this.quantityLiters,
     required this.fuelTypeLabel,
     this.stationLabel,
@@ -31,6 +37,7 @@ class DriverNavigationBottomSheet extends StatefulWidget {
     super.key,
   });
 
+  final String orderId;
   final String? stationLabel;
   final String? addressLabel;
   final String? phone;
@@ -66,6 +73,109 @@ class _DriverNavigationBottomSheetState extends State<DriverNavigationBottomShee
         SnackBar(content: Text(DriverLoadingKeys.navigateFailed.tr())),
       );
     }
+  }
+
+  /// feature 013 US5a (FR-039): the driver cannot reach the destination.
+  /// Offers the applicable subset of [StopReason] (never all seven — the
+  /// wire vocabulary is unchanged, so the dashboard renders what was picked
+  /// with no new mapping), then reports it through the [ReportBlocked] use
+  /// case. A `409 STOP_ALREADY_OPEN` is a stated message, not a crash.
+  static const _blockedReasons = [
+    StopReason.roadClosure,
+    StopReason.accident,
+    StopReason.vehicleProblem,
+    StopReason.other,
+  ];
+
+  Future<void> _reportBlocked(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final reason = await showModalBottomSheet<StopReason>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Text(
+                DriverKeys.blockedReportTitle.tr(),
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 15,
+                  color: context.colors.textPrimary,
+                ),
+              ),
+            ),
+            for (final r in _blockedReasons)
+              ListTile(
+                title: Text(r.labelKey.tr()),
+                onTap: () => Navigator.of(sheetContext).pop(r),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (reason == null || !context.mounted) return;
+
+    String? reasonText;
+    if (reason == StopReason.other) {
+      reasonText = await _promptForText(context);
+      if (reasonText == null || reasonText.trim().isEmpty || !context.mounted) {
+        return;
+      }
+    }
+
+    final result = await getIt<ReportBlocked>()(
+      orderId: widget.orderId,
+      reason: reason,
+      reasonText: reasonText,
+    );
+    if (!context.mounted) return;
+    result.fold(
+      (failure) {
+        final alreadyOpen = failure is ValidationFailure &&
+            failure.code == ErrorCodes.stopAlreadyOpen;
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(
+              alreadyOpen
+                  ? DriverKeys.blockedReportAlreadyOpen.tr()
+                  : DriverKeys.blockedReportFailed.tr(),
+            ),
+          ),
+        );
+      },
+      (_) => messenger.showSnackBar(
+        SnackBar(content: Text(DriverKeys.blockedReportSent.tr())),
+      ),
+    );
+  }
+
+  Future<String?> _promptForText(BuildContext context) {
+    final controller = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          maxLength: 500,
+          decoration: InputDecoration(
+            hintText: DriverKeys.stopReasonOtherHint.tr(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(CommonKeys.cancel.tr()),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(controller.text),
+            child: Text(DriverKeys.blockedReportSubmit.tr()),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -338,7 +448,7 @@ class _DriverNavigationBottomSheetState extends State<DriverNavigationBottomShee
 
             // ===== I Cannot Reach Button =====
             TextButton(
-              onPressed: () {},
+              onPressed: () => _reportBlocked(context),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
