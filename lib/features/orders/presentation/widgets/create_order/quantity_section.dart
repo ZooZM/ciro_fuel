@@ -19,6 +19,7 @@ class QuantitySection extends StatefulWidget {
     required this.onPresetSelected,
     required this.tileQuantities,
     required this.counterQuantities,
+    required this.emptyMessage,
     super.key,
   });
 
@@ -37,6 +38,12 @@ class QuantitySection extends StatefulWidget {
   /// step away from.
   final List<int> tileQuantities;
   final List<int> counterQuantities;
+
+  /// What the card says when [quantities] is empty. Supplied by the screen
+  /// rather than fixed here, because "pick a fuel type first" and "the
+  /// company published no tanker sizes to pick from" are different states
+  /// that look identical from inside this row.
+  final String emptyMessage;
 
   @override
   State<QuantitySection> createState() => _QuantitySectionState();
@@ -61,7 +68,7 @@ class _QuantitySectionState extends State<QuantitySection> {
       return OrderCard(
         title: CreateOrderKeys.sectionQuantity.tr(),
         child: Text(
-          CreateOrderKeys.chooseFuelTypeFirst.tr(),
+          widget.emptyMessage,
           style: TextStyle(color: context.colors.textSecondary, fontSize: 13),
         ),
       );

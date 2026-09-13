@@ -525,6 +525,8 @@
     "favourite_stations": "محطاتك المفضلة",
     "change_station": "تغيير المحطة",
     "choose_fuel_type_first": "الرجاء اختيار نوع الوقود أولاً",
+    "no_fuel_types": "لم تنشر شركة الوقود الخاصة بك أي أنواع وقود حتى الآن.",
+    "quantities_unavailable": "الكميات غير متاحة: لم تنشر شركة الوقود الخاصة بك إعدادات التسعير بعد. حاول مرة أخرى أو تواصل مع الدعم.",
     "custom_quantity": "كمية أخرى",
     "schedule_title": "جدول موعد",
     "schedule_subtitle": "اختر التاريخ و الوقت",

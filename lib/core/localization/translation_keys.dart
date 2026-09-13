@@ -670,6 +670,18 @@ abstract final class CreateOrderKeys {
 
   static const String chooseFuelTypeFirst =
       'order_create.choose_fuel_type_first';
+
+  /// The fuel company sells nothing the platform can price (an empty
+  /// `GET /companies/:id/fuel-prices`) — shown in place of a row of grade
+  /// tiles that would otherwise be silently, unexplainedly empty.
+  static const String noFuelTypes = 'order_create.no_fuel_types';
+
+  /// PRICING_NOT_CONFIGURED, or any other failure reading the company's
+  /// pricing configuration: the tanker ladder (FR-017) comes from it, so
+  /// there is no quantity to offer. Said out loud rather than left as a
+  /// quantity card that keeps asking for a fuel type already chosen.
+  static const String quantitiesUnavailable =
+      'order_create.quantities_unavailable';
   static const String customQuantity = 'order_create.custom_quantity';
 
   static const String scheduleTitle = 'order_create.schedule_title';

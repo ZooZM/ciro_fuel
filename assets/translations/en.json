@@ -525,6 +525,8 @@
     "favourite_stations": "Your favourite stations",
     "change_station": "Change station",
     "choose_fuel_type_first": "Please choose a fuel type first",
+    "no_fuel_types": "Your fuel company has not published any fuel types yet.",
+    "quantities_unavailable": "Quantities are unavailable: your fuel company has not published its pricing yet. Please try again or contact support.",
     "custom_quantity": "Other amount",
     "schedule_title": "Schedule",
     "schedule_subtitle": "Pick a date and time",

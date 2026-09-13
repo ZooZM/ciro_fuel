@@ -43,6 +43,18 @@ class GradeSection extends StatelessWidget {
           (index, grade),
     ];
 
+    if (grades.isEmpty) {
+      // Nothing sellable came back. An empty row would read as a screen
+      // that failed to draw; this says which it is.
+      return OrderCard(
+        title: CreateOrderKeys.sectionGrade.tr(),
+        child: Text(
+          CreateOrderKeys.noFuelTypes.tr(),
+          style: TextStyle(color: context.colors.textSecondary, fontSize: 13),
+        ),
+      );
+    }
+
     return OrderCard(
       title: CreateOrderKeys.sectionGrade.tr(),
       // Five grades share this row; splitting the card between them left the

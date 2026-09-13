@@ -67,6 +67,13 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   /// its rows by grade index.
   final Map<int, int> _quantities = {};
 
+  /// The grade currently on the form. Held separately from [_quantities]
+  /// because a grade is selectable whether or not the fleet's tanker ladder
+  /// is known: when the company's pricing configuration is missing or
+  /// unreadable there are no litres to key the map by, and deriving the
+  /// selection from the map alone made every grade tile a silent no-op.
+  int? _selectedGradeIndex;
+
   DeliveryOption _delivery = DeliveryOption.fastest;
   PaymentMethod _paymentMethod = PaymentMethod.direct;
 
@@ -75,6 +82,13 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   bool _submitting = false;
 
   bool _loadingFormData = true;
+
+  /// The company's pricing configuration could not be read — either the
+  /// platform refused it (PRICING_NOT_CONFIGURED) or it carries no tanker
+  /// ladder. The quantity row (FR-017) is sourced from it, so the form
+  /// cannot price or submit anything until it loads; the screen says so
+  /// rather than rendering a form whose controls do nothing.
+  bool _pricingUnavailable = false;
   List<Station> _stations = [];
   Station? _selectedStation;
   List<FuelPrice> _fuelPrices = [];
@@ -151,14 +165,23 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
       _pricingConfig = pricingConfig;
       _creditStanding = creditStanding;
       _loadingFormData = false;
+      _pricingUnavailable = capacities == null || capacities.isEmpty;
+      _selectedGradeIndex = gradeIndex;
+      _quantities.clear();
       if (gradeIndex != null && capacities != null && capacities.isNotEmpty) {
-        _quantities
-          ..clear()
-          ..[gradeIndex] = capacities.first;
+        _quantities[gradeIndex] = capacities.first;
       }
     });
 
     unawaited(_refreshQuote());
+  }
+
+  /// Re-runs [_loadFormData] behind the retry the pricing banner offers —
+  /// the whole form's data, since a failed pricing read usually means the
+  /// request itself failed, not that this one endpoint is special.
+  Future<void> _retryFormData() async {
+    setState(() => _loadingFormData = true);
+    await _loadFormData();
   }
 
   /// Falls back to the first grade the company actually sells when the
@@ -211,9 +234,13 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   /// with the quantity chosen against it. Tapping the selected grade is a
   /// no-op — the form always has exactly one grade on it.
   void _selectGrade(int index) {
-    if (_quantities.containsKey(index)) return;
+    if (_selectedGradeIndex == index) return;
     final capacities = _counterQuantities;
     setState(() {
+      _selectedGradeIndex = index;
+      // The grade is recorded either way: with no ladder to draw a default
+      // litre from, the tile still selects and the quantity row explains
+      // why it has nothing to offer.
       _quantities.clear();
       if (capacities.isNotEmpty) _quantities[index] = capacities.first;
     });
@@ -326,9 +353,9 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
 
   Future<void> _submit() async {
     if (_quantities.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(CreateOrderKeys.selectAtLeastOneFuelType.tr())),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(_quantityEmptyMessage)));
       return;
     }
     final station = _selectedStation;
@@ -504,7 +531,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 GradeSection(
-                  selectedIndex: _quantities.keys.firstOrNull,
+                  selectedIndex: _selectedGradeIndex,
                   onSelect: _selectGrade,
                   soldTypes: _loadingFormData ? null : _soldTypes,
                 ),
@@ -514,7 +541,12 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                   onPresetSelected: _onPresetQuantitySelected,
                   tileQuantities: _tileQuantities,
                   counterQuantities: _counterQuantities,
+                  emptyMessage: _quantityEmptyMessage,
                 ),
+                if (!_loadingFormData && _pricingUnavailable) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  _pricingUnavailableBanner,
+                ],
                 const SizedBox(height: AppSpacing.lg),
                 DeliverySection(
                   selected: _delivery,
@@ -567,6 +599,33 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
       ),
     );
   }
+
+  /// What the quantity card says when it has no litres to offer. Before a
+  /// grade is picked that is simply the next step; once one IS picked, the
+  /// only remaining reason is that the tanker ladder never loaded — and
+  /// asking for a fuel type there asks for something already done, which is
+  /// exactly how an unpriced company reads as a broken screen.
+  String get _quantityEmptyMessage => _selectedGradeIndex == null
+      ? CreateOrderKeys.chooseFuelTypeFirst.tr()
+      : CreateOrderKeys.quantitiesUnavailable.tr();
+
+  /// The retry sitting under that message. The failure is usually the
+  /// request, not the endpoint, so it reloads the whole form's data.
+  Widget get _pricingUnavailableBanner => Align(
+    alignment: AlignmentDirectional.centerStart,
+    child: TextButton.icon(
+      onPressed: _loadingFormData ? null : () => unawaited(_retryFormData()),
+      icon: Icon(
+        Icons.refresh,
+        size: AppSizes.iconSm,
+        color: context.colors.brandBlue,
+      ),
+      label: Text(
+        CommonKeys.retry.tr(),
+        style: TextStyle(color: context.colors.brandBlue, fontSize: 13),
+      ),
+    ),
+  );
 
   /// FR-028: a courtesy check only, shown once a real quote exists — the
   /// order transaction's own credit check remains authoritative regardless
