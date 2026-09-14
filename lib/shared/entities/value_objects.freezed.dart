@@ -541,7 +541,19 @@ as double,
 /// @nodoc
 mixin _$PriceBreakdown {
 
- double get fuelLineTotal; double get deliveryFee; double get serviceFee; double get tax; double get total; double get unitPrice; double get serviceFeePercent; double get taxRatePercent; String get currency;
+ double get fuelLineTotal;/// **Absent until a transport company is assigned to the order.**
+///
+/// The delivery leg is priced by the company that performs it, and that
+/// company is only chosen when the fuel company routes the order — after
+/// the station owner has placed it. A quote, and an order that has not
+/// been routed yet, therefore carry no transport price at all.
+///
+/// `null` is NOT zero, and must never be rendered as `0`: zero would tell
+/// the station owner that delivery is free, when the truth is that nobody
+/// has priced it yet. Screens leave the row empty while this is null; the
+/// real figure arrives with the notification that the order was routed,
+/// and is what they then review and pay.
+ double? get deliveryFee; double get serviceFee; double get tax; double get total; double get unitPrice; double get serviceFeePercent; double get taxRatePercent; String get currency;
 /// Create a copy of PriceBreakdown
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -574,7 +586,7 @@ abstract mixin class $PriceBreakdownCopyWith<$Res>  {
   factory $PriceBreakdownCopyWith(PriceBreakdown value, $Res Function(PriceBreakdown) _then) = _$PriceBreakdownCopyWithImpl;
 @useResult
 $Res call({
- double fuelLineTotal, double deliveryFee, double serviceFee, double tax, double total, double unitPrice, double serviceFeePercent, double taxRatePercent, String currency
+ double fuelLineTotal, double? deliveryFee, double serviceFee, double tax, double total, double unitPrice, double serviceFeePercent, double taxRatePercent, String currency
 });
 
 
@@ -591,11 +603,11 @@ class _$PriceBreakdownCopyWithImpl<$Res>
 
 /// Create a copy of PriceBreakdown
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? fuelLineTotal = null,Object? deliveryFee = null,Object? serviceFee = null,Object? tax = null,Object? total = null,Object? unitPrice = null,Object? serviceFeePercent = null,Object? taxRatePercent = null,Object? currency = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? fuelLineTotal = null,Object? deliveryFee = freezed,Object? serviceFee = null,Object? tax = null,Object? total = null,Object? unitPrice = null,Object? serviceFeePercent = null,Object? taxRatePercent = null,Object? currency = null,}) {
   return _then(_self.copyWith(
 fuelLineTotal: null == fuelLineTotal ? _self.fuelLineTotal : fuelLineTotal // ignore: cast_nullable_to_non_nullable
-as double,deliveryFee: null == deliveryFee ? _self.deliveryFee : deliveryFee // ignore: cast_nullable_to_non_nullable
-as double,serviceFee: null == serviceFee ? _self.serviceFee : serviceFee // ignore: cast_nullable_to_non_nullable
+as double,deliveryFee: freezed == deliveryFee ? _self.deliveryFee : deliveryFee // ignore: cast_nullable_to_non_nullable
+as double?,serviceFee: null == serviceFee ? _self.serviceFee : serviceFee // ignore: cast_nullable_to_non_nullable
 as double,tax: null == tax ? _self.tax : tax // ignore: cast_nullable_to_non_nullable
 as double,total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
 as double,unitPrice: null == unitPrice ? _self.unitPrice : unitPrice // ignore: cast_nullable_to_non_nullable
@@ -687,7 +699,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( double fuelLineTotal,  double deliveryFee,  double serviceFee,  double tax,  double total,  double unitPrice,  double serviceFeePercent,  double taxRatePercent,  String currency)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( double fuelLineTotal,  double? deliveryFee,  double serviceFee,  double tax,  double total,  double unitPrice,  double serviceFeePercent,  double taxRatePercent,  String currency)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PriceBreakdown() when $default != null:
 return $default(_that.fuelLineTotal,_that.deliveryFee,_that.serviceFee,_that.tax,_that.total,_that.unitPrice,_that.serviceFeePercent,_that.taxRatePercent,_that.currency);case _:
@@ -708,7 +720,7 @@ return $default(_that.fuelLineTotal,_that.deliveryFee,_that.serviceFee,_that.tax
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( double fuelLineTotal,  double deliveryFee,  double serviceFee,  double tax,  double total,  double unitPrice,  double serviceFeePercent,  double taxRatePercent,  String currency)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( double fuelLineTotal,  double? deliveryFee,  double serviceFee,  double tax,  double total,  double unitPrice,  double serviceFeePercent,  double taxRatePercent,  String currency)  $default,) {final _that = this;
 switch (_that) {
 case _PriceBreakdown():
 return $default(_that.fuelLineTotal,_that.deliveryFee,_that.serviceFee,_that.tax,_that.total,_that.unitPrice,_that.serviceFeePercent,_that.taxRatePercent,_that.currency);case _:
@@ -728,7 +740,7 @@ return $default(_that.fuelLineTotal,_that.deliveryFee,_that.serviceFee,_that.tax
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( double fuelLineTotal,  double deliveryFee,  double serviceFee,  double tax,  double total,  double unitPrice,  double serviceFeePercent,  double taxRatePercent,  String currency)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( double fuelLineTotal,  double? deliveryFee,  double serviceFee,  double tax,  double total,  double unitPrice,  double serviceFeePercent,  double taxRatePercent,  String currency)?  $default,) {final _that = this;
 switch (_that) {
 case _PriceBreakdown() when $default != null:
 return $default(_that.fuelLineTotal,_that.deliveryFee,_that.serviceFee,_that.tax,_that.total,_that.unitPrice,_that.serviceFeePercent,_that.taxRatePercent,_that.currency);case _:
@@ -743,11 +755,23 @@ return $default(_that.fuelLineTotal,_that.deliveryFee,_that.serviceFee,_that.tax
 @JsonSerializable()
 
 class _PriceBreakdown implements PriceBreakdown {
-  const _PriceBreakdown({required this.fuelLineTotal, required this.deliveryFee, required this.serviceFee, required this.tax, required this.total, required this.unitPrice, required this.serviceFeePercent, required this.taxRatePercent, required this.currency});
+  const _PriceBreakdown({required this.fuelLineTotal, this.deliveryFee, required this.serviceFee, required this.tax, required this.total, required this.unitPrice, required this.serviceFeePercent, required this.taxRatePercent, required this.currency});
   factory _PriceBreakdown.fromJson(Map<String, dynamic> json) => _$PriceBreakdownFromJson(json);
 
 @override final  double fuelLineTotal;
-@override final  double deliveryFee;
+/// **Absent until a transport company is assigned to the order.**
+///
+/// The delivery leg is priced by the company that performs it, and that
+/// company is only chosen when the fuel company routes the order — after
+/// the station owner has placed it. A quote, and an order that has not
+/// been routed yet, therefore carry no transport price at all.
+///
+/// `null` is NOT zero, and must never be rendered as `0`: zero would tell
+/// the station owner that delivery is free, when the truth is that nobody
+/// has priced it yet. Screens leave the row empty while this is null; the
+/// real figure arrives with the notification that the order was routed,
+/// and is what they then review and pay.
+@override final  double? deliveryFee;
 @override final  double serviceFee;
 @override final  double tax;
 @override final  double total;
@@ -789,7 +813,7 @@ abstract mixin class _$PriceBreakdownCopyWith<$Res> implements $PriceBreakdownCo
   factory _$PriceBreakdownCopyWith(_PriceBreakdown value, $Res Function(_PriceBreakdown) _then) = __$PriceBreakdownCopyWithImpl;
 @override @useResult
 $Res call({
- double fuelLineTotal, double deliveryFee, double serviceFee, double tax, double total, double unitPrice, double serviceFeePercent, double taxRatePercent, String currency
+ double fuelLineTotal, double? deliveryFee, double serviceFee, double tax, double total, double unitPrice, double serviceFeePercent, double taxRatePercent, String currency
 });
 
 
@@ -806,11 +830,11 @@ class __$PriceBreakdownCopyWithImpl<$Res>
 
 /// Create a copy of PriceBreakdown
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? fuelLineTotal = null,Object? deliveryFee = null,Object? serviceFee = null,Object? tax = null,Object? total = null,Object? unitPrice = null,Object? serviceFeePercent = null,Object? taxRatePercent = null,Object? currency = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? fuelLineTotal = null,Object? deliveryFee = freezed,Object? serviceFee = null,Object? tax = null,Object? total = null,Object? unitPrice = null,Object? serviceFeePercent = null,Object? taxRatePercent = null,Object? currency = null,}) {
   return _then(_PriceBreakdown(
 fuelLineTotal: null == fuelLineTotal ? _self.fuelLineTotal : fuelLineTotal // ignore: cast_nullable_to_non_nullable
-as double,deliveryFee: null == deliveryFee ? _self.deliveryFee : deliveryFee // ignore: cast_nullable_to_non_nullable
-as double,serviceFee: null == serviceFee ? _self.serviceFee : serviceFee // ignore: cast_nullable_to_non_nullable
+as double,deliveryFee: freezed == deliveryFee ? _self.deliveryFee : deliveryFee // ignore: cast_nullable_to_non_nullable
+as double?,serviceFee: null == serviceFee ? _self.serviceFee : serviceFee // ignore: cast_nullable_to_non_nullable
 as double,tax: null == tax ? _self.tax : tax // ignore: cast_nullable_to_non_nullable
 as double,total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
 as double,unitPrice: null == unitPrice ? _self.unitPrice : unitPrice // ignore: cast_nullable_to_non_nullable

@@ -307,7 +307,13 @@
     "banner_unknown": "You have a new notification.",
     "banner_view": "View",
     "banner_driver_stop_detected": "Your truck hasn't moved for a while — tap to tell us why.",
-    "banner_driver_blocked": "A driver reported they cannot reach the destination."
+    "banner_driver_blocked": "A driver reported they cannot reach the destination.",
+    "banner_credit_limit_request_resolved": "Your credit limit request has been reviewed.",
+    "banner_exchange_offer_available": "A new fuel exchange offer is available.",
+    "banner_exchange_proposal_received": "A price was proposed on your exchange offer.",
+    "banner_exchange_offer_awarded": "A fuel exchange offer has been awarded.",
+    "banner_exchange_offer_closed": "A fuel exchange offer has closed.",
+    "banner_platform_announcement": "An announcement from the platform operator."
   },
   "more": {
     "section_account": "Account",

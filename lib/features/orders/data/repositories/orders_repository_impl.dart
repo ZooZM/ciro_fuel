@@ -73,6 +73,10 @@ class OrdersRepositoryImpl implements OrdersRepository {
       _guard(() => _remoteDataSource.cancelOrder(orderId));
 
   @override
+  Future<Either<Failure, Order>> acceptFinalPrice(String orderId) =>
+      _guard(() => _remoteDataSource.acceptFinalPrice(orderId));
+
+  @override
   Future<Either<Failure, Order>> redispatch(String orderId) =>
       _guard(() => _remoteDataSource.redispatch(orderId));
 

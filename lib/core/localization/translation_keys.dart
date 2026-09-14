@@ -309,6 +309,24 @@ abstract final class NotificationKeys {
   // only so the shared presentation map stays exhaustive.
   static const String bannerDriverBlocked =
       'notifications.banner_driver_blocked';
+  // feature 013: the fuel company decided a station owner's credit-limit
+  // request. Unlike its neighbours here, this one IS addressed to a mobile
+  // persona (the client who asked), so this copy really is shown.
+  static const String bannerCreditLimitRequestResolved =
+      'notifications.banner_credit_limit_request_resolved';
+  // feature 016: the broadcast fuel exchange — FUEL_COMPANY_ADMIN only, so
+  // these four exist to keep the shared presentation map exhaustive.
+  static const String bannerExchangeOfferAvailable =
+      'notifications.banner_exchange_offer_available';
+  static const String bannerExchangeProposalReceived =
+      'notifications.banner_exchange_proposal_received';
+  static const String bannerExchangeOfferAwarded =
+      'notifications.banner_exchange_offer_awarded';
+  static const String bannerExchangeOfferClosed =
+      'notifications.banner_exchange_offer_closed';
+  // feature 017: the platform operator's announcement — administrators only.
+  static const String bannerPlatformAnnouncement =
+      'notifications.banner_platform_announcement';
   static const String bannerUnknown = 'notifications.banner_unknown';
   static const String bannerView = 'notifications.banner_view';
 }

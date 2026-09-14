@@ -66,7 +66,20 @@ abstract class GeoPoint with _$GeoPoint {
 abstract class PriceBreakdown with _$PriceBreakdown {
   const factory PriceBreakdown({
     required double fuelLineTotal,
-    required double deliveryFee,
+
+    /// **Absent until a transport company is assigned to the order.**
+    ///
+    /// The delivery leg is priced by the company that performs it, and that
+    /// company is only chosen when the fuel company routes the order — after
+    /// the station owner has placed it. A quote, and an order that has not
+    /// been routed yet, therefore carry no transport price at all.
+    ///
+    /// `null` is NOT zero, and must never be rendered as `0`: zero would tell
+    /// the station owner that delivery is free, when the truth is that nobody
+    /// has priced it yet. Screens leave the row empty while this is null; the
+    /// real figure arrives with the notification that the order was routed,
+    /// and is what they then review and pay.
+    double? deliveryFee,
     required double serviceFee,
     required double tax,
     required double total,

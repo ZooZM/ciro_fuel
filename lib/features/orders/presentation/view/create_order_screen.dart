@@ -708,8 +708,17 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
           '${NumberFormatting.currency(breakdown.fuelLineTotal)} $currency',
       // The design's summary card has one slot for "fees" — delivery and
       // service fee combined, since it draws no line between them.
-      transportFees:
-          '${NumberFormatting.currency(breakdown.deliveryFee + breakdown.serviceFee)} $currency',
+      //
+      // EMPTY while the order is being placed. The delivery leg is priced by
+      // the transport company that performs the haul, and none has been chosen
+      // yet — the fuel company routes the order after approving it. There is
+      // genuinely no transport price to state here, and showing the service fee
+      // alone under this label would name the wrong thing. The station owner is
+      // told the real total once the order is routed, and reviews and pays it
+      // then.
+      transportFees: breakdown.deliveryFee == null
+          ? ''
+          : '${NumberFormatting.currency(breakdown.deliveryFee! + breakdown.serviceFee)} $currency',
       vat: '${NumberFormatting.currency(breakdown.tax)} $currency',
       finalTotal: '${NumberFormatting.currency(breakdown.total)} $currency',
     );

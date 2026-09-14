@@ -32,11 +32,20 @@ void main() {
       // Strip comments first — doc comments on these very files describe the
       // `onPressed: () {}` stubs they replaced, and those references are not
       // live code.
+      //
+      // CRLF normalisation is load-bearing, not tidiness. This checkout is
+      // `core.autocrlf=true` with no `.gitattributes`, so a line arrives here
+      // as `...active\r`. `RegExp(r'//.*$')` then fails outright: `.` does not
+      // match the `\r` (it is a line terminator) and `$` without `multiLine`
+      // only matches true end-of-input, so the comment survived the strip and
+      // the sweep below matched five doc comments describing the very fix they
+      // document — reporting the repo's own changelog as dead code.
       final src = file
           .readAsStringSync()
+          .replaceAll('\r\n', '\n')
           .replaceAll(RegExp(r'/\*.*?\*/', dotAll: true), '')
           .split('\n')
-          .map((l) => l.replaceAll(RegExp(r'//.*$'), ''))
+          .map((l) => l.replaceAll(RegExp(r'//.*'), ''))
           .join('\n');
       for (final match in deadHandler.allMatches(src)) {
         final line = '\n'.allMatches(src.substring(0, match.start)).length + 1;

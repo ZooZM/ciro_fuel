@@ -307,7 +307,13 @@
     "banner_unknown": "لديك إشعار جديد.",
     "banner_view": "عرض",
     "banner_driver_stop_detected": "لم تتحرك شاحنتك منذ فترة — اضغط لإخبارنا بالسبب.",
-    "banner_driver_blocked": "أبلغ سائق بأنه لا يستطيع الوصول إلى الوجهة."
+    "banner_driver_blocked": "أبلغ سائق بأنه لا يستطيع الوصول إلى الوجهة.",
+    "banner_credit_limit_request_resolved": "تمت مراجعة طلب حدّ الائتمان الخاص بك.",
+    "banner_exchange_offer_available": "يتوفر عرض تبادل وقود جديد.",
+    "banner_exchange_proposal_received": "تم تقديم سعر على عرض التبادل الخاص بك.",
+    "banner_exchange_offer_awarded": "تمت ترسية عرض تبادل وقود.",
+    "banner_exchange_offer_closed": "تم إغلاق عرض تبادل وقود.",
+    "banner_platform_announcement": "إعلان من مشغّل المنصة."
   },
   "more": {
     "section_account": "الحساب",

@@ -31,6 +31,19 @@ void main() {
     // feature 013 US5a: a transport-admin notification, mirrored so
     // this parity check stays exhaustive.
     'ORDER_DRIVER_BLOCKED',
+    // feature 013: notified to `resolved.clientId` — a CLIENT, and so the one
+    // value in this batch a real mobile user actually receives. It was absent
+    // from both the enum and this list, which is exactly why nothing caught
+    // it: the list below is the check, so anything missing from it is missing
+    // from the check too.
+    'CREDIT_LIMIT_REQUEST_RESOLVED',
+    // feature 016: the broadcast fuel exchange (FUEL_COMPANY_ADMIN only).
+    'EXCHANGE_OFFER_AVAILABLE',
+    'EXCHANGE_PROPOSAL_RECEIVED',
+    'EXCHANGE_OFFER_AWARDED',
+    'EXCHANGE_OFFER_CLOSED',
+    // feature 017: the platform operator's announcement (administrators only).
+    'PLATFORM_ANNOUNCEMENT',
   ];
 
   test('every backend wire value maps to a named member, never unknown', () {

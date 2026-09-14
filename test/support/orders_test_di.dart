@@ -134,6 +134,10 @@ class FakeOrdersRepository implements OrdersRepository {
       throw UnimplementedError();
 
   @override
+  Future<Either<Failure, Order>> acceptFinalPrice(String orderId) =>
+      throw UnimplementedError();
+
+  @override
   Future<Either<Failure, Order>> redispatch(String orderId) =>
       throw UnimplementedError();
 }

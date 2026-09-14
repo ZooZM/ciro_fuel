@@ -76,7 +76,9 @@ class _LoadedState extends State<_Loaded> {
         lineTotal:
             '${NumberFormatting.currency(breakdown.fuelLineTotal)} $currency',
         deliveryFee:
-            '${NumberFormatting.currency(breakdown.deliveryFee)} $currency',
+            breakdown.deliveryFee == null
+                ? ''
+                : '${NumberFormatting.currency(breakdown.deliveryFee!)} $currency',
         serviceFee:
             '${NumberFormatting.currency(breakdown.serviceFee)} $currency',
         deferred: false,

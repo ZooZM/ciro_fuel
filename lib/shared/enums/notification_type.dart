@@ -29,6 +29,21 @@ enum NotificationType {
   // mobile persona — mirrored here only to keep the parity guard
   // exhaustive against the backend enum.
   orderDriverBlocked('ORDER_DRIVER_BLOCKED'),
+  // feature 013: the fuel company has decided a station owner's credit-limit
+  // request. This one DOES reach a mobile persona — it is notified to
+  // `resolved.clientId` — so its absence here was not cosmetic: a real
+  // client's own notification degraded to [unknown] in their own list.
+  creditLimitRequestResolved('CREDIT_LIMIT_REQUEST_RESOLVED'),
+  // feature 016: the broadcast fuel exchange. All four are addressed to a
+  // FUEL_COMPANY_ADMIN, a role with no mobile persona at all — mirrored for
+  // the same reason as [orderDriverBlocked].
+  exchangeOfferAvailable('EXCHANGE_OFFER_AVAILABLE'),
+  exchangeProposalReceived('EXCHANGE_PROPOSAL_RECEIVED'),
+  exchangeOfferAwarded('EXCHANGE_OFFER_AWARDED'),
+  exchangeOfferClosed('EXCHANGE_OFFER_CLOSED'),
+  // feature 017: the platform operator's announcement fan-out, addressed to
+  // administrators only.
+  platformAnnouncement('PLATFORM_ANNOUNCEMENT'),
   unknown('UNKNOWN');
 
   const NotificationType(this.wire);
@@ -48,6 +63,13 @@ enum NotificationType {
     'SUPPORT_REQUEST_RAISED' => NotificationType.supportRequestRaised,
     'DRIVER_STOP_DETECTED' => NotificationType.driverStopDetected,
     'ORDER_DRIVER_BLOCKED' => NotificationType.orderDriverBlocked,
+    'CREDIT_LIMIT_REQUEST_RESOLVED' =>
+      NotificationType.creditLimitRequestResolved,
+    'EXCHANGE_OFFER_AVAILABLE' => NotificationType.exchangeOfferAvailable,
+    'EXCHANGE_PROPOSAL_RECEIVED' => NotificationType.exchangeProposalReceived,
+    'EXCHANGE_OFFER_AWARDED' => NotificationType.exchangeOfferAwarded,
+    'EXCHANGE_OFFER_CLOSED' => NotificationType.exchangeOfferClosed,
+    'PLATFORM_ANNOUNCEMENT' => NotificationType.platformAnnouncement,
     _ => NotificationType.unknown,
   };
 

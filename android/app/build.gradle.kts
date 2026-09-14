@@ -28,6 +28,17 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // Required by `flutter_local_notifications` (^18.0.1), which spec 011
+        // added for the driver's stop prompt — the one notification that must
+        // reach a driver who is mid-drive with the app backgrounded.
+        //
+        // Without this the Android build fails outright at
+        // `:app:checkDebugAarMetadata` ("requires core library desugaring to be
+        // enabled"), so the app could not be assembled for a device at all.
+        // Nothing caught it: `flutter test` runs Dart on the host JVM and never
+        // invokes Gradle, so the entire suite passes on a project that cannot
+        // produce an APK.
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -56,4 +67,10 @@ android {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // The desugaring runtime the `compileOptions` flag above needs. 2.1.4 is the
+    // minimum `flutter_local_notifications` 18.x accepts.
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }

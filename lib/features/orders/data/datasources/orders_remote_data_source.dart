@@ -43,6 +43,11 @@ abstract interface class OrdersRemoteDataSource {
 
   Future<Order> cancelOrder(String orderId);
 
+  /// The station owner accepts the final total once routing has priced the
+  /// haul — DEFERRED and CREDIT orders only, which have no gateway payment to
+  /// make. A DIRECT order is confirmed by paying it.
+  Future<Order> acceptFinalPrice(String orderId);
+
   Future<Order> redispatch(String orderId);
 
   Future<OrderRating> submitRating(String orderId, {required int score, String? review});
@@ -155,6 +160,14 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
   Future<Order> cancelOrder(String orderId) async {
     final response = await _dio.patch<Map<String, dynamic>>(
       '/orders/$orderId/cancel',
+    );
+    return OrderMapper.fromJson(response.data!);
+  }
+
+  @override
+  Future<Order> acceptFinalPrice(String orderId) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/orders/$orderId/accept',
     );
     return OrderMapper.fromJson(response.data!);
   }

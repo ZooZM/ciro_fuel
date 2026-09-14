@@ -36,6 +36,22 @@ abstract final class NotificationPresentation {
       NotificationKeys.bannerDriverStopDetected,
     NotificationType.orderDriverBlocked =>
       NotificationKeys.bannerDriverBlocked,
+    // feature 013: the only one of the additions below that a mobile persona
+    // can actually receive — it is addressed to the client who asked.
+    NotificationType.creditLimitRequestResolved =>
+      NotificationKeys.bannerCreditLimitRequestResolved,
+    // feature 016/017: fuel-company admins and platform operators, neither of
+    // which has a mobile persona. Present so this map stays exhaustive.
+    NotificationType.exchangeOfferAvailable =>
+      NotificationKeys.bannerExchangeOfferAvailable,
+    NotificationType.exchangeProposalReceived =>
+      NotificationKeys.bannerExchangeProposalReceived,
+    NotificationType.exchangeOfferAwarded =>
+      NotificationKeys.bannerExchangeOfferAwarded,
+    NotificationType.exchangeOfferClosed =>
+      NotificationKeys.bannerExchangeOfferClosed,
+    NotificationType.platformAnnouncement =>
+      NotificationKeys.bannerPlatformAnnouncement,
     NotificationType.unknown => NotificationKeys.bannerUnknown,
   };
 }

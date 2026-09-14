@@ -60,6 +60,7 @@ import '../../features/orders/data/repositories/company_pricing_repository_impl.
 import '../../features/orders/domain/gateways/payment_gateway.dart';
 import '../../features/orders/domain/repositories/orders_repository.dart';
 import '../../features/orders/domain/repositories/company_pricing_repository.dart';
+import '../../features/orders/domain/usecases/accept_final_price.dart';
 import '../../features/orders/domain/usecases/cancel_order.dart';
 import '../../features/orders/domain/usecases/create_order.dart';
 import '../../features/orders/domain/usecases/get_current_otp.dart';
@@ -290,6 +291,7 @@ void _registerOrdersFeature() {
   getIt.registerLazySingleton(() => GetDrivingRoute(getIt()));
   getIt.registerLazySingleton(() => GetCurrentOtp(getIt()));
   getIt.registerLazySingleton(() => CancelOrder(getIt()));
+  getIt.registerLazySingleton(() => AcceptFinalPrice(getIt()));
   getIt.registerLazySingleton(() => Redispatch(getIt()));
   getIt.registerLazySingleton(() => GetQuote(getIt()));
   getIt.registerLazySingleton(() => SubmitRating(getIt()));

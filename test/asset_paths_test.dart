@@ -88,7 +88,14 @@ Set<String> _listAssetsWithRealCase() {
   return Directory('assets')
       .listSync(recursive: true)
       .whereType<File>()
-      .map((file) => file.path)
+      // `File.path` uses the PLATFORM separator, so on Windows every entry
+      // came back as `assets\more\icon1.svg` while the paths harvested from
+      // `lib/` and declared in `pubspec.yaml` are always `/`-separated. The
+      // set comparisons above then matched nothing, and this guard reported
+      // all 147 asset references as missing files that are in fact sitting on
+      // disk — failing loudly, and for the wrong reason, on the one platform
+      // where the case question it exists to answer cannot even arise.
+      .map((file) => file.path.replaceAll(r'\', '/'))
       .where((path) => !path.endsWith('.DS_Store'))
       .toSet();
 }

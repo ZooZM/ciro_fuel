@@ -62,8 +62,12 @@ class ReceiptCard extends StatelessWidget {
         lineItem: label,
         lineTotal:
             '${NumberFormatting.currency(breakdown.fuelLineTotal)} $currency',
-        deliveryFee:
-            '${NumberFormatting.currency(breakdown.deliveryFee)} $currency',
+        // Absent until the order is routed and a transport company prices the
+        // haul. Left blank rather than rendered as 0, which would read as
+        // "delivery is free" instead of "nobody has priced it yet".
+        deliveryFee: breakdown.deliveryFee == null
+            ? ''
+            : '${NumberFormatting.currency(breakdown.deliveryFee!)} $currency',
         serviceFee:
             '${NumberFormatting.currency(breakdown.serviceFee)} $currency',
         // Whether a *separate*, already-standing invoice must be settled

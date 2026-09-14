@@ -19,7 +19,7 @@ Map<String, dynamic> _$MoneyToJson(_Money instance) => <String, dynamic>{
 _PriceBreakdown _$PriceBreakdownFromJson(Map<String, dynamic> json) =>
     _PriceBreakdown(
       fuelLineTotal: (json['fuelLineTotal'] as num).toDouble(),
-      deliveryFee: (json['deliveryFee'] as num).toDouble(),
+      deliveryFee: (json['deliveryFee'] as num?)?.toDouble(),
       serviceFee: (json['serviceFee'] as num).toDouble(),
       tax: (json['tax'] as num).toDouble(),
       total: (json['total'] as num).toDouble(),

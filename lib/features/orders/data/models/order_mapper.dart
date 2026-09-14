@@ -118,7 +118,11 @@ abstract final class OrderMapper {
     if (value is! Map<String, Object?>) return null;
     return PriceBreakdown(
       fuelLineTotal: (value['fuelLineTotal']! as num).toDouble(),
-      deliveryFee: (value['deliveryFee']! as num).toDouble(),
+      // Absent until the order is routed — the transport company that performs
+      // the haul is the one that prices it. The `!` that used to be here threw
+      // on every quote and every un-routed order the moment the platform
+      // stopped inventing a figure for a hauler nobody had chosen yet.
+      deliveryFee: (value['deliveryFee'] as num?)?.toDouble(),
       serviceFee: (value['serviceFee']! as num).toDouble(),
       tax: (value['tax']! as num).toDouble(),
       total: (value['total']! as num).toDouble(),

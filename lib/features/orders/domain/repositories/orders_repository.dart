@@ -50,6 +50,13 @@ abstract interface class OrdersRepository {
 
   Future<Either<Failure, Order>> cancelOrder(String orderId);
 
+  /// The station owner accepts the final total once routing has priced the
+  /// haul. DEFERRED and CREDIT only — those are settled against an invoice and
+  /// have no gateway payment to make, while a DIRECT order is confirmed by
+  /// paying it. Refusing the total is the ordinary [cancelOrder] they already
+  /// have; the platform needs no separate refusal.
+  Future<Either<Failure, Order>> acceptFinalPrice(String orderId);
+
   Future<Either<Failure, Order>> redispatch(String orderId);
 
   /// FR-037/FR-039/FR-040: `review` optional (FR-037a). The 409s this can
