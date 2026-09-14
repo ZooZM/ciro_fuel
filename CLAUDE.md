@@ -1,3 +1,158 @@
+# ACTIVE: cross-device live-tracking test (Mac = DRIVER, Windows = CLIENT)
+
+**Read this first if you are the session running on the Mac.** It is an
+operational handoff, not background. Delete this section when the test is over.
+
+## Who does what
+
+| | Machine | Persona | Responsibility |
+|---|---|---|---|
+| **You** | Mac | **DRIVER** | Run the app on an iPhone/simulator, sign in as the driver, drive a real route, keep the location stream alive |
+| Other session | Windows | **CLIENT** + backend | Prepares the order, watches `order:location` / `order:status` live, drives order state over REST |
+
+The backend runs on the Windows machine and is exposed to you over **ngrok**
+(HTTPS). Do not point at `localhost`.
+
+The live tunnel is **`https://firstly-perforative-jaylah.ngrok-free.dev`**,
+verified reaching the backend (`/api/v1/health/ready` → mongodb, redis,
+rateLimiting, realtimeFanout all `up`; a real login returns 201). That host is
+already the **default** in `Env` (`lib/core/config/env.dart`), so a plain
+`flutter run` targets it with no flags. Pass them only if the operator sends a
+different URL — a free ngrok host changes whenever the tunnel restarts:
+
+```bash
+flutter run -d <device> \
+  --dart-define=API_BASE_URL=https://<ngrok-host>/api/v1 \
+  --dart-define=WS_BASE_URL=https://<ngrok-host>
+```
+
+Confirm the tunnel before blaming the app — `curl https://<host>/api/v1/health/ready`.
+A dead tunnel and a broken client look identical from the device.
+
+Because ngrok is HTTPS you need **no** cleartext exemption — neither Android's
+`usesCleartextTraffic` nor iOS's `NSAllowsLocalNetworking`.
+
+## The rule that will bite you
+
+**A DRIVER holds exactly ONE session (spec 006).** A second sign-in as the same
+driver displaces the first: the backend pushes `session:revoked` to the live
+socket, the device signs itself out with *"تم تسجيل الدخول من جهاز آخر"*, and
+`LocationStreamService` stops streaming.
+
+While this test runs:
+
+- **Only the Mac signs in as the driver** — never from a script, a second
+  simulator, curl, or the Windows side.
+- This already happened once and silently killed a tracking run: a
+  token-refresh helper on the Windows side re-authenticated the driver and
+  ended the phone's session mid-drive.
+- CLIENT and the admin roles are multi-session, so the Windows side signing in
+  as the client is safe and expected.
+- If a second driver is needed, use the second seeded one — never share one.
+
+## Credentials (seed suffix `45453736`)
+
+| Role | Login | Password |
+|---|---|---|
+| DRIVER 1 | `+966550037360` | `Password123!` |
+| DRIVER 2 | `+966550037361` | `Password123!` |
+| CLIENT | `+966540053736` | `Password123!` |
+| FUEL_COMPANY_ADMIN | `fuel@dash45453736.test` | `Password123!` |
+| TRANSPORT_COMPANY_ADMIN | `transport@dash45453736.test` | `Password123!` |
+| SUPER_ADMIN | `owner@example.com` | `change-me-please-16chars` |
+
+Driver 1 operates truck `DSH-3736-0` (NFC card `SEED-CARD-45453736-0`); driver 2
+operates `DSH-3736-1` (`SEED-CARD-45453736-1`).
+
+## You do not need NFC or the camera
+
+Departure and loading verify a truck by **NFC card or QR**, and a simulator has
+neither. Do not work around it: **the Windows side drives the order to
+`IN_TRANSIT` over REST before you start**, so your job begins with a delivery
+already in flight.
+
+Sign in → pass the app lock → confirm the home screen shows the active delivery
+→ move. `DeliveryCubit.load()` starts `LocationStreamService` automatically
+whenever `getActiveOrder()` returns an order; there is no "start tracking"
+button.
+
+**Order waiting for you right now:** `6aa74a614a0300d40cb24020` — `IN_TRANSIT`,
+12,000 L DIESEL, held by Dashboard Driver 1, destination "Dashboard test
+station, Riyadh" (24.7136, 46.6753). The driver home shows it as **`#B24020`**.
+If it has been completed by the time you start, ask the Windows side for a fresh
+one rather than trying to create it yourself — only that side can get an order
+past the NFC-gated steps.
+
+Signing in on the Mac will **displace** the Android emulator session on the
+Windows machine that is currently holding this driver. That is expected and is
+the correct handover; it is not a bug to report.
+
+## The app lock
+
+Mandatory and unconfigurable (spec 006), and it accepts the device passcode as
+well as biometrics (`biometricOnly: false`) so a failed sensor cannot strand a
+driver mid-delivery. On the Windows emulator it is PIN `1234` with one enrolled
+fingerprint at id `0` (`adb emu finger touch 0`). Set whatever equivalent you
+need on the Mac; the prompt exposes a **"Use PIN"** button when biometrics fail.
+
+## What the gate does, so you can read the result
+
+`LocationEmitGate` sends a fix only when it is **> 50 m** from the last accepted
+one **or** 3 minutes have passed, and never more than once per 5 s. So:
+
+- Normal driving produces a steady stream.
+- Standing still produces one fix every 3 minutes, not silence.
+- A deliberate small move (< 50 m) inside 3 minutes **must produce nothing** —
+  that suppression is a correct result, not a failure.
+
+The server re-enforces the same policy, so a fix accepted locally can still be
+dropped server-side; the Windows side sees the truth.
+
+## Android fixes already applied — do not re-diagnose
+
+Three defects were found by running on a real Android device and are already
+fixed in this repo:
+
+1. **`android/app/build.gradle.kts`** — `isCoreLibraryDesugaringEnabled` plus
+   `desugar_jdk_libs:2.1.4`. `flutter_local_notifications` ^18 requires it;
+   without it **no APK builds at all** (`:app:checkDebugAarMetadata`).
+2. **`android/app/src/main/AndroidManifest.xml`** — `android.permission.WAKE_LOCK`.
+   `LocationStreamService` sets `enableWakeLock: true`, and without the
+   permission `getPositionStream` throws `SecurityException` the moment the
+   foreground service starts. **Live tracking was silently dead**: `start()`
+   still returned true and the UI still claimed to be sharing location.
+3. **`android/app/src/debug/AndroidManifest.xml`** — `usesCleartextTraffic`,
+   debug-only, for a local backend over plain HTTP. Irrelevant over ngrok.
+
+None are visible to `flutter test`, which never invokes Gradle and never touches
+a real geolocator. Do not expect the suite to catch their return.
+
+## iOS notes
+
+`Info.plist` already declares `NSLocationWhenInUseUsageDescription`,
+`NSLocationAlwaysAndWhenInUseUsageDescription` and `UIBackgroundModes: [location]`,
+and `AppleSettings` sets `allowBackgroundLocationUpdates: true` with
+`pauseLocationUpdatesAutomatically: false`. That configuration has been reviewed
+but **never executed** — no Mac was available until now. You are the first real
+iOS run, so treat anything location-related as unverified rather than
+known-good.
+
+Simulate movement with **Debug → Location → Custom Location** or a GPX route; on
+a physical iPhone, just drive.
+
+## Report back
+
+State explicitly which of these you observed, and do not infer the last two —
+the Windows side is the only place they are visible:
+
+1. Did the app reach the home screen with the active delivery?
+2. Did the location stream start without an exception (`FlutterGeolocator` logs)?
+3. Did the app stay signed in for the whole route, or get displaced?
+4. Anything the UI got wrong — wrong copy, broken RTL, a control that does
+   nothing, a value that disagrees with the backend.
+
+---
+
 # mobile_app — structure guide for AI agents
 
 Flutter app serving **two personas from one binary**: `CLIENT` (fuel-station

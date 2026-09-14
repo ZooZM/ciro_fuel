@@ -6,6 +6,17 @@
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <!-- Required by `LocationStreamService._platformSettings()`, which sets
+         `enableWakeLock: true` on the geolocator's ForegroundNotificationConfig
+         so a delivering driver's phone keeps reporting with the screen off.
+         Without it, `Geolocator.getPositionStream` throws
+         `SecurityException: Neither user … nor current process has
+         android.permission.WAKE_LOCK` the instant the foreground service
+         starts, the position stream never opens, and the driver's location is
+         never sent — while `start()` still returns true and the screen still
+         says the delivery is being shared. Live tracking was entirely dead on
+         Android, silently. -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
