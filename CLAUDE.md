@@ -34,20 +34,29 @@ Because ngrok is HTTPS you need **no** cleartext exemption — neither Android's
 
 ## The rule that will bite you
 
-**A DRIVER holds exactly ONE session (spec 006).** A second sign-in as the same
-driver displaces the first: the backend pushes `session:revoked` to the live
-socket, the device signs itself out with *"تم تسجيل الدخول من جهاز آخر"*, and
-`LocationStreamService` stops streaming.
+**DRIVER *and* CLIENT hold exactly ONE session each.** Only the three admin
+roles are multi-session (`SESSION_CAPPED_ROLES` — `SUPER_ADMIN`,
+`FUEL_COMPANY_ADMIN`, `TRANSPORT_COMPANY_ADMIN`, capped by
+`auth.maxAdminSessions`, spec 015). DRIVER and CLIENT were deliberately left on
+spec 006's single `sessionGeneration` counter, "bit-for-bit unchanged".
+
+A second sign-in as the same driver *or* the same client displaces the first:
+the backend pushes `session:revoked { cause: SIGNED_IN_ELSEWHERE }` to the live
+socket, the server drops it, the device signs itself out with
+*"تم تسجيل الدخول من جهاز آخر"*, and `LocationStreamService` stops streaming.
 
 While this test runs:
 
 - **Only the Mac signs in as the driver** — never from a script, a second
-  simulator, curl, or the Windows side.
-- This already happened once and silently killed a tracking run: a
-  token-refresh helper on the Windows side re-authenticated the driver and
-  ended the phone's session mid-drive.
-- CLIENT and the admin roles are multi-session, so the Windows side signing in
-  as the client is safe and expected.
+  simulator, curl, or the Windows side. This already happened once and silently
+  killed a tracking run.
+- **Only ONE client session exists at a time, and the Windows side is using
+  it** to watch the customer's live map. If you sign in as the CLIENT on the
+  Mac as well, you will revoke that watcher and the Windows side goes blind.
+  Coordinate before doing it.
+- Both failures look identical from the outside — positions simply stop — so
+  when tracking "breaks", check for `session:revoked` before suspecting the
+  platform.
 - If a second driver is needed, use the second seeded one — never share one.
 
 ## Credentials (seed suffix `45453736`)
