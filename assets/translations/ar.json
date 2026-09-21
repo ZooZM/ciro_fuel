@@ -141,6 +141,8 @@
   "order_detail": {
     "order_status": "حالة الطلب",
     "order_summary": "ملخص الطلب",
+    "awaiting_acceptance": "بانتظار موافقتك",
+    "accept_total": "قبول الإجمالي",
     "step_confirm_order": "تأكيد الطلب",
     "step_payment": "الدفع",
     "step_delivery": "التوصيل",

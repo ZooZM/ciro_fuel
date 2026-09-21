@@ -1,3 +1,5 @@
+import 'dart:ui' as ui show TextDirection;
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -130,26 +132,37 @@ class PickupCodeCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: AppSpacing.sm),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: code
-                              .split('')
-                              .map(
-                                (e) => Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: AppSpacing.xs,
-                                  ),
-                                  child: Text(
-                                    e,
-                                    style: TextStyle(
-                                      color: context.colors.brandGreen,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w800,
+                        // A code is a NUMBER, and a number reads left-to-right in every
+                        // locale. Split into one Text per digit, the Row lays them out in
+                        // the ambient direction — which is RTL here — so the customer was
+                        // shown the six digits REVERSED and the driver's entry was refused
+                        // every time. A single Text would have been safe (bidi keeps digit
+                        // runs LTR on its own); splitting it is what threw that away. The
+                        // QR beside this encodes the unsplit string, so scanning worked
+                        // while reading never could.
+                        Directionality(
+                          textDirection: ui.TextDirection.ltr,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: code
+                                .split('')
+                                .map(
+                                  (e) => Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: AppSpacing.xs,
+                                    ),
+                                    child: Text(
+                                      e,
+                                      style: TextStyle(
+                                        color: context.colors.brandGreen,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w800,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              )
-                              .toList(),
+                                )
+                                .toList(),
+                          ),
                         ),
                         const SizedBox(height: AppSpacing.sm),
                         Text(

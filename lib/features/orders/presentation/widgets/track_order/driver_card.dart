@@ -15,6 +15,7 @@ import '../../../../../core/theme/theme_context.dart';
 class DriverCard extends StatelessWidget {
   const DriverCard({
     this.fuelType,
+    this.fuelGrade,
     this.quantity,
     this.truckPlate = 'ABC-1234',
     this.driverName = 'أحمد السبيعي',
@@ -23,6 +24,12 @@ class DriverCard extends StatelessWidget {
   });
 
   final String? fuelType;
+
+  /// Which grade the pump is drawn with. Null only when the order's fuel
+  /// type is not known to the caller — the icon then carries no number
+  /// rather than a plausible wrong one.
+  final FuelGrade? fuelGrade;
+
   final String? quantity;
   final String truckPlate;
   final String driverName;
@@ -36,8 +43,12 @@ class DriverCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fuelType = this.fuelType ?? FuelKeys.gasoline95.tr();
-    final quantity = this.quantity ?? '20,000 ${CommonKeys.litre.tr()}';
+    // The design's placeholder grade and litres used to stand in here, so an
+    // order whose details had not arrived read as a real 20,000 L petrol-95
+    // consignment. An em dash says the same thing truthfully.
+    const unknown = '—';
+    final fuelType = this.fuelType ?? unknown;
+    final quantity = this.quantity ?? unknown;
 
     return OrderCard(
       child: IntrinsicHeight(
@@ -70,14 +81,17 @@ class DriverCard extends StatelessWidget {
                     height: _fuelIconBoxSize,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: context.colors.purpleTint,
+                      // Tinted with the grade's own colour, so the tile and
+                      // the number on the pump always agree.
+                      color: (fuelGrade?.color ?? context.colors.textSecondary)
+                          .withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(
                         AppSizes.orderCreditIconRadius,
                       ),
                     ),
                     child: FuelPumpIcon(
-                      grade: FuelGrade.gasoline95.badge,
-                      color: FuelGrade.gasoline95.color,
+                      grade: fuelGrade?.badge ?? unknown,
+                      color: fuelGrade?.color ?? context.colors.textSecondary,
                       size: _pumpIconSize,
                     ),
                   ),

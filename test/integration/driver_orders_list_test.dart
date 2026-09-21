@@ -74,7 +74,10 @@ void main() {
     final repository = _PagedOrdersRepository(ordersSpanning(12), pageSize: 5);
     getIt.unregister<OrdersCubit>();
     getIt.registerLazySingleton(
-      () => OrdersCubit(getOrders: GetOrders(repository)),
+      () => OrdersCubit(
+        getOrders: GetOrders(repository),
+        socket: OfflineTrackingSocket(),
+      ),
     );
 
     await pumpLocalized(tester, const DriverOrdersScreen(), locale: const Locale('en'));

@@ -116,7 +116,7 @@ class _Harness {
       // The client dashboard resolves its own cubit from getIt once the
       // router lands on it after sign-in.
       ..registerFactory<OrdersCubit>(
-        () => OrdersCubit(getOrders: getIt<GetOrders>()),
+        () => OrdersCubit(getOrders: getIt<GetOrders>(), socket: trackingSocket),
       )
       ..registerSingleton<NotificationsCubit>(
         NotificationsCubit(

@@ -42,14 +42,23 @@ class OrderSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currency = CommonKeys.riyal.tr();
-    final fuelType = this.fuelType ?? FuelKeys.gasoline98.tr();
-    final quantity = this.quantity ?? '20,000 ${CommonKeys.litre.tr()}';
-    final pricePerLiter = this.pricePerLiter ?? '2.33 $currency';
-    final totalWithTax = this.totalWithTax ?? '46,600.00 $currency';
-    final transportFees = this.transportFees ?? '1,200.00 $currency';
-    final vat = this.vat ?? '6,060.00 $currency';
-    final finalTotal = this.finalTotal ?? '46,600.00 $currency';
+    // These defaults were a DESIGN MOCK — gasoline 98, 20,000 L at 2.33, a
+    // 46,600.00 total, 1,200.00 of transport and 6,060.00 of VAT. They are
+    // money, and they rendered as real figures on a real customer's real order
+    // whenever a caller left a slot unset — which `order_detail_screen.dart`
+    // did for four of the seven. A station owner reviewing a 1,150 SAR order
+    // was shown a 46,600 SAR subtotal beside a genuine total.
+    //
+    // Absent, never invented — the rule the create-order form already follows
+    // when no quote has been priced yet.
+    const unknown = '—';
+    final fuelType = this.fuelType ?? unknown;
+    final quantity = this.quantity ?? unknown;
+    final pricePerLiter = this.pricePerLiter ?? unknown;
+    final totalWithTax = this.totalWithTax ?? unknown;
+    final transportFees = this.transportFees ?? unknown;
+    final vat = this.vat ?? unknown;
+    final finalTotal = this.finalTotal ?? unknown;
 
     return OrderCard(
       child: Column(

@@ -236,6 +236,12 @@ enum OrderCardKind {
   /// while genuinely resting at PENDING_PAYMENT (see [cardKindFor]).
   awaitingPayment,
 
+  /// Routing has priced the haul and the platform is waiting for the station
+  /// owner to accept that total — DEFERRED/CREDIT orders at PENDING_PAYMENT.
+  /// There is no gateway payment to make, so the gate is an explicit
+  /// acceptance (`POST /orders/:id/accept`) rather than a settlement.
+  awaitingAcceptance,
+
   /// Approved and moving toward dispatch; no payment currently due from the
   /// client, regardless of payment method.
   confirmed,
@@ -250,9 +256,11 @@ enum OrderCardKind {
 /// runtime).
 ///
 /// `PENDING_PAYMENT` is the only status mapped to [OrderCardKind.awaitingPayment],
-/// and only when [method] is DIRECT — DEFERRED/CREDIT orders never rest
-/// there in practice (the backend routes them immediately on approval) and
-/// must never show a pay action even if one somehow is observed there
+/// and only when [method] is DIRECT. A DEFERRED/CREDIT order rests there
+/// too — approval routes it onward, but routing then prices the haul and
+/// sends it BACK to PENDING_PAYMENT for the station owner's acceptance —
+/// and must never show a pay action, since it has no gateway payment to
+/// make; it maps to [OrderCardKind.awaitingAcceptance] instead
 /// (research R9).
 ///
 /// `APPROVED` is deliberately **not** treated as "awaiting payment" for
@@ -281,9 +289,17 @@ String settledHeadlineKeyFor(OrderStatus status, PaymentMethod method) {
 
 OrderCardKind cardKindFor(OrderStatus status, PaymentMethod method) => switch (status) {
   OrderStatus.pendingApproval => OrderCardKind.pendingApproval,
+  // A DEFERRED/CREDIT order DOES rest here, and reading it as "confirmed"
+  // was the defect: routing — not approval — is what prices the transport
+  // leg, and it parks EVERY payment method at PENDING_PAYMENT awaiting the
+  // station owner (orders.controller.ts's manual-route guard says so in as
+  // many words). Shown as confirmed, the client was told the order was
+  // settled at precisely the moment the platform was blocked on them, and
+  // the order could never advance because the screen offered no way to
+  // accept.
   OrderStatus.pendingPayment => method == PaymentMethod.direct
       ? OrderCardKind.awaitingPayment
-      : OrderCardKind.confirmed,
+      : OrderCardKind.awaitingAcceptance,
   OrderStatus.approved ||
   OrderStatus.awaitingRouting ||
   OrderStatus.routedToTransport ||

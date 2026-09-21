@@ -14,6 +14,8 @@ import 'package:mobile_app/shared/enums/fuel_type.dart';
 import 'package:mobile_app/shared/enums/order_status.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../support/orders_test_di.dart' show OfflineTrackingSocket;
+
 class _MockOrdersRepository extends Mock implements OrdersRepository {}
 
 Order _order(String id) => Order(
@@ -33,7 +35,10 @@ void main() {
     getOrders = GetOrders(repository);
   });
 
-  OrdersCubit build() => OrdersCubit(getOrders: getOrders);
+  // Never connected, so the cubit's `order:status` subscription is an inert
+  // registration and pagination is exercised on its own.
+  OrdersCubit build() =>
+      OrdersCubit(getOrders: getOrders, socket: OfflineTrackingSocket());
 
   group('loadMore', () {
     blocTest<OrdersCubit, OrdersState>(

@@ -10,9 +10,11 @@ import '../../../../core/localization/translation_keys.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../core/widgets/error_presenter.dart';
+import '../../../../core/widgets/fuel_pump_icon.dart';
 import '../../../../core/widgets/order_card.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../shared/entities/order.dart';
+import '../../../../shared/enums/fuel_grade.dart';
 import '../../../orders/presentation/constants/order_formatting.dart';
 import '../../../orders/presentation/constants/order_presentation.dart';
 import '../cubit/delivery_cubit.dart';
@@ -383,16 +385,29 @@ class _ActiveDeliveryCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF3E8FF),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Center(
-                            child: SvgPicture.asset('assets/driverHomePage/station2.svg', width: 20, height: 20),
-                          ),
+                        // 'station2.svg' is design artwork with "95" printed
+                        // on the pump, and it was drawn for every order — so a
+                        // diesel run showed the driver a petrol-95 icon. The
+                        // pump now carries the order's own grade.
+                        Builder(
+                          builder: (context) {
+                            final grade = FuelGrade.forType(order.fuelType);
+                            return Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: grade.color.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Center(
+                                child: FuelPumpIcon(
+                                  grade: grade.badge,
+                                  color: grade.color,
+                                  size: 20,
+                                ),
+                              ),
+                            );
+                          },
                         ),
                         const SizedBox(width: 8),
                         Column(

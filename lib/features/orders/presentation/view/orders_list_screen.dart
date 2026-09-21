@@ -77,10 +77,20 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
   void initState() {
     super.initState();
     _cubit = getIt<OrdersCubit>();
-    // A session-lifetime singleton (FR-047/T028) — only load if nothing has
-    // been fetched yet; navigating back to this screen must not refetch.
+    // A session-lifetime singleton (FR-047/T028). Navigating back must not
+    // throw the list away and show a spinner — but it must not show a stale
+    // list either, which is what skipping the fetch entirely produced: an
+    // order created or advanced since this cubit last loaded simply never
+    // appeared. First visit loads; every later visit revalidates underneath
+    // the list already on screen.
     if (_cubit.state is OrdersLoading) {
       _cubit.load();
+    } else {
+      // Anything that happened while this screen was away has already been
+      // folded in by the cubit's own `order:status` subscription, so this is
+      // a backstop for the case no push arrived (the socket was down, or the
+      // change was someone else's doing on a different order).
+      _cubit.revalidate();
     }
     _scrollController = ScrollController()..addListener(_onScroll);
     _loadFilterStations();

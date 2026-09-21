@@ -330,7 +330,7 @@ void _registerOrdersFeature() {
   // `_registerCore`'s session listener, not here — that listener already
   // owns every cross-feature "clear per-user state" concern
   // (NotificationsCubit) and is the single place all of them belong.
-  getIt.registerLazySingleton(() => OrdersCubit(getOrders: getIt()));
+  getIt.registerLazySingleton(() => OrdersCubit(getOrders: getIt(), socket: getIt()));
 
   // One instance per order, not a session-lifetime singleton — unlike
   // OrdersCubit above, an order's own detail is scoped to the screen

@@ -23,8 +23,10 @@ import '../cubit/order_detail_state.dart';
 import '../../../notifications/presentation/cubit/notifications_cubit.dart';
 import '../../../notifications/presentation/cubit/notifications_state.dart';
 import '../../domain/entities/otp_challenge.dart';
+import '../../domain/usecases/accept_final_price.dart';
 import '../../domain/usecases/cancel_order.dart';
 import '../../domain/usecases/redispatch.dart';
+import '../widgets/order_detail/accept_total_order_status_card.dart';
 import '../widgets/order_detail/credit_limit_card.dart';
 import '../widgets/order_detail/in_transit_order_status_card.dart';
 import '../widgets/order_detail/order_detail_top_bar.dart';
@@ -135,6 +137,23 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
     if (_actionInFlight) return;
     setState(() => _actionInFlight = true);
     final result = await getIt<CancelOrder>()(order.id);
+    if (!mounted) return;
+    setState(() => _actionInFlight = false);
+    result.fold(
+      (failure) => presentFailure(context, failure),
+      (_) => context.read<OrderDetailCubit>().load(),
+    );
+  }
+
+  /// The station owner's half of the routing gate: routing priced the haul
+  /// and parked the order at PENDING_PAYMENT, and a DEFERRED/CREDIT order
+  /// has no gateway payment to make, so acceptance is what releases it back
+  /// to the transporter. `AcceptFinalPrice` has existed since spec 005 and
+  /// was registered in DI with no caller — reachable only now.
+  Future<void> _acceptFinalPrice(BuildContext context, Order order) async {
+    if (_actionInFlight) return;
+    setState(() => _actionInFlight = true);
+    final result = await getIt<AcceptFinalPrice>()(order.id);
     if (!mounted) return;
     setState(() => _actionInFlight = false);
     result.fold(
@@ -317,11 +336,38 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
         ];
       case OrderCardKind.pendingApproval:
       case OrderCardKind.awaitingPayment:
-        final money = order.estimatedPrice;
+      case OrderCardKind.awaitingAcceptance:
+        // `finalPrice` FIRST: once the fuel company approves, the figure the
+        // station owner is asked to accept is the final one, and it differs
+        // from the estimate by the transport leg (priced only at routing).
+        // Reading `estimatedPrice` alone left an approved order showing the
+        // pre-approval number it is no longer worth.
+        final money = order.finalPrice ?? order.estimatedPrice;
+        final breakdown = order.priceBreakdown;
+        final currency = CommonKeys.riyal.tr();
         return [
           OrderSummaryCard(
             fuelType: OrderPresentation.fuelLabel(order.fuelType),
             quantity: OrderFormatting.litres(order.quantityLiters),
+            // The order carries its own itemisation. Passing only the total
+            // left four money slots unset, and the card filled them with its
+            // design-mock figures.
+            pricePerLiter: breakdown != null
+                ? '${NumberFormatting.currency(breakdown.unitPrice)} $currency'
+                : null,
+            totalWithTax: breakdown != null
+                ? '${NumberFormatting.currency(breakdown.fuelLineTotal)} $currency'
+                : null,
+            // One "fees" slot in the design: delivery plus service fee, and
+            // empty while no transporter has been chosen to price the haul.
+            transportFees: breakdown == null
+                ? null
+                : breakdown.deliveryFee == null
+                    ? ''
+                    : '${NumberFormatting.currency(breakdown.deliveryFee! + breakdown.serviceFee)} $currency',
+            vat: breakdown != null
+                ? '${NumberFormatting.currency(breakdown.tax)} $currency'
+                : null,
             finalTotal: money != null
                 ? OrderFormatting.money(money.amountMinor / 100)
                 : null,
@@ -332,6 +378,16 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
               orderReference: '$reference · $date',
               // FR-007: PENDING_APPROVAL is in the backend's
               // CLIENT_CANCELLABLE set (orders.controller.ts).
+              onCancel: _actionInFlight ? null : () => _cancel(context, order),
+            )
+          else if (cardKind == OrderCardKind.awaitingAcceptance)
+            AcceptTotalOrderStatusCard(
+              orderReference: '$reference · $date',
+              onAccept: _actionInFlight
+                  ? null
+                  : () => _acceptFinalPrice(context, order),
+              // FR-007: PENDING_PAYMENT is CLIENT_CANCELLABLE, and refusing
+              // the total IS the cancellation (orders.service.ts).
               onCancel: _actionInFlight ? null : () => _cancel(context, order),
             )
           else

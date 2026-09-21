@@ -25,6 +25,16 @@ enum FuelGrade {
 
   const FuelGrade(this.titleKey, this.badge, this.color, this.type);
 
+  /// The grade that draws a given catalogue [FuelType].
+  ///
+  /// Several cards used to reach for a fixed grade — or an SVG with a number
+  /// baked into the artwork — so a DIESEL order was rendered with a "95" or
+  /// "98" pump. The mapping is [type], and it belongs here rather than being
+  /// re-derived (or guessed) at each call site. Total over the catalogue:
+  /// every [FuelType] is carried by exactly one grade, so this cannot throw.
+  static FuelGrade forType(FuelType type) =>
+      FuelGrade.values.firstWhere((grade) => grade.type == type);
+
   /// Translation key for the grade's display name — call `.tr()` on it at the
   /// point of use so the label follows a locale switch.
   final String titleKey;

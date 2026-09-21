@@ -12,10 +12,12 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../core/utils/map_navigator.dart';
 import '../../../../core/utils/phone_dialer.dart';
+import '../../../../core/widgets/fuel_pump_icon.dart';
 import '../../../../core/widgets/order_card.dart';
 import '../../../../core/widgets/app_logo.dart';
 import '../../../../core/widgets/icon_card.dart';
 import '../../../../shared/entities/order.dart';
+import '../../../../shared/enums/fuel_grade.dart';
 import '../../../../shared/enums/order_status.dart';
 import '../../../../shared/enums/tank_material.dart';
 import '../../../orders/presentation/constants/order_formatting.dart';
@@ -889,11 +891,24 @@ class _DriverShipmentDetailsCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _DetailTile(
-                  icon: 'assets/driverOrderPage/station 98.svg',
-                  iconColor: context.colors.brandGreen,
-                  label: 'driver_order.fuel_type'.tr(),
-                  value: OrderPresentation.fuelLabel(order.fuelType),
+                child: Builder(
+                  builder: (context) {
+                    // The asset is literally named 'station 98' — a "98" is
+                    // printed on the pump — and it was used for every order
+                    // whatever its grade.
+                    final grade = FuelGrade.forType(order.fuelType);
+                    return _DetailTile(
+                      icon: 'assets/driverOrderPage/station 98.svg',
+                      iconChild: FuelPumpIcon(
+                        grade: grade.badge,
+                        color: grade.color,
+                        size: 20,
+                      ),
+                      iconColor: grade.color,
+                      label: 'driver_order.fuel_type'.tr(),
+                      value: OrderPresentation.fuelLabel(order.fuelType),
+                    );
+                  },
                 ),
               ),
               Expanded(
@@ -913,7 +928,18 @@ class _DriverShipmentDetailsCard extends StatelessWidget {
 }
 
 class _DetailTile extends StatelessWidget {
-  const _DetailTile({required this.icon, required this.iconColor, required this.label, required this.value});
+  const _DetailTile({
+    required this.icon,
+    required this.iconColor,
+    required this.label,
+    required this.value,
+    this.iconChild,
+  });
+
+  /// Drawn in the icon slot instead of [icon] when given — the fuel tile
+  /// needs a pump whose number follows the order, which no fixed asset can
+  /// do. [icon] stays required so every other tile keeps its artwork.
+  final Widget? iconChild;
 
   final String icon;
   final Color iconColor;
@@ -928,7 +954,7 @@ class _DetailTile extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(color: iconColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
-          child: SvgPicture.asset(icon, width: 20, height: 20),
+          child: iconChild ?? SvgPicture.asset(icon, width: 20, height: 20),
         ),
         const SizedBox(width: 12),
         Flexible(

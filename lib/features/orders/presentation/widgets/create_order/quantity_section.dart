@@ -55,6 +55,16 @@ class _QuantitySectionState extends State<QuantitySection> {
   /// so it is kept here rather than pushed up with the quantities.
   final Set<int> _openCounters = {};
 
+  /// Whether the counter can actually reach a size the tiles do not already
+  /// offer. With one published tanker capacity — which is a perfectly normal
+  /// thing for a fuel company to have — the ladder has a single rung, so both
+  /// stepper buttons are correctly disabled and the لتر box opens a control
+  /// that provably cannot do anything. Offering it is what's wrong, not the
+  /// buttons: a disabled pair reads as broken rather than as "there is only
+  /// one size".
+  bool get _counterCanMove =>
+      widget.counterQuantities.length > widget.tileQuantities.length;
+
   void _toggleCounter(int gradeIndex) {
     setState(() {
       if (!_openCounters.remove(gradeIndex)) _openCounters.add(gradeIndex);
@@ -102,13 +112,14 @@ class _QuantitySectionState extends State<QuantitySection> {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  SizedBox(
-                    width: AppSizes.orderQuantityFieldWidth,
-                    child: _CustomQuantityTile(
-                      open: _openCounters.contains(entry.key),
-                      onTap: () => _toggleCounter(entry.key),
+                  if (_counterCanMove)
+                    SizedBox(
+                      width: AppSizes.orderQuantityFieldWidth,
+                      child: _CustomQuantityTile(
+                        open: _openCounters.contains(entry.key),
+                        onTap: () => _toggleCounter(entry.key),
+                      ),
                     ),
-                  ),
                   for (final litres in widget.tileQuantities.reversed) ...[
                     const SizedBox(width: AppSpacing.sm),
                     SizedBox(
@@ -126,7 +137,7 @@ class _QuantitySectionState extends State<QuantitySection> {
             ),
             // The counter is how the sizes without a tile are reached, so it
             // stays folded away until the لتر box asks for it.
-            if (_openCounters.contains(entry.key)) ...[
+            if (_counterCanMove && _openCounters.contains(entry.key)) ...[
               const SizedBox(height: AppSpacing.sm),
               _QuantityCounter(
                 litres: entry.value,

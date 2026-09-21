@@ -25,16 +25,41 @@ void main() {
     );
 
     test(
-      'PENDING_PAYMENT under DEFERRED or CREDIT never shows a pay action, even though the backend should never route them here',
+      'PENDING_PAYMENT under DEFERRED or CREDIT is awaitingAcceptance — the '
+      'platform is blocked on the station owner, and it IS routed here: '
+      'approval routes the order onward, then routing prices the transport '
+      'leg and sends it BACK to PENDING_PAYMENT for their acceptance',
       () {
+        // Read as `confirmed` (what this asserted before), the client was told
+        // the order was settled at exactly the moment the platform was waiting
+        // on them — and the screen offered no way to accept, so the order could
+        // never advance. The premise in the old name, that the backend never
+        // routes DEFERRED/CREDIT here, is contradicted by
+        // `orders.controller.ts`'s own manual-route guard.
         expect(
           cardKindFor(OrderStatus.pendingPayment, PaymentMethod.deferred),
-          OrderCardKind.confirmed,
+          OrderCardKind.awaitingAcceptance,
         );
         expect(
           cardKindFor(OrderStatus.pendingPayment, PaymentMethod.credit),
-          OrderCardKind.confirmed,
+          OrderCardKind.awaitingAcceptance,
         );
+      },
+    );
+
+    test(
+      'no non-DIRECT order ever reaches a pay action — the invariant the case '
+      'above was really protecting, kept separate from which card it maps to',
+      () {
+        for (final status in OrderStatus.values) {
+          for (final method in [PaymentMethod.deferred, PaymentMethod.credit]) {
+            expect(
+              cardKindFor(status, method),
+              isNot(OrderCardKind.awaitingPayment),
+              reason: '$status under $method must never offer a gateway payment',
+            );
+          }
+        }
       },
     );
 

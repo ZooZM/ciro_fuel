@@ -313,7 +313,9 @@ void registerOrdersTestDi({
     (orderId, _) => RatingCubit(orderId: orderId, submitRating: getIt<SubmitRating>()),
   );
   getIt.registerLazySingleton<TrackingSocket>(OfflineTrackingSocket.new);
-  getIt.registerFactory(() => OrdersCubit(getOrders: getIt<GetOrders>()));
+  getIt.registerFactory(
+    () => OrdersCubit(getOrders: getIt<GetOrders>(), socket: getIt<TrackingSocket>()),
+  );
   getIt.registerFactoryParam<OrderDetailCubit, String, void>(
     (orderId, _) => OrderDetailCubit(
       orderId: orderId,

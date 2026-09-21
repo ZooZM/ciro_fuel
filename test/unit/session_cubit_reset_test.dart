@@ -72,7 +72,10 @@ void main() {
         cursor: any(named: 'cursor'),
       ),
     ).thenAnswer((_) async => const Right(PaginatedResult(items: [], nextCursor: null)));
-    ordersCubit = OrdersCubit(getOrders: GetOrders(ordersRepository));
+    ordersCubit = OrdersCubit(
+      getOrders: GetOrders(ordersRepository),
+      socket: _OfflineTrackingSocket(),
+    );
 
     final invoicesRepository = _MockInvoicesRepository();
     when(

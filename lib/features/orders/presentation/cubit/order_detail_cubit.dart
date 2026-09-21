@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/realtime/tracking_socket.dart';
+import '../../../../shared/entities/order.dart';
+import '../../domain/entities/otp_challenge.dart';
 import '../../domain/usecases/get_current_otp.dart';
 import '../../domain/usecases/get_order.dart';
 import 'order_detail_state.dart';
@@ -36,6 +38,24 @@ class OrderDetailCubit extends Cubit<OrderDetailState> {
   final GetCurrentOtp _getCurrentOtp;
   final TrackingSocket _socket;
 
+  /// The handover code, held here rather than only in the emitted state.
+  ///
+  /// It has to outlive an individual emit: `/arrive` issues the code AND
+  /// sends a notification, and that notification triggers a full [load] —
+  /// so a reload reliably landed after the code had been fetched and
+  /// emitted `loaded(order)` over the top of it, with `activeOtp` back to
+  /// its null default. The customer was then holding the one screen that is
+  /// supposed to show the code, with the code fetched and thrown away.
+  OtpChallenge? _activeOtp;
+
+  /// Never hand back a code that has already lapsed — the card renders a
+  /// countdown, and an expired code presented as live is worse than none.
+  OtpChallenge? get _liveOtp {
+    final otp = _activeOtp;
+    if (otp == null) return null;
+    return otp.expiresAt.isAfter(DateTime.now()) ? otp : null;
+  }
+
   Future<void> load() async {
     if (isClosed) return;
     emit(const OrderDetailState.loading());
@@ -47,8 +67,31 @@ class OrderDetailCubit extends Cubit<OrderDetailState> {
     if (isClosed) return;
     result.fold(
       (failure) => emit(OrderDetailState.failure(failure)),
-      (order) => emit(OrderDetailState.loaded(order)),
+      (order) {
+        // Out-of-order responses must not win. `_handleStatus` fires one
+        // [load] per `order:status` push, and transitions arrive in BURSTS:
+        // approving a DEFERRED order moves it PENDING_APPROVAL -> APPROVED ->
+        // ROUTED_TO_TRANSPORT -> PENDING_PAYMENT inside a single second, so
+        // three fetches are in flight at once and whichever RESOLVED last
+        // decided what the customer saw. Landing on the middle one left the
+        // order reading "confirmed" while the platform was actually waiting
+        // on the station owner to accept the total — the same dead end the
+        // accept card exists to remove, reached a different way.
+        if (_isStalerThanDisplayed(order)) return;
+        emit(OrderDetailState.loaded(order, activeOtp: _liveOtp));
+      },
     );
+  }
+
+  /// Whether [candidate] describes an OLDER moment than what is already on
+  /// screen. Compared on `statusChangedAt` — the order's own account of when
+  /// it last moved — rather than on request ordering, so it is correct
+  /// however the responses interleave, and self-corrects rather than needing
+  /// the fetches to be serialised.
+  bool _isStalerThanDisplayed(Order candidate) {
+    final current = state;
+    if (current is! OrderDetailLoaded) return false;
+    return candidate.statusChangedAt.isBefore(current.order.statusChangedAt);
   }
 
   /// Called when a CLIENT navigates to the arrival/delivery step, when the
@@ -63,9 +106,16 @@ class OrderDetailCubit extends Cubit<OrderDetailState> {
     result.fold(
       (_) {}, // no active OTP yet; not an error condition worth surfacing
       (otp) {
+        // Recorded FIRST, unconditionally. Applying it only when the state
+        // already happened to be loaded discarded the code outright on the
+        // common path: the screen kicks off `load()` and `loadCurrentOtp()`
+        // together, and whenever the OTP fetch won that race the state was
+        // still `loading()` and the code went nowhere. Held here, the next
+        // emit picks it up either way.
+        _activeOtp = otp;
         final current = state;
         if (current is OrderDetailLoaded) {
-          emit(OrderDetailState.loaded(current.order, activeOtp: otp));
+          emit(OrderDetailState.loaded(current.order, activeOtp: _liveOtp));
         }
       },
     );

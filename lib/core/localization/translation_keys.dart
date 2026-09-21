@@ -745,6 +745,11 @@ abstract final class OrderDetailKeys {
   static const String orderStatus = 'order_detail.order_status';
   static const String orderSummary = 'order_detail.order_summary';
 
+  /// Routing has priced the haul and the platform is waiting for the
+  /// station owner to accept that total (`POST /orders/:id/accept`).
+  static const String awaitingAcceptance = 'order_detail.awaiting_acceptance';
+  static const String acceptTotal = 'order_detail.accept_total';
+
   static const String stepConfirmOrder = 'order_detail.step_confirm_order';
   static const String stepPayment = 'order_detail.step_payment';
   static const String stepDelivery = 'order_detail.step_delivery';

@@ -13,6 +13,7 @@ import '../../../../core/widgets/app_top_bar.dart';
 import '../../../../shared/entities/order.dart';
 import '../../../../shared/entities/value_objects.dart';
 import '../constants/order_formatting.dart';
+import '../../../../shared/enums/fuel_grade.dart';
 import '../constants/order_presentation.dart';
 import '../../domain/entities/otp_challenge.dart';
 import '../../domain/usecases/get_driving_route.dart';
@@ -220,6 +221,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
               _inset(
                 DriverCard(
                   fuelType: OrderPresentation.fuelLabel(order.fuelType),
+                  fuelGrade: FuelGrade.forType(order.fuelType),
                   quantity: OrderFormatting.litres(order.quantityLiters),
                   truckPlate: order.driverSummary?.plateNumber ?? '—',
                   driverName: order.driverSummary?.fullName ?? '—',

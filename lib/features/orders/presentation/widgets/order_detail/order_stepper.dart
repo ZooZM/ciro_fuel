@@ -86,6 +86,14 @@ class OrderStepper extends StatelessWidget {
         todo,
         todo,
       ],
+      // Same step, same "waiting on you" treatment — what is owed differs
+      // (an acceptance, not a settlement), where the order stands does not.
+      OrderCardKind.awaitingAcceptance => const [
+        done,
+        _StepStatus.warning,
+        todo,
+        todo,
+      ],
       OrderCardKind.confirmed => const [done, done, _StepStatus.onProgress, todo],
       OrderCardKind.inTransit => const [done, done, done, _StepStatus.onProgress],
       OrderCardKind.delivered => const [done, done, done, done],

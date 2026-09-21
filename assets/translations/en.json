@@ -141,6 +141,8 @@
   "order_detail": {
     "order_status": "Order status",
     "order_summary": "Order summary",
+    "awaiting_acceptance": "Awaiting your approval",
+    "accept_total": "Accept total",
     "step_confirm_order": "Confirmation",
     "step_payment": "Payment",
     "step_delivery": "Delivery",

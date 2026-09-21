@@ -26,6 +26,20 @@ import 'package:mocktail/mocktail.dart';
 /// adapter; realtime pushes are driven directly through a mocked
 /// [TrackingSocket] (no socket.io test server available headlessly) —
 /// same boundary choice as auth_session_test.dart.
+/// An ARRIVAL code that is genuinely still live.
+///
+/// This used to be a literal `"expiresAt":"2026-01-01T13:00:00Z"`, which was
+/// in the future when it was written and quietly became the past. That only
+/// started failing once `OrderDetailCubit` began refusing to hand a LAPSED
+/// code to the screen — before that the app would happily show the customer
+/// an expired code, which is the bug, not the test. Relative to `now` so it
+/// cannot rot the same way again.
+String _activeOtpJson() {
+  final expiresAt = DateTime.now().toUtc().add(const Duration(minutes: 30));
+  return '{"purpose":"ARRIVAL","otp":"482913","expiresAt":"'
+      '${expiresAt.toIso8601String()}"}';
+}
+
 class _ScriptedOrdersAdapter implements HttpClientAdapter {
   String status = 'PENDING_APPROVAL';
   double? finalPrice;
@@ -47,11 +61,7 @@ class _ScriptedOrdersAdapter implements HttpClientAdapter {
       return ResponseBody.fromString(_orderJson('o1'), 200, headers: headers);
     }
     if (options.method == 'GET' && options.path == '/orders/o1/otp/current') {
-      return ResponseBody.fromString(
-        '{"purpose":"ARRIVAL","otp":"482913","expiresAt":"2026-01-01T13:00:00Z"}',
-        200,
-        headers: headers,
-      );
+      return ResponseBody.fromString(_activeOtpJson(), 200, headers: headers);
     }
     return ResponseBody.fromString(
       '{"message":"not found"}',
