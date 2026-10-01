@@ -1,4 +1,4 @@
-name: mobile_app
+﻿name: mobile_app
 description: "Ciro Fuel Delivery - Client & Driver mobile app"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -51,7 +51,7 @@ dependencies:
   json_annotation: ^4.12.0
   dartz: ^0.10.1
 
-  # Testable wall-clock reads (TrackingCubit's staleness check) — swappable
+  # Testable wall-clock reads (TrackingCubit's staleness check) â€” swappable
   # for `fakeAsync`'s clock in tests, unlike a raw `DateTime.now()`.
   clock: ^1.1.2
 
@@ -71,7 +71,7 @@ dependencies:
   # Formatting
   intl: ^0.20.2
 
-  # Localization (ar/en + RTL) — JSON assets under assets/translations/
+  # Localization (ar/en + RTL) â€” JSON assets under assets/translations/
   easy_localization: ^3.0.7
 
   # Biometric unlock of an already-persisted session
@@ -82,23 +82,24 @@ dependencies:
   hijri: ^3.0.1
   mobile_scanner: ^7.4.0
 
-  # Profile-picture upload (spec 005 T103) — gallery/camera image selection.
+  # Profile-picture upload (spec 005 T103) â€” gallery/camera image selection.
   image_picker: ^1.1.2
   qr_flutter: ^4.1.0
 
   # spec 008: reads 13.56 MHz NFC tag identifiers to verify a truck (R5).
   # Android reads freely; iOS needs a paid-account entitlement and cannot
-  # reliably read MIFARE Classic — see ios/Runner/Runner.entitlements.
+  # reliably read MIFARE Classic â€” see ios/Runner/Runner.entitlements.
   nfc_manager: ^4.0.2
 
   # spec 011 FR-004a: raises a DEVICE-LEVEL alert when the platform detects
   # the truck has stopped. Necessary because the app's notifications were
-  # in-app only — a stored notification plus a socket event rendered on a
-  # list screen — which a driver holding a steering wheel never sees. No
+  # in-app only â€” a stored notification plus a socket event rendered on a
+  # list screen â€” which a driver holding a steering wheel never sees. No
   # push provider is needed alongside it: the location foreground service
   # already keeps this app (and its socket) alive for the whole delivery, so
   # the event genuinely arrives; only surfacing it was missing.
   flutter_local_notifications: ^18.0.1
+  dotted_border: ^3.1.0
 
 dev_dependencies:
   flutter_test:
@@ -162,11 +163,12 @@ flutter:
     - assets/driverOrderPage/
     - assets/driverOrderPage/status/
     # Asset directories are not recursive, so nested folders need their own
-    # entry. `assets/Order/status/` is deliberately absent — those SVGs bake a
+    # entry. `assets/Order/status/` is deliberately absent â€” those SVGs bake a
     # placeholder label into the artwork and are unused (see order_stepper.dart).
     - assets/HomePage/flow/
     - assets/OrdersPage/status/
     - assets/translations/
+    - assets/paymentPage/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -214,3 +216,4 @@ flutter:
           weight: 800
         - asset: assets/fonts/Tajawal-Black.ttf
           weight: 900
+
